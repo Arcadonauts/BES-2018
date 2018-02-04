@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import login_user, LoginManager, UserMixin, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask_migrate import Migrate
 
 from datetime import datetime
 
@@ -16,12 +17,14 @@ SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostnam
     password="H534mzdB02e3",
     hostname="NickFegley.mysql.pythonanywhere-services.com",
     databasename="NickFegley$record",
+    #databasename="NickFegley$dummyempty",
 )
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 app.secret_key = '0XBwz4mFuwMJ133R7QOJ'
 login_manager = LoginManager()
