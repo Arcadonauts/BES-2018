@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="/static/BES/style/arcadonauts.css" />
+
+<!--
+    <script src="script/control.js"></script>
+    <script src="static/BES/scripts/level_select.js"></script>
+</head>
+<body onload="init()">
+-->
+</head>
+<body>
+    <h1>Barnstead Elementary School</h1>
+    <div class="columns">
+    {% for grade in levels %}
+        {% set g = grade[0][1][0] %}
+        <h2>
+        {% if g == 'K' %}
+            Kindergarten
+        {% elif g == '1' %}
+            1st Grade
+        {% elif g == '2' %}
+            2nd Grade
+        {% elif g == '3' %}
+            3rd Grade
+        {% else %}
+            {{ g }}th Grade
+        {% endif %}
+        </h2>
+        {% for lvl, name in grade %}
+            <a href="/BES-{{ lvl }}">
+                <img class="unselected" src="static/BES/imgs/thumb{{ lvl }}.jpg" />
+            </a>
+        {% endfor %}
+    {% endfor %}
+
+    </div>
+</body>
+</html>

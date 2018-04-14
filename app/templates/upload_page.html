@@ -1,0 +1,61 @@
+ <form action="" method="post" enctype="multipart/form-data" name="form1" id="form1">
+<label>upload file<input type="file" multiple name="file" id="file" /></label>
+<label>Do The Thing <input type="button" id="the_thing" value="The Thing" /></label>
+<!--<label><input type="submit" name="button" id="button" value="Submit" /></label>--></form>
+<ul id="filenames">
+
+</ul>
+<script>
+    var loader = {
+        count: 0,
+        file_list: [],
+        get_files: function(){
+            this.file_list = document.getElementById('file').files
+        },
+        send: function(){
+            if(this.count < this.file_list.length){
+
+                var fd = new FormData();
+                fd.append("file", this.file_list[this.count])
+
+                var xml = new XMLHttpRequest();
+                xml.open("POST", "/upload/xml", true);
+                xml.send(fd);
+                xml.onloadend = this.success(xml, this);
+
+                this.count += 1
+                return true
+
+            }else{
+                return false
+            }
+
+        },
+        success: function(xhr, that){
+            return function(){
+                that.append_filename(xhr.responseText)
+                return that.send()
+            }
+        },
+        append_filename: function(fn){
+            var ul = document.getElementById('filenames')
+            var li = document.createElement('li')
+            li.innerText = fn
+            ul.appendChild(li)
+
+        }
+    }
+
+    window.onload = function(){
+        var butt = document.getElementById('the_thing')
+        butt.onclick = do_the_thing
+    }
+
+    function do_the_thing(){
+        loader.get_files()
+        loader.send()
+
+
+    }
+
+</script>

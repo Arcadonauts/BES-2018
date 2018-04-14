@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="static/BES/style/main.css" />
+</head>
+<body>
+	<h1>
+		Submit Feedback Report
+	</h1>
+	<form method="post">
+		<select name="type">
+			<option value="bug"> Bug Report
+			<option value="feature"> Feature Request
+			<option value="other"> Other
+		</select>
+		<br><br>
+		What's your name? (optional) <br> <input type="text" name='name'>
+		<br><br>
+		What class are you in? (optional) <br> <input type="text" name='class'>
+		<br><br>
+		What level are you playing? <br> <input type="text" id='lvl' name='level' value="">
+		<br><br>
+		Comments:
+		<br>
+		<textarea name='comments'></textarea>
+		<br>
+		<input type="submit">
+	</form>
+	<script>
+		var input = document.getElementById('lvl')
+		var re = /\?lvl=(\w+)/
+		var lvl = re.exec(location.search)
+		if(lvl){
+			input.value = lvl[1]
+		}
+
+	</script>
+</body>
+</html>

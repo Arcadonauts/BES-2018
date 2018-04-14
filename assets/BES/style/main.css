@@ -1,0 +1,213 @@
+html, body {
+  width:  100%;
+  height: 100%;
+  margin: 0px;
+  /*overflow: hidden;*/
+  background-color: #26447F;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+
+canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+	background-color: #D6E2FF;
+}
+
+h1 {
+	color: #ffffff; 
+	text-decoration: none; 
+	padding: 0 0 0 10px;
+}
+
+form {
+	color: #ffffff; 
+	text-decoration: none; 
+	padding: 0 0 0 10px;
+}
+
+
+input[type=text] {
+    border: 5px solid white; 
+    -webkit-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    -moz-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    padding: 4px;
+    background: rgba(255,255,255,0.5);
+    margin: 0 0 10px 0;
+}
+
+select{
+    border: 5px solid white; 
+    -webkit-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    -moz-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    padding: 4px;
+    background: rgba(255,255,255,0.5);
+    margin: 0 0 10px 0;
+}
+
+textarea{
+    border: 5px solid white; 
+    -webkit-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    -moz-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    padding: 4px;
+    background: rgba(255,255,255,0.5);
+    margin: 0 0 10px 0;
+	width:50%;
+	height:200px;
+}
+
+/*
+https://color.adobe.com/create/color-wheel/?base=2&rule=Monochromatic&selected=1&name=My%20Kuler%20Theme&mode=rgb&rgbvalues=0,0.1685073646553974,0.5,0.30000000000000004,0.5359103105175564,1,0,0.3370147293107948,1,0.15000000000000002,0.2679551552587782,0.5,0,0.26961178344863584,0.8&swatchOrder=0,1,2,3,4
+*/
+
+
+
+
+div.columns{
+/*
+	-moz-column-count:4;
+	-webkit-column-count:4;
+	column-count:4
+	*/
+}
+
+
+div.columns a{
+	/*padding: 0; */
+}
+/*
+div.columns img{
+	width: 20%;
+	margin: 2.5%;
+}
+*/
+
+img.unselected {
+	width: 20%;
+	margin: 2.5%;
+}
+
+img.selected {
+	width: 20%;
+	/*border: 10px solid #ffffff;*/
+	padding: 2.5%;
+	background-color: #ccc;
+}
+
+div.columns a:focus{
+	outline: 0 /*5px solid white; */
+}
+
+
+
+div.nav2{
+	display: inline-block;
+	position:absolute;
+	left:80%;
+	width:auto;
+}
+
+div.pad{
+	height:30px;
+}
+
+div.menu_button{
+	-webkit-transform: rotate(90deg); 
+    -moz-transform: rotate(90deg);
+	text-align:center;
+	vertical-align:middle;
+	height:100%;
+	width:20px;
+	/*display:inline-block;*/
+	display:none;
+	
+}
+
+div.level_button{
+	-webkit-transform: rotate(-90deg); 
+    -moz-transform: rotate(-90deg); 
+}
+
+div.nav{
+	position: absolute;
+	display: block;
+	width: 100%;
+	bottom: 0;
+	text-align: center;
+}
+
+div.menu_list{
+	display: inline-block
+	
+}
+
+div.menu_list ul{
+	font-size: 14px;
+	line-height: 2em;
+	list-style: none;
+	padding: 0 10px;
+}
+
+div.menu_list li{
+	float:left;
+	margin: 0;
+}
+
+div.menu_list a:link {
+	color: white; 
+	text-decoration: none; 
+	text-shadow: 0 0 5px black;
+	margin: 20px;
+}
+div.menu_list a:active {color: #0000ff; text-decoration: none; }
+div.menu_list a:visited {color: white; text-decoration: none; }
+div.menu_list a:hover {color: #00ffff; text-decoration: none; }
+
+
+
+.button {
+   border-top: 2px solid #002B7F;
+   border-left:  2px solid #002B7F;
+   border-right:  2px solid #002B7F;
+   background: rgba(0, 69, 204, .75);
+   padding: 5px 10px 3px 10px;
+   border-top-right-radius:10px;
+   border-top-left-radius:10px;
+   text-shadow: rgba(0,0,0,.4) 0 1px 0;
+   color: white;
+   font-size: 14px;
+   text-decoration: none;
+   vertical-align: middle;
+   }
+.button:hover {
+   background: #4c88ff;
+   color: #ccc;
+   }
+.button:active {
+   border-top-color: #002a7f;
+   background: #002a7f;
+   }

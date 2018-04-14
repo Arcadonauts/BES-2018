@@ -1,0 +1,48 @@
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<script src="/static/BES-2018/scripts/upload.js"></script>
+	<link rel="stylesheet" type="text/css" href="/static/BES-2018/style/upload.css">
+
+</head>
+<body>
+<div>
+ <form action="" method="post" enctype="multipart/form-data" name="form1" id="form1">
+	<div class="file_container_div">
+		<label class="file_container">
+			Browse...
+			<input type="file" name="file" id="file" />
+		</label>
+	</div>
+
+	<div>
+		<select id="lvl" value="" placeholder="Level">
+			<option value="" disabled selected>Level</option>
+			{% for opt in levels %}
+				<option>{{ opt }}</option>
+			{% endfor %}
+		</select>
+		<span class="error" id="lvl_error"></span>
+	</div>
+
+	<div hidden="true">
+		<input id="filetype" type="text" value="" disabled="true" />
+
+	</div>
+
+	<div>
+		<input type="button" id="the_thing" value="Upload File" />
+		<span class="error" id="filetype_error"></span>
+		<span class="error" id="exists_error"></span>
+	</div>
+
+</form>
+<div id="filename"></div>
+<img id="prev" height="100%"/>
+<!--audio controls>
+	<source id="audio_prev">
+</audio-->
+</div>
+<ul id="filenames"></ul>
+
+</body>

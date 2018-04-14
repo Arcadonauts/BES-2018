@@ -1,0 +1,49 @@
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<script src="{{ static }}/scripts/phaser.js"></script>
+	<script src="{{ static }}/scripts/play.js"></script>
+	<script src="{{ static }}/scripts/level_editor.js"></script>
+	<script src="{{ static }}/scripts/tools.js"></script>
+	<script src="{{ static }}/libs/CodeMirror/lib/codemirror.js"></script>
+	<link rel="stylesheet" type="text/css" href="{{ static }}/libs/CodeMirror/lib/codemirror.css">
+	<link rel="stylesheet" type="text/css" href="{{ static }}/libs/CodeMirror/theme/seti.css">
+	<script src="{{ static }}/libs/CodeMirror/mode/javascript/javascript.js"></script>
+	<link rel="stylesheet" type="text/css" href="{{ static }}/style/level_editor.css">
+	<script src="{{ static }}/levels/{{ lvl }}/lvl.js"></script>
+	
+</head>
+<body>
+	<div>
+		<div id="game"></div>
+		<div id="tools">
+			<div>
+				<ul id="tabs">
+				</ul>
+			</div>
+			<div id="content">
+			</div>
+		<!--
+			<div id="todo">
+				<h1>TO DO</h1>
+			</div>
+		-->
+		</div>
+	</div>
+	<div hidden="true">
+		<div id="img_dir">{{ img_dir }}</div>
+		<div id="audio_dir">{{ audio_dir }}</div>
+		<div id="lvl">{{ lvl }}</div>
+		<div id="static_dir">{{ static }}</div>
+		<ul id="imgs">
+			{% for img in imgs %}
+					<li>{{ img }}</li>
+			{% endfor %}
+		</ul>
+		<ul id="audio">
+			{% for a in audios %}
+					<li>{{ a }}</li>
+			{% endfor %}
+		</ul>
+	</div>
+</body>
