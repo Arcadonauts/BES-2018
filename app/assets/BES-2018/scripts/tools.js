@@ -5,25 +5,29 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do 
-		'!Port to Python Anywhere',
+		
 		'!Fix animation add first time bug',
 		
-		'Help Tab',
+		
 		'More Sprite Modes',
 		'Default Level Code',
 		
-		'~Image Uploader',
 		
-		'Level Code API',
+		
+		
 		'Foreground',
-		'?User Login Stuff',
-		'?Capsule Hit Box',
-		'z depth',
+	
+		
 		'random() for data',
-		'Death Animation',
+		
 		'Win Animation',
 		
-		
+		'?Checkpoints',
+		'?Help Tab',
+		'?Level Code API',
+		'?Mute/Volume',
+		'?User Login Stuff',
+		'?Capsule Hit Box',
 		'?Double Jump',
 		'?Health Bar',
 		'?Resize All Images on Publishing',
@@ -35,6 +39,11 @@ var todo = {
 		'?Volume Sliders',
 		
 		// To Done 
+		'~z depth',
+		'~Death Animation',
+		'~Report Tab',
+		'~Image Uploader',
+		'~Port to Python Anywhere',
 		'~Retooled enitire file structrue',
 		'~Sound FX',
 		'~Audio Tab',
@@ -451,17 +460,141 @@ var help = {
 	},
 	label: 'Help',
 	id: 'help',
+	a: function (link, text){
+		var aa = document.createElement('a')
+		aa.href = link 
+		aa.innerHTML = text 
+		aa.target = '_blank'
+		
+		return aa 
+	},
+	section: function (title){
+		var div = document.createElement(div)
+		
+		var h = document.createElement('h1')
+		h.innerHTML = title 
+		div.appendChild(h)
+		
+		var p = document.createElement('p')
+		for(var i = 1; i < arguments.length; i++){
+			var arg = arguments[i]
+			if(typeof arg === 'string'){
+				var text = document.createTextNode(arg)
+				p.appendChild(text)
+			}else{
+				p.appendChild(arguments[i])
+			}
+		}
+		div.append(p)
+		
+		return div 
+	},	
 	build: function(outer){
 		var div = document.createElement('div')
 		this.outer.appendChild(div)
 		
-		div.innerHTML = 'HELP'
+		div.appendChild(
+			this.section('Images', this.a('/upload', 'Click here'), ' to add an image to the game file. You must refresh the page (Ctrl + R) when you finish.')
+		)
+		
+		div.appendChild(
+			this.section('Physics', 'Use the triangle, rectangle, or ground button to create terrain for the sprite to interact with.')
+		)
+
+		
+		
 	},
 	onclick: function(){
 		remove_children(this.outer)
 		this.build(this.outer)
 	}
 }	
+
+var report = {
+	label: 'Report',
+	id: 'report',
+	init: function(outer){
+		this.outer = outer 
+	},
+	onclick: function(){
+		remove_children(this.outer)
+		this.build(this.outer)
+	},
+	build: function(outer){
+		var div = document.createElement('div')
+		outer.appendChild(div)
+		
+		var form = document.createElement('form')
+		div.appendChild(form)
+		
+		form.appendChild(
+			this.input('name', 'Name', 'Your Name')
+		)
+		
+		form.appendChild(
+			this.input('class', 'Class', 'Your Class')
+		)
+		
+		form.appendChild(
+			this.input('msg', 'Message', '', 'textarea')
+		)
+		
+		var butt = document.createElement('button')
+		div.appendChild(butt)
+		
+		butt.innerHTML = 'Send Message!'
+		butt.onclick = this.send
+		
+		
+		
+	},
+	send: function(){
+		var entries = ['name', 'class', 'msg']
+		
+		var xml = new XMLHttpRequest();
+		xml.open("POST", "/BES-2018-message", true);
+		var fd = new FormData();
+		
+		entries.forEach(e => {
+			fd.append(e, document.getElementById(e).value)
+		})
+		fd.append('lvl', get_lvl())
+				xml.send(fd);
+		/*xml.send(
+			document.getElementById('form1')
+		)*/
+		xml.onloadend = function(){
+			alert('Message Sent!')
+		}
+		
+	},
+	input: function(id, title, placeholder, area){
+		var div = document.createElement('div')
+		div.className = 'report'
+		
+		var label = document.createElement('label')
+		div.appendChild(label)
+		label['for'] = id 
+		label.innerHTML = title 
+		
+		if(area){
+			var area = document.createElement('textarea')
+			div.appendChild(area)
+			area.id = id 
+			area.name = id 
+		}else{
+			var input = document.createElement('input')
+			div.appendChild(input)
+			input.id = id 
+			input.type = 'text'
+			input.placeholder = placeholder || title 
+			input.name = id 
+		}
+		
+		return div 
+		
+	}
+}
 	
 var audio = {
 	init: function(outer){
@@ -554,8 +687,8 @@ function add_tool(tool){
 window.addEventListener('load', function(){
 	tools.pages = []
 	
-	//add_tool(help)
 	add_tool(todo)
+	add_tool(report)
 	add_tool(player)
 	add_tool(data)
 	add_tool(code)

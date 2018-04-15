@@ -3,6 +3,25 @@ window.play = (function(){
 	var y_axis = p2.vec2.fromValues(0, 1)
 	var x_axis = p2.vec2.fromValues(1, 0)
 	
+	var lvl = {
+		init: function(){
+			this.lvl = window.level_code
+			if(this.lvl && typeof this.lvl.init === 'function'){
+				this.lvl.init()
+			}
+		}, 
+		none: function(){
+			// This space intentionally left blank.
+		},
+		get: function(parent, func){
+			if(this.lvl && this.lvl[parent] && this.lvl[parent][func] && typeof this.lvl[parent][func] === 'function'){
+				return this.lvl[parent][func]
+			}else{
+				return this.none 
+			}
+		}
+	}
+	
 	var no_copy = [
 		'offsetY', 
 		'centerX', 
@@ -11,12 +30,12 @@ window.play = (function(){
 		'height', 
 		'width',
 		'img_height', 
-		'scale', // scale float) will overide sprite.scale (Point)
+		'scale', // scale (float) will overide sprite.scale (Point)
 		'frame_rate', 
 		'centerY', 
 		'frames', 
 		'r', 
-		'type'
+		//'type'
 	]
 	
 	function parse(string){
@@ -179,6 +198,22 @@ window.play = (function(){
 		}
 	}
 	
+	function add_lvl_code(sprite, key){
+		
+		var copy = ['preupdate', 'intraupdate', 'postupdate', 'init', 'ondeath']
+		copy.forEach(s => sprite[s] = lvl.get(key, s))
+		
+		sprite.update = function(){
+			this.preupdate()
+			this.intraupdate()
+			this.postupdate()
+		}
+		sprite.events.onKilled.add(()=>sprite.ondeath())
+		
+		
+		
+	}
+	
 	function face(dir){
 		var sx = Math.abs(this.scale.x)
 		var sy = this.scale.y 
@@ -201,7 +236,9 @@ window.play = (function(){
 					this.sounds[key].play()
 				}
 			}else{
-				console.warn('Unknown Sound Key: ' + key )
+				if(play.debug){
+					console.warn('Unknown Sound Key: ' + key )
+				}
 			}
 			
 		}
@@ -243,7 +280,23 @@ window.play = (function(){
 			
 			can().init(sprite)
 			
-			sprite.update = function(){
+	
+			sprite.lose = function(){
+				this.body.velocity.x = 0
+				this.body.velocity.y = -this.jump 
+				this.body.data.shapes.forEach(s => s.sensor = true) 
+				this.update = this.lost 
+				
+				audio.play('lose')
+			}
+			
+			sprite.lost = function(){
+				if(this.y > this.game.world.height + 100){
+					this.game.state.start('play', true, false, this.game)
+				}
+			}
+			
+			sprite.intraupdate = function(){
 				
 				if(key.down('jump')){
 					if(this.can.jump()){
@@ -278,7 +331,7 @@ window.play = (function(){
 			can().init(sprite)
 			sprite.face = face 
 			
-			sprite.update = function(){
+			sprite.intraupdate = function(){
 				this.body.velocity.x = this.speed 
 				//console.log([sprite.speed, sprite.can.right()])
 				if(this.speed > 0 && ! this.can.right(false)){
@@ -303,6 +356,8 @@ window.play = (function(){
 		},
 		create: function(){
 			
+			lvl.init()
+			
 			if(this.debug && window.le && window.le.types){
 				window.le.types.forEach(function(t){
 					if(types[t.type.toLowerCase()] === undefined){
@@ -314,7 +369,8 @@ window.play = (function(){
 			var game = this.game 
 			this.create_bg(game)
 			
-			var sprites = game.data.sprites.filter(Boolean) // sort by depth 
+			var sprites = game.data.sprites.filter(Boolean)
+			sprites.sort( (x, y) => x.data.depth > y.data.depth ? 1 : -1 )
 			var data, s, sprite 
 			for(var i = 0; i < sprites.length; i++){
 				data = sprites[i]
@@ -335,14 +391,19 @@ window.play = (function(){
 					}
 				}
 				
+				add_lvl_code(sprite, s.type === 'player' ? 'player' : data.key)
 				types[s.type](sprite, s, game.data.player)
-				
 				add_animation(sprite, s)
+				
+				sprite.init()
 			}
 			
 			audio.init(game.data.audio)
 			
 			this.audio = audio 
+			this.lvl = lvl 
+			
+			
 			
 			if(this.callback){
 				this.callback()

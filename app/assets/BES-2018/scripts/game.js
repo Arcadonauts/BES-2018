@@ -48,7 +48,7 @@ var loader = {
 		console.log('\t'+game.data.bg)
 		game.load.spritesheet('bg', fp + game.data.bg)
 		
-		game.load.spritesheet('button', fp + 'button.png', 100, 38)
+		//game.load.spritesheet('button', fp + 'button.png', 100, 38)
 		
 		
 		fp = document.getElementById('audio_dir').innerHTML
