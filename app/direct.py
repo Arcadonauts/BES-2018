@@ -1,6 +1,6 @@
 class Lvl(object):
     map = {
-        "dir" : '/home/NickFegley/mysite/assets/BES-2018',
+        "dir" : '/home/NickFegley/mysite/app/assets/BES-2018',
 
         "img" : '/levels/%s/img/',
         "audio" : '/levels/%s/audio/',
