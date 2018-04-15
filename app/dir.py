@@ -1,1 +1,0 @@
-name = '/home/NickFegley/mysite/app/assets/BES-2018'
