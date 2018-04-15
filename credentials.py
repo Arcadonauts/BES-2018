@@ -21,11 +21,13 @@ tweemail = OAuth(
 
 )
 x = 'C:\\Users\\Nick\\Documents\\GitHub\\BES-2018\\credentials.py'
-if __file__ == x or x+'c':
+if __file__ == x or __file__ == (x+'c'):
     home = 'C:/Users/Nick/Documents/GitHub/BES-2018/'
 else:
     home = '/home/NickFegley/mysite/'
 
-fegleyapi = Storage(home + 'tweetmail.json').get()
+json = home + 'tweetmail.json'
+
+fegleyapi = Storage(json).get()
 if not fegleyapi: # If at first you don't succeed...
-    fegleyapi = Storage(home + 'tweetmail.json').get()
+    fegleyapi = Storage(json).get()
