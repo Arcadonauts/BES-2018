@@ -3,3 +3,4 @@ __pycache__
 run.bat
 app/dir.py
 app/dir.py
+app/__init__.py
