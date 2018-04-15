@@ -1,0 +1,86 @@
+body {
+	background-color: black;
+	color: grey;
+}
+
+
+#game{
+	background-color: red;
+	float: left;
+}
+
+.hide_cursor{
+	cursor: url(/img/dot.gif), pointer;
+}
+
+#todo li {
+}
+
+#todo h1 {
+	padding-left: 10px;
+	font-size: 16pt;
+}
+
+.done {
+	text-decoration:line-through;
+	color: #333333;
+}
+
+.todo {
+	font-weight: bold;
+}
+
+.urgent {
+	color: #aa0000;
+	font-weight: bold;
+}
+
+.unimportant {
+	color: #555;
+}
+
+.content {
+	margin: 30px;
+	height: 90%;
+}
+
+#tools {
+	border: dotted;
+	overflow: hidden;
+	height: 90%;
+}
+
+#tabs {
+	/*background-color:red;*/
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	height: 30px;
+}
+
+#tabs li{
+	float: left;
+}
+
+#tabs li a{
+	display: block;
+	padding: 8px  24px;
+	margin: 0 2px;
+	text-decoration: none;
+	background-color: #333333;
+	color: grey;
+}
+
+.codediv {
+	height: 100%;
+}
+
+input[type=text], select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}

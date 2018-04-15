@@ -1,6 +1,8 @@
+import app.dir
+
 class Lvl(object):
     map = {
-        "dir" : '/home/NickFegley/mysite/assets/BES-2018',
+        "dir" : app.dir.name,
 
         "img" : '/levels/%s/img/',
         "audio" : '/levels/%s/audio/',

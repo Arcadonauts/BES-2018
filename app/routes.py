@@ -57,7 +57,7 @@ def level_report():
 @app.route('/')
 @app.route('/index')
 def index():
-    return flask.render_template('Welcome')
+    return flask.redirect('/editor')
 
 @app.route('/test')
 def test():
@@ -90,6 +90,22 @@ def editor(lvl):
 @app.route('/BES-2018/<lvl>')
 def play(lvl):
     return lvl_template('BES-2018.html', lvl)
+
+@app.route('/BES-2018-message', methods=['POST'])
+def message():
+    form = flask.request.form
+
+    subject = 'Level %s report from %s' % (form['lvl'], form['name'])
+    body = """From: %(name)s
+Class: %(class)s
+Level: %(lvl)s
+
+Message: %(msg)s
+
+""" % form
+
+    email_myself(subject, body)
+    return 'Thanks!'
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
@@ -158,3 +174,4 @@ def script_handler(path):
         with open(lvl.dir_script, 'w') as f:
             f.write(response.get('code', ''))
         return 'ok!'
+
