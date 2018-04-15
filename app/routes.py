@@ -103,9 +103,12 @@ Level: %(lvl)s
 Message: %(msg)s
 
 """ % form
+    try:
+        email_myself.send(subject, body)
+        return 'Message Sent!'
+    except:
+        return 'Message failed to send.'
 
-    email_myself.send(subject, body)
-    return 'Thanks!'
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
