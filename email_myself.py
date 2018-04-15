@@ -54,6 +54,7 @@ def CreateMessage(sender, to, subject, message_text):
 
 
 def send(subject, message):
+    print('Email: %s'%subject)
     creds = credentials.fegleyapi
     http = creds.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)

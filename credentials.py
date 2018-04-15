@@ -20,10 +20,13 @@ tweemail = OAuth(
     consumer_secret = "RyRjeq4gXc0Ab3Ir6t03korCv6CPUw1TfF8n7qxcbV67ZjGjDI"
 
 )
-
-if __file__ == 'C:\\Users\\Nick\\Documents\\GitHub\\BES-2018\\credentials.py':
+x = 'C:\\Users\\Nick\\Documents\\GitHub\\BES-2018\\credentials.py'
+if __file__ == x or x+'c':
     home = 'C:/Users/Nick/Documents/GitHub/BES-2018/'
 else:
+    print (__file__)
+    print (x)
+    print (''.join([a if a == b else '|%s%s|'%(a,b) for a in x for b in __file__]))
     home = '/home/NickFegley/mysite/'
 
 fegleyapi = Storage(home + 'tweetmail.json').get()

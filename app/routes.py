@@ -104,7 +104,7 @@ Message: %(msg)s
 
 """ % form
 
-    email_myself(subject, body)
+    email_myself.send(subject, body)
     return 'Thanks!'
 
 @app.route('/create', methods=['GET', 'POST'])
