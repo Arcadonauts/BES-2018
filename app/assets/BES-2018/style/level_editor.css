@@ -14,12 +14,12 @@ body {
 	cursor: url(/img/dot.gif), pointer;
 }
 
-#todo li {
-}
-
 #todo h1 {
 	padding-left: 10px;
 	font-size: 16pt;
+}
+#todo ul{
+	margin: 0;
 }
 
 .done {
@@ -86,6 +86,13 @@ a{
 
 .report{
 	padding-bottom: 20px;
+}
+
+.col {
+  -moz-column-count: 2;
+  -webkit-column-count: 2;
+  column-count: 2;
+  height: 95%;
 }
 
 input[type=text], select, textarea {

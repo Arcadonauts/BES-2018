@@ -7,20 +7,16 @@ var todo = {
 		// To Do
 
 		'!Fix animation add first time bug',
-
-
+		'!Prepare presentation',
+		'!Table hints in data/player',
 		'More Sprite Modes',
 		'Default Level Code',
-
-
-
-
 		'Foreground',
-
-
 		'random() for data',
-
 		'Win Animation',
+		'Warn before loading/saving',
+		'Health Bar',
+		'Hide Player in Data Menu',
 
 		'?Checkpoints',
 		'?Help Tab',
@@ -29,16 +25,17 @@ var todo = {
 		'?User Login Stuff',
 		'?Capsule Hit Box',
 		'?Double Jump',
-		'?Health Bar',
+		
 		'?Resize All Images on Publishing',
 		'?Bug Report Emailing',
-		'?Warn before loading/saving',
+		
 		'?Refactor code so that there is only one data<br>object per sprite family',
 		'?Refactor code so that player tab is part of data tab.',
-		'?Data inputs change by type (dropdown for bool, etc.)',
+		
 		'?Volume Sliders',
 
 		// To Done
+		'~Data inputs change by type (dropdown for bool, etc.)',
 		'~z depth',
 		'~Death Animation',
 		'~Report Tab',
@@ -76,7 +73,10 @@ var todo = {
 	init: function(div){
 		this.format(div)
 	},
-	format: function(div){
+	format: function(outer){
+		var div = document.createElement('div')
+		outer.appendChild(div)
+		div.className = 'col'
 		var ul = document.createElement('ul')
 		div.appendChild(ul)
 		this.list.sort(function(a, b){
