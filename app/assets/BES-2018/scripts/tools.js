@@ -5,20 +5,18 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
-
-		
-		'!Table hints in data/player',
-
+		'Change of type from dynamic to floating with multiple sprites bug.',
 		'Fix animation add first time bug',
 		'More Sprite Modes',
 		'Default Level Code',
 		'Foreground',
-		'random() for data',
-		'Win Animation',
+		
+		'Win State',
 		'Warn before loading/saving',
 		'Health Bar',
 		'Hide Player in Data Menu',
 		'Create Page No Auto-redirect',
+		'Contact API',
 
 		'?Checkpoints',
 		'?Help Tab',
@@ -37,6 +35,10 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~random() for data',
+		'~Added float movement',
+		'~ Added jump and fall to walkers',
+		'~Table hints in data/player',
 		'~Added Level ID System',
 		'~Prepare presentation',
 		'~Data inputs change by type (dropdown for bool, etc.)',
@@ -125,7 +127,7 @@ var hints = {
 	depth: 'A number. The sprites with higher numbers appear in front of sprites with lower numbers.',
 	type: '<b>Do not edit this!</b> Instead, click the sprite with the <i class="material-icons">mode_edit</i> tool.',
 	climb: 'A number between 0 and 1. The higher the number, the steeper the slope the sprite can climb',
-	fall: 'Does this sprite fall when it reaches the edge of a platform, or turn around?',
+	fall: 'Does this sprite fall when it reaches the edge of a platform, or turn around? Invalid if jump is not 0.',
 	jump_interval: 'A postive number. The higher the number, the longer the sprite waits before jumping',
 	amplitude_x: 'A number. The higher the number, the more this sprite moves left and right.',
 	amplitude_y: 'A number. The higher the number, the more this sprite moves up and down.',

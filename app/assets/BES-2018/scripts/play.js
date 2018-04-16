@@ -1,5 +1,5 @@
 window.play = (function(){
-	var DEBUG = false 
+	var DEBUG = true 
 	var y_axis = p2.vec2.fromValues(0, 1)
 	var x_axis = p2.vec2.fromValues(1, 0)
 	
@@ -39,10 +39,19 @@ window.play = (function(){
 	]
 	
 	function parse(string){
+		var float_re = '([+-]?(?:[0-9]*[.])?[0-9]+)'
+		var rand = new RegExp('^\\s*' + float_re + '\\s*:\\s*' + float_re + '\\s*$')
 		if((typeof string) !== 'string'){
 			//console.log(string)
 			return string
-		}			 
+		}else if(string.match(rand)){
+			var match = string.match(rand)
+			var min = parseFloat(match[1])
+			var max = parseFloat(match[2])
+			
+			return Math.random()*(max - min) + min 
+			
+		}	 
 		if(string.toLowerCase() === 'true'){
 			return true 
 		}
@@ -114,13 +123,12 @@ window.play = (function(){
 				this.timer = 0 
 				this.max_time = sprite.jump_timer || 12 
 			},
-			
 			do_the_thing: function(axis, test, rv, ignore_dyn){
 				for(var i = 0; i < play.game.physics.p2.world.narrowphase.contactEquations.length; i++){
 					var c = play.game.physics.p2.world.narrowphase.contactEquations[i]
 					if(c.bodyA === this.sprite.body.data || c.bodyB === this.sprite.body.data){
 						var d = p2.vec2.dot(c.normalA, axis)
-						//var player, other 
+						var player, other 
 						if(c.bodyA === this.sprite.body.data){
 							player = c.bodyA 
 							other = c.bodyB
@@ -129,7 +137,6 @@ window.play = (function(){
 							player = c.bodyB
 							other = c.bodyA 
 						}
-							
 						if(ignore_dyn && other.type === Phaser.Physics.P2.Body.DYNAMIC){
 							continue 
 						}
@@ -250,6 +257,30 @@ window.play = (function(){
 		},
 		floating: function(sprite, s){
 			sprite.body.kinematic = true 
+			sprite.timer = 0 
+			sprite.intraupdate = function(){
+				var a_mul = 100
+				
+				var bx = Math.PI*2/this.period_x 
+				var cx = -this.shift_x*bx 
+				var ax = this.amplitude_x * bx * a_mul
+				
+				
+				var by = Math.PI*2/this.period_y 
+				var cy = -this.shift_y*by 
+				var ay = this.amplitude_y * by * a_mul
+				
+				this.timer += 1 
+				//console.log([ax, bx, cx, ay, by, cy])
+				
+				if(this.period_x !== 0){
+					this.body.velocity.x = ax * Math.sin(bx * this.timer + cx)
+				}
+				if(this.period_y !== 0){
+					this.body.velocity.y = ay * Math.sin(by * this.timer + cy)
+				}
+				
+			}
 		},
 		ghost: function(sprite, s){
 			sprite.body.kinematic = true 
@@ -330,10 +361,57 @@ window.play = (function(){
 			sprite.body.fixedRotation = true 
 			can().init(sprite)
 			sprite.face = face 
+			sprite.jump_timer = 0 
+			
+			var dx, dy
+			if(s.r){
+				dx = s.r 
+				dy = s.r 
+			}else{
+				dx = s.width/2 
+				dy = s.height/2
+			}
+			var w = 10
+			var h = 20
+			sprite.left_foot = sprite.body.addRectangle(w, h, -dx, w/2+dy)
+			sprite.right_foot = sprite.body.addRectangle(w, h, dx, w/2+dy)
+			//console.log([sprite.body.data.shapes[0].width, sprite.body.height, sprite.width, sprite.height])
+			sprite.left_foot.sensor = sprite.right_foot.sensor = true 
+			sprite.left_foot.touching = sprite.right_foot.touching = 0 
+			sprite.left_foot.foot = sprite.right_foot.foot = true 
+			sprite.body.onBeginContact.add( function(b1, b2, s1, s2, contact){
+				if(s1.foot){
+					s1.touching += 1
+				}
+			})
+			
+			sprite.body.onEndContact.add( function(b1, b2, s1, s2, contact){
+				if(s1.foot){
+					s1.touching -= 1
+				}
+			})
+			
 			
 			sprite.intraupdate = function(){
+				this.jump_timer += 1 
 				this.body.velocity.x = this.speed 
 				//console.log([sprite.speed, sprite.can.right()])
+				/*
+				if(this.can.jump()){
+					this.tint = 0xff0000
+				}else{
+					this.tint = 0x0000ff
+				}*/
+				if(this.jump === 0 && this.fall === false && this.can.jump()){
+					if(this.speed > 0 && this.right_foot.touching === 0){
+						this.speed = -this.speed 
+						this.face(-1)
+					}
+					if(this.speed < 0 && this.left_foot.touching === 0){
+						this.speed = -this.speed 
+						this.face(1)
+					}
+				}
 				if(this.speed > 0 && ! this.can.right(false)){
 					this.speed = -this.speed 
 					this.face(-1)
@@ -341,6 +419,11 @@ window.play = (function(){
 				if(this.speed < 0 && ! this.can.left(false)){
 					this.speed = -this.speed 
 					this.face(1)
+				}
+				if(this.jump_timer > this.jump_interval && this.can.jump()){
+					this.body.moveUp(this.jump)
+					//console.log(this.key + ' jump!')
+					this.jump_timer = 0 
 				}
 			}
 		}
