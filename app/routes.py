@@ -65,7 +65,20 @@ def test():
 
 def lvl_list():
     lvl = Lvl()
-    return os.listdir(lvl.shared_levels)
+    dir = os.listdir(lvl.shared_levels)
+    op = {}
+    with open(lvl.shared_levels+'/names.txt') as f:
+        lines = f.readlines()
+        for l in lines:
+            line = l.split(' ')
+            id = line[0]
+            name = ' '.join(map(lambda x : x.capitalize(), line[1:]))
+            if id in dir:
+                op[id] = name
+            else:
+                print(id, dir)
+    return op
+
 
 def lvl_template(html, name):
     lvl = Lvl(name)
@@ -115,7 +128,8 @@ def create():
     if flask.request.method == 'GET':
         return flask.render_template('create.html')
     if flask.request.method == 'POST':
-        lvl = Lvl(flask.request.form['lvl'])
+        lvl = Lvl(flask.request.form['id'])
+        name = flask.request.form['lvl']
 
         if os.path.exists(lvl.dir_level):
             return 'Level already exits!'
@@ -125,6 +139,8 @@ def create():
             os.makedirs(lvl.dir_audio)
             open(lvl.dir_script, 'a').close()
             open(lvl.dir_data, 'a').close()
+            with open(lvl.shared_levels + '/names.txt', 'a') as f:
+                f.write('\n%s %s'%(lvl.lvl, name))
 
             return 'Succesfully created new level: ' + lvl.lvl
 

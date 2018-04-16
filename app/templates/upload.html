@@ -19,7 +19,7 @@
 		<select id="lvl" value="" placeholder="Level">
 			<option value="" disabled selected>Level</option>
 			{% for opt in levels %}
-				<option>{{ opt }}</option>
+				<option value="{{ opt }}">{{ levels[opt] }}</option>
 			{% endfor %}
 		</select>
 		<span class="error" id="lvl_error"></span>

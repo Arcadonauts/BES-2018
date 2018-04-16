@@ -6,9 +6,10 @@ var todo = {
 	list: [
 		// To Do
 
-		'!Fix animation add first time bug',
-		'!Prepare presentation',
+		
 		'!Table hints in data/player',
+		
+		'Fix animation add first time bug',
 		'More Sprite Modes',
 		'Default Level Code',
 		'Foreground',
@@ -17,6 +18,7 @@ var todo = {
 		'Warn before loading/saving',
 		'Health Bar',
 		'Hide Player in Data Menu',
+		'Create Page No Auto-redirect',
 
 		'?Checkpoints',
 		'?Help Tab',
@@ -35,6 +37,8 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~Added Level ID System',
+		'~Prepare presentation',
 		'~Data inputs change by type (dropdown for bool, etc.)',
 		'~z depth',
 		'~Death Animation',

@@ -10,12 +10,13 @@ window.loader = (function(){
 	}
 	
 	var loader = {
-		send: function(lvl){
+		send: function(lvl, id){
 			
 			var xml = new XMLHttpRequest();
 			xml.open("POST", "/create", true);
 			var fd = new FormData();
 			fd.append('lvl', lvl)
+			fd.append('id', id)
 				
 			xml.send(fd);
 			xml.onloadend = this.success(xml, this);
@@ -34,15 +35,13 @@ window.loader = (function(){
 				
 		},
 		is_valid: function(){
+			var id = document.getElementById('id').value 
 			var lvl = document.getElementById('lvl').value 
-			if(lvl.match(/^[a-zA-Z0-9_\-]+$/)){
-				this.send(lvl)
+			if(id.match(/^[a-zA-Z0-9_\-]+$/)){
+				this.send(lvl, id)
 			}else{
-				this.error("Level name can only contain letters, numbers, _, and -")
+				this.error("Level ID can only contain letters, numbers, _, and -")
 			}
-		},
-		upload: function(){
-			this.send(this.file)
 		},
 		redirect: function(to){
 			window.location = to 
@@ -66,9 +65,22 @@ window.loader = (function(){
 		loader.do_the_thing()
 	}
 	
+	function create_id(value){
+		var id_input = document.getElementById('id')
+
+		id_input.value = value.split(' ').map(x => x[0] ? x[0].toUpperCase() : '').join('')
+	
+		
+	}
+	
 	window.addEventListener('load', function(){
 		var the_thing = document.getElementById('create')
 		the_thing.onclick = do_the_thing
+		
+		var lvl_input = document.getElementById('lvl')
+		lvl_input.addEventListener('input', function(){
+			create_id(this.value)
+		})
 	})
 	
 	
