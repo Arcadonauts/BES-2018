@@ -25,7 +25,7 @@ window.loader = (function(){
         success: function(xhr, that){
             return function(){
 				alert(xhr.responseText)
-			   that.redirect('/upload')
+			   //that.redirect('/upload')
             }
         },
 		do_the_thing: function(){
