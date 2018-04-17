@@ -5,13 +5,13 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
-		'11:31',
+		'11:33',
 		'Change of type from dynamic to floating with multiple sprites bug.',
 		'Fix animation add first time bug',
 		'More Sprite Modes',
 		'Default Level Code',
 		'Foreground',
-		
+
 		'Win State',
 		'Warn before loading/saving',
 		'Health Bar',
@@ -27,13 +27,13 @@ var todo = {
 		'?User Login Stuff',
 		'?Capsule Hit Box',
 		'?Double Jump',
-		
+
 		'?Resize All Images on Publishing',
 		'?Bug Report Emailing',
-		
+
 		'?Refactor code so that there is only one data<br>object per sprite family',
 		'?Refactor code so that player tab is part of data tab.',
-		
+
 		'?Volume Sliders',
 
 		// To Done
@@ -135,9 +135,9 @@ var hints = {
 	amplitude_y: 'A number. The higher the number, the more this sprite moves up and down.',
 	period_x: 'A number. The higher the number, the longer this sprite takes to move left and right',
 	period_y: 'A number. The higher the number, the longer this sprite takes to move up and down',
-	//shift_x: 'A number. This controls the offset of the 
-	
-	
+	//shift_x: 'A number. This controls the offset of the
+
+
 }
 
 function get_lvl(){
@@ -212,16 +212,16 @@ function data_table(div, data, onchange, options){
 		el = document.createElement('td')
 		row.appendChild(el)
 		cell.create(k, data[k], el, onchange, options)
-		
+
 		if(hints[k]){
 			el = document.createElement('td')
 			row.appendChild(el)
-			
+
 			el.innerHTML = '<div class="tooltip"><i class="material-icons">help</i><span class="tooltiptext">' + hints[k] + '</span></div>'
 		}
 
 		//console.log(cell)
-		
+
 	}
 
 	return table
