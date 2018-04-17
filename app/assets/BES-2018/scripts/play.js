@@ -19,31 +19,6 @@ window.play = (function(){
 			}else{
 				return this.none 
 			}
-		},
-		contact:{
-			begin: function(bodyA, bodyB, shapeA, shapeB, equation){
-				lvl.contact.on('begin_contact', bodyA, bodyB, shapeA, shapeB, equation)
-			},
-			end: function(bodyA, bodyB, shapeA, shapeB, equation){
-				lvl.contact.on('end_contact', bodyA, bodyB, shapeA, shapeB, equation)
-			},
-			on: function(flavor, ba, bb, sa, sb, equation){
-				var sprite_a = ba && ba.parent && ba.parent.sprite
-				var sprite_b = bb && bb.parent && bb.parent.sprite
-
-				if(sprite_a && sprite_b){
-					if(sprite_a.key === 'bg' || sprite_b.key === 'bg'){
-						
-					}else{
-						var key_a = sprite_a.player ? 'player' : sprite_a.key 
-						var key_b = sprite_b.player ? 'player' : sprite_b.key 
-						
-						lvl.get(key_a, flavor)(sprite_a, sprite_b, equation)
-						lvl.get(key_b, flavor)(sprite_b, sprite_a, equation)
-					}
-				}
-			},
-			
 		}
 	}
 	
@@ -241,10 +216,6 @@ window.play = (function(){
 			this.postupdate()
 		}
 		sprite.events.onKilled.add(()=>sprite.ondeath())
-		/*
-		sprite.body.onBeginContact.add(lvl.get(key, 'begin_contact'))
-		sprite.body.onEndContact.add(lvl.get(key, 'end_contact'))
-		*/
 		
 		
 		
@@ -342,27 +313,16 @@ window.play = (function(){
 			
 	
 			sprite.lose = function(){
-				if(this.update === this.lost) return 
-				
 				this.body.velocity.x = 0
 				this.body.velocity.y = -this.jump 
 				this.body.data.shapes.forEach(s => s.sensor = true) 
-				//this.body.fixedRotation = false 
 				this.update = this.lost 
-				this.lost_timer = 100 
 				
 				audio.play('lose')
 			}
 			
 			sprite.lost = function(){
-				/*
-				if(this.lost_timer > 0){
-					this.lost_timer -= 1
-				}else{
-					this.game.state.start('play', true, false, this.game)
-				}
-				*/
-				if(this.y > this.game.world.height + 150){
+				if(this.y > this.game.world.height + 100){
 					this.game.state.start('play', true, false, this.game)
 				}
 			}
@@ -520,9 +480,6 @@ window.play = (function(){
 				
 				sprite.init()
 			}
-			
-			game.physics.p2.onBeginContact.add(lvl.contact.begin)
-			game.physics.p2.onEndContact.add(lvl.contact.end)
 			
 			audio.init(game.data.audio)
 			
