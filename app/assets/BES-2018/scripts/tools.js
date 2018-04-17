@@ -5,6 +5,7 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
+		'11:31',
 		'Change of type from dynamic to floating with multiple sprites bug.',
 		'Fix animation add first time bug',
 		'More Sprite Modes',
@@ -15,14 +16,9 @@ var todo = {
 		'Warn before loading/saving',
 		'Health Bar',
 		'Hide Player in Data Menu',
-<<<<<<< HEAD
-
-		
-		
-=======
 		'Create Page No Auto-redirect',
 		'Contact API',
->>>>>>> parent of ad19ca4... Contact API
+
 
 		'?Checkpoints',
 		'?Help Tab',
