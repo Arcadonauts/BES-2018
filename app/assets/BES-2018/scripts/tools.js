@@ -15,19 +15,18 @@ var todo = {
 		'Warn before loading/saving',
 		'Health Bar',
 		'Hide Player in Data Menu',
-		'Create Page No Auto-redirect',
-		'Contact API',
+
+		
 
 		'?Checkpoints',
 		'?Help Tab',
-		'?Level Code API',
 		'?Mute/Volume',
 		'?User Login Stuff',
 		'?Capsule Hit Box',
 		'?Double Jump',
 		
 		'?Resize All Images on Publishing',
-		'?Bug Report Emailing',
+		
 		
 		'?Refactor code so that there is only one data<br>object per sprite family',
 		'?Refactor code so that player tab is part of data tab.',
@@ -35,6 +34,8 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~Contact API',
+		'~Bug Report Emailing',
 		'~random() for data',
 		'~Added float movement',
 		'~ Added jump and fall to walkers',
