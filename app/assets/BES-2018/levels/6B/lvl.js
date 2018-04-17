@@ -5,7 +5,11 @@ window.level_code = (function(){ return {
   postupdate
   init
   ondeath
-  */
+  */	'player' : {
+    	  begin_contact(a, b, c){
+         alert([a, b, c])
+       }
+  	},
 	'aniball.png': {
        preupdate: function(){
       	if(this.body.velocity.x > 300){
