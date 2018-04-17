@@ -5,29 +5,28 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
-
-		'!Fix animation add first time bug',
-		'!Prepare presentation',
-		'!Table hints in data/player',
+		'Change of type from dynamic to floating with multiple sprites bug.',
+		'Fix animation add first time bug',
 		'More Sprite Modes',
 		'Default Level Code',
 		'Foreground',
-		'random() for data',
-		'Win Animation',
+		
+		'Win State',
 		'Warn before loading/saving',
 		'Health Bar',
 		'Hide Player in Data Menu',
 
+		
+
 		'?Checkpoints',
 		'?Help Tab',
-		'?Level Code API',
 		'?Mute/Volume',
 		'?User Login Stuff',
 		'?Capsule Hit Box',
 		'?Double Jump',
 		
 		'?Resize All Images on Publishing',
-		'?Bug Report Emailing',
+		
 		
 		'?Refactor code so that there is only one data<br>object per sprite family',
 		'?Refactor code so that player tab is part of data tab.',
@@ -35,6 +34,14 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~Contact API',
+		'~Bug Report Emailing',
+		'~random() for data',
+		'~Added float movement',
+		'~ Added jump and fall to walkers',
+		'~Table hints in data/player',
+		'~Added Level ID System',
+		'~Prepare presentation',
 		'~Data inputs change by type (dropdown for bool, etc.)',
 		'~z depth',
 		'~Death Animation',
@@ -113,22 +120,25 @@ var todo = {
 		})
 	},
 }
-/*
-function get_queries(){
-	var match,
-		pl     = /\+/g,  // Regex for replacing addition symbol with a space
-		search = /([^&=]+)=?([^&]*)/g,
-		decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
-		query  = window.location.search.substring(1);
 
-    var urlParams = {};
-    while (match = search.exec(query)){
-       urlParams[decode(match[1])] = decode(match[2]);
-	}
-
-	return urlParams
+var hints = {
+	friction: 'A number between 0 and 1. The higher the number, the more slippery',
+	jump: 'A positive number. The higher the number, the higher the jump.',
+	speed: 'A positive number. The higher the number, the flaster.',
+	depth: 'A number. The sprites with higher numbers appear in front of sprites with lower numbers.',
+	type: '<b>Do not edit this!</b> Instead, click the sprite with the <i class="material-icons">mode_edit</i> tool.',
+	climb: 'A number between 0 and 1. The higher the number, the steeper the slope the sprite can climb',
+	fall: 'Does this sprite fall when it reaches the edge of a platform, or turn around? Invalid if jump is not 0.',
+	jump_interval: 'A postive number. The higher the number, the longer the sprite waits before jumping',
+	amplitude_x: 'A number. The higher the number, the more this sprite moves left and right.',
+	amplitude_y: 'A number. The higher the number, the more this sprite moves up and down.',
+	period_x: 'A number. The higher the number, the longer this sprite takes to move left and right',
+	period_y: 'A number. The higher the number, the longer this sprite takes to move up and down',
+	//shift_x: 'A number. This controls the offset of the 
+	
+	
 }
-*/
+
 function get_lvl(){
 	return document.getElementById('lvl').innerHTML
 }
@@ -200,9 +210,17 @@ function data_table(div, data, onchange, options){
 
 		el = document.createElement('td')
 		row.appendChild(el)
+		cell.create(k, data[k], el, onchange, options)
+		
+		if(hints[k]){
+			el = document.createElement('td')
+			row.appendChild(el)
+			
+			el.innerHTML = '<div class="tooltip"><i class="material-icons">help</i><span class="tooltiptext">' + hints[k] + '</span></div>'
+		}
 
 		//console.log(cell)
-		cell.create(k, data[k], el, onchange, options)
+		
 	}
 
 	return table
