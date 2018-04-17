@@ -5,7 +5,10 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
-		'11:33',
+		'!Contact API',
+		'!Action Key',
+		'!Message Box',
+		
 		'Change of type from dynamic to floating with multiple sprites bug.',
 		'Fix animation add first time bug',
 		'More Sprite Modes',
@@ -17,7 +20,7 @@ var todo = {
 		'Health Bar',
 		'Hide Player in Data Menu',
 		'Create Page No Auto-redirect',
-		'Contact API',
+		
 
 
 		'?Checkpoints',
