@@ -1,5 +1,2 @@
-SF Space Fight
-CF Cheese Factory
-TTT test test test
 ETL Emily Test Level
-ATL Allision Test Leve;l
+ATL Allision Test Level
