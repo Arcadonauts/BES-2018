@@ -1485,11 +1485,17 @@ var main = {
 		})
 		
 		butt('Save', function(){
-			physics.save()
+			var ok = confirm('Save level?')
+			if(ok){
+				physics.save()
+			}
 		})
 	
 		butt('Load', function(){
-			physics.open()
+			var ok = confirm('Load level? You will lose any unsaved progress.')
+			if(ok){
+				physics.open()
+			}
 		})
 		
 		textbutton(0, 0, 'Play', function(){

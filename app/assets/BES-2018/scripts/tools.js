@@ -5,24 +5,24 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
-		'!Contact API',
-		'!Action Key',
-		'!Message Box',
 		
 		'Change of type from dynamic to floating with multiple sprites bug.',
 		'Fix animation add first time bug',
-		'More Sprite Modes',
+		
+		'?Sprite Mode Foreground',
+		'Sprite Mode Projectile',
+		'Sprite Mode Message Box',
+		'Sprite Mode Health Bar',
+		
 		'Default Level Code',
 		'Foreground',
 
 		'Win State',
-		'Warn before loading/saving',
-		'Health Bar',
-		'Hide Player in Data Menu',
-		'Create Page No Auto-redirect',
 		
-
-
+		
+		'Hide Player in Data Menu',
+		
+		
 		'?Checkpoints',
 		'?Help Tab',
 		'?Level Code API',
@@ -40,6 +40,11 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~Warn before loading/saving',
+		'~Action Key',
+		'~Message Box',
+		'~links tab',
+		'~Contact API',
 		'~random() for data',
 		'~Added float movement',
 		'~ Added jump and fall to walkers',
@@ -658,6 +663,80 @@ var audio = {
 	}
 }
 
+var links = {
+	init: function(outer){
+		this.outer = outer
+	},
+	label: 'Links',
+	id: 'links',
+	a: function (link, text){
+		var aa = document.createElement('a')
+		aa.href = link
+		aa.innerHTML = text
+		aa.target = '_blank'
+
+		return aa
+	},
+	style: function(tag, text){
+		var t = document.createElement(tag)
+		t.innerHTML = text 
+		return t 
+	},
+	section: function (title){
+		var div = document.createElement(div)
+
+		var h = document.createElement('h1')
+		h.innerHTML = title
+		div.appendChild(h)
+
+		var p = document.createElement('p')
+		for(var i = 1; i < arguments.length; i++){
+			var arg = arguments[i]
+			if(typeof arg === 'string'){
+				var text = document.createTextNode(arg)
+				p.appendChild(text)
+			}else{
+				p.appendChild(arguments[i])
+			}
+		}
+		div.append(p)
+
+		return div
+	},
+	build: function(outer){
+		var div = document.createElement('div')
+		this.outer.appendChild(div)
+
+		div.appendChild(
+			this.section('Upload', this.a('/upload', 'Click here'), ' to add an image or auido file to the level.', this.style('b', 'You must refresh the page (Ctrl + R) when you finish.'))
+		)
+
+		div.appendChild(
+			this.section('Play', this.a('/BES-2018/' + get_lvl(), 'Click here'), ' to play the finished version of this level.')
+		)
+		
+		div.appendChild(
+			this.section('Edit', this.a('/editor', 'Click here'), ' to edit a different level.')
+		)
+		
+		div.appendChild(
+			this.section('Sound Effects', this.a('http://sfbgames.com/chiptone/', 'Click here'), ' to create sound effects.')
+		)
+		
+		/*
+		div.appendChild(
+			this.section('Create', this.a('/create', 'Click here'), ' to create a new level.')
+		)
+		*/
+
+
+	},
+	onclick: function(){
+		remove_children(this.outer)
+		this.build(this.outer)
+	}
+}
+
 function add_tool(tool){
 	var parent = document.getElementById('content')
 	var tabs = document.getElementById('tabs')
@@ -716,7 +795,8 @@ function add_tool(tool){
 window.addEventListener('load', function(){
 	tools.pages = []
 
-	add_tool(todo)
+	//add_tool(todo)
+	add_tool(links)
 	add_tool(report)
 	add_tool(player)
 	add_tool(data)

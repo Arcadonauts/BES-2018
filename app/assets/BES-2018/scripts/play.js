@@ -1,5 +1,5 @@
 window.play = (function(){
-	var DEBUG = true 
+	var DEBUG = false 
 	var y_axis = p2.vec2.fromValues(0, 1)
 	var x_axis = p2.vec2.fromValues(1, 0)
 	
@@ -19,6 +19,37 @@ window.play = (function(){
 			}else{
 				return this.none 
 			}
+		},
+		message: function(){
+			var msg = this.lvl && this.lvl.message && this.lvl.message.value
+			if(!msg) return 
+			
+			
+			var buff = 20
+			
+			var style = this.lvl.message 
+			var text = play.game.add.text(0, 0, msg, {
+				font: style.font || "Georgia, serif",
+				fill: style.fill || "#000000", 
+				fontSize: style.fontSize || '32px',
+				align: style.align || "center",
+				boundsAlignH: style.boundsAlignH || "center", 
+				boundsAlignV: style.boundsAlignV || "middle", 
+				wordWrap: style.wordWrap || true, 
+				wordWrapWidth: style.wordWrapWidth || play.game.width - 4*buff
+			})
+			text.setTextBounds(buff, buff, play.game.width - 2*buff, play.game.height - 2*buff)
+			
+			play.game.paused = true 
+			
+			text.update = function(){
+				if(!play.game.paused) {
+					this.destroy()
+				}
+			}
+			
+			 
+	
 		},
 		contact:{
 			begin: function(bodyA, bodyB, shapeA, shapeB, equation){
@@ -112,9 +143,10 @@ window.play = (function(){
 	
 	var key = {
 		binding: {
-			jump: ['SPACEBAR', 'SHIFT', 'UP', 'W'],
+			jump: ['SPACEBAR', 'UP', 'W'],
 			left: ['A', 'LEFT'],
-			right: ['D', 'RIGHT']
+			right: ['D', 'RIGHT'],
+			action: ['E', 'SHIFT']
 		},
 		down: function(code){
 			for(var i = 0; i < this.binding[code].length; i++){
@@ -232,7 +264,7 @@ window.play = (function(){
 	
 	function add_lvl_code(sprite, key){
 		
-		var copy = ['preupdate', 'intraupdate', 'postupdate', 'init', 'ondeath']
+		var copy = ['preupdate', 'intraupdate', 'postupdate', 'init', 'ondeath', 'action']
 		copy.forEach(s => sprite[s] = lvl.get(key, s))
 		
 		sprite.update = function(){
@@ -375,6 +407,11 @@ window.play = (function(){
 						audio.play('jump')
 					}
 				}
+				
+				if(key.down('action')){
+					this.action()
+				}
+				
 				if(key.down('left') && key.down('right')){
 					this.body.velocity.x *= this.friction
 				}else if(key.down('left')){
@@ -529,6 +566,13 @@ window.play = (function(){
 			this.audio = audio 
 			this.lvl = lvl 
 			
+			lvl.message()
+			
+			play.game.input.onDown.add(function(event){
+				if(game.paused){
+					game.paused = false 
+				}
+			})
 			
 			
 			if(this.callback){
