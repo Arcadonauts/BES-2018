@@ -5,7 +5,7 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
-		
+		'! Evil Gorilla: Not a real level!',
 		'Change of type from dynamic to floating with multiple sprites bug.',
 		'Fix animation add first time bug',
 		
@@ -188,6 +188,7 @@ function parse(string){
 }
 
 function data_table(div, data, onchange, options){
+	console.log('build table')
 	var table = document.createElement('table')
 	div.appendChild(table)
 
@@ -360,11 +361,14 @@ var data = {
 			opt.value = key
 
 			var that = this
-			opt.onclick = function(){
-				that.build(this.value)
-			}
+			
 		}
-
+		
+		select.addEventListener('click', function(){
+		//select.onchange = (function(){
+			that.build(this.value)
+		})
+			
 		this.table_div = document.createElement('div')
 		div.appendChild(this.table_div)
 
@@ -373,6 +377,7 @@ var data = {
 		}
 	},
 	build: function(key){
+		console.log(key)
 		var data = this.sprites[key]
 		//var that = this
 
