@@ -11,6 +11,7 @@ class Lvl(object):
 
         "data" : '/levels/%s/data.json',
         "script" : '/levels/%s/lvl.js',
+        'notes' : '/levels/%s/notes.txt',
 
         "url" : '/static/BES-2018'
     }

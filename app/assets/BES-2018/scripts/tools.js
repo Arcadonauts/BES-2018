@@ -481,6 +481,67 @@ var code = {
 	}
 }
 
+var notes = {
+	label: 'Notes',
+	id: 'notes',
+	init: function(outer){
+		this.outer = outer
+	},
+	build: function(outer){
+		var that = this
+		var div = document.createElement('div')
+		outer.appendChild(div)
+
+		div.className = 'codediv'
+		/*var area = document.createElement('textarea')
+		div.appendChild(area)*/
+
+		/*var editor = CodeMirror(div, {
+			lineNumbers: true,
+			theme: 'seti',
+			tabSize: 5,
+			gutter: true,
+		})*/
+		editor = document.createElement('textarea')
+
+		editor.value = this.value
+
+		editor.addEventListener('change', function(){
+			that.value = this.value 
+		})
+		
+		div.appendChild(editor)
+
+	},
+	value: '',
+	onclick: function(){
+		remove_children(this.outer)
+		this.build(this.outer)
+	},
+	save: function(){
+		//console.log('save notes ' + this.value)
+		if(this.value.length === 0) return
+
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("POST", "/notes-handler/" + get_lvl());
+		xmlhttp.setRequestHeader("Content-Type", "application/json");
+		xmlhttp.send(JSON.stringify({code: this.value}));
+	},
+	open: function(){
+		var xhr = new XMLHttpRequest()
+		var that = this
+		xhr.onreadystatechange = function(){
+			if(xhr.readyState === 4 && xhr.status === 200){
+				that.value = xhr.responseText
+			}
+		}
+		var lvl = get_lvl()
+		xhr.open('GET', '/notes-handler/' + lvl, true);
+		xhr.send();
+
+	}
+}
+
 var help = {
 	init: function(outer){
 		this.outer = outer
@@ -796,11 +857,13 @@ window.addEventListener('load', function(){
 	tools.pages = []
 
 	//add_tool(todo)
+	
 	add_tool(links)
 	add_tool(report)
 	add_tool(player)
 	add_tool(data)
 	add_tool(code)
+	add_tool(notes)
 	add_tool(audio)
 
 

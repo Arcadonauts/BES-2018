@@ -194,3 +194,19 @@ def script_handler(path):
             f.write(response.get('code', ''))
         return 'ok!'
 
+@app.route('/notes-handler/<path:path>', methods=['GET', 'POST'])
+def notes_handler(path):
+    lvl = Lvl(path)
+    if flask.request.method == 'GET':
+        try:
+            with open(lvl.dir_notes, 'r') as f:
+                string = f.read()
+        except IOError:
+            string = ""
+        return string
+    else:
+        response = flask.request.get_json()
+        with open(lvl.dir_notes, 'w') as f:
+            f.write(response.get('code', ''))
+        return 'ok!'
+
