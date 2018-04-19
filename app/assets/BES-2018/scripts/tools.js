@@ -5,12 +5,15 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
-		'! Evil Gorilla: Not a real level!',
+		'homepage bug.',
+		'! Alphabitze Level List',
 		'Change of type from dynamic to floating with multiple sprites bug.',
+		'!Resolve Escape the School Conflict',
 		'Fix animation add first time bug',
 		
 		'?Sprite Mode Foreground',
-		'Sprite Mode Projectile',
+		
+		
 		'Sprite Mode Message Box',
 		'Sprite Mode Health Bar',
 		
@@ -40,6 +43,8 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~Sprite Mode Projectile',
+		'~Notes Tab',
 		'~Warn before loading/saving',
 		'~Action Key',
 		'~Message Box',
@@ -133,7 +138,7 @@ var todo = {
 var hints = {
 	friction: 'A number between 0 and 1. The higher the number, the more slippery',
 	jump: 'A positive number. The higher the number, the higher the jump.',
-	speed: 'A positive number. The higher the number, the flaster.',
+	speed: 'A positive number. The higher the number, the faster.',
 	depth: 'A number. The sprites with higher numbers appear in front of sprites with lower numbers.',
 	type: '<b>Do not edit this!</b> Instead, click the sprite with the <i class="material-icons">mode_edit</i> tool.',
 	climb: 'A number between 0 and 1. The higher the number, the steeper the slope the sprite can climb',
@@ -861,10 +866,12 @@ function add_tool(tool){
 window.addEventListener('load', function(){
 	tools.pages = []
 
-	//add_tool(todo)
-	
+	if(window.location.hostname === 'localhost'){
+		add_tool(todo)
+	}else{
+		add_tool(report)
+	}
 	add_tool(links)
-	add_tool(report)
 	add_tool(player)
 	add_tool(data)
 	add_tool(code)

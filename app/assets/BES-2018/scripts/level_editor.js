@@ -47,7 +47,8 @@ var types = [
 		period_x: 0,
 		shift_x: 0
 	},	{
-		type: 'Ghost'
+		type: 'Ghost',
+		depth: 100,
 	},	{
 		type: 'Walk',
 		speed: 100,
@@ -55,7 +56,25 @@ var types = [
 		fall: true,
 		jump_interval: 50,
 		climb: .7,
-	},
+	}, {
+		type: 'Projectile',
+		fired_from: 'player',
+		speed: 400,
+		angle: 45,
+		lead_x: 10,
+		lead_y: 10,
+		warmup: 0,
+		lifetime: 120,
+	}, {
+		type: 'Message',
+	}, {
+		type: 'Counter',
+		enumerate: true,
+		parent: 'player',
+		property: 'health',
+	}, {
+		type: 'Collectable',
+	}
 ]
 
 var buttons = []

@@ -312,6 +312,68 @@ window.play = (function(){
 		}
 	}
 	
+	var projectiles = {
+		projectiles: [],
+		init: function(sprites){
+			var proj = this 
+			sprites.forEach(function(s){
+				s.fire = proj.fire 
+				s.fireables = []
+			})
+			this.projectiles.forEach(function(p){
+				var fired_from_key = p.data.fired_from
+				if(fired_from_key === 'player'){
+					fired_from_key = play.er.key
+				}
+				if(!fired_from_key.endsWith('.png')){
+					fired_from_key += '.png'
+				}
+				var firing = sprites.filter(s => s.key === fired_from_key)[0]
+				if(firing){
+					firing.fireables.push(p)
+				}else{
+					console.warn('Invalid fire_from key: ' + fire_from_key + '/' + p.data.fire_from)
+				}
+			})
+		},
+		register: function(sprite, s){
+			this.projectiles.push({key: sprite.key, data:s})
+		}, 
+		fire: function(data){
+			data = data || {}
+			if(this.fireables.length === 0){
+				console.warn(this.key + ' can not fire ' + data.key)
+				return 
+			}
+			var p = this.fireables.filter(f => f.key === data.key)[0]
+			if(!p){
+				p = this.fireables[0]
+				if(this.fireables.length > 1){
+					console.warn(this.key + ' firing unrecognized key. Guessing and using ' + p.key)
+				}
+			}
+			projectiles.create(this, p, data)
+		},
+		create: function(parent, projectile, data){
+			var sprite = play.game.add.sprite(parent.x, parent.y, projectile.key)
+			var s = projectile.data 
+			deep_update(s, data, parse)
+			
+			scale_and_center(sprite, s)
+			add_physics(sprite, s, play.game)
+			
+			// copy data onto sprite 
+			deep_update(sprite, s, no_copy, parse)
+			
+			add_lvl_code(sprite, data.key)
+			types._projectile(sprite, s, parent)
+			
+			
+			add_animation(sprite, s)
+			
+		}
+	}
+	
 	var types = {
 		dynamic: function(sprite, s){
 			sprite.dynamic = true 
@@ -395,7 +457,7 @@ window.play = (function(){
 				}
 				*/
 				if(this.y > this.game.world.height + 150){
-					this.game.state.start('play', true, false, this.game)
+					this.game.state.start('play', true, false, play.game, play.callback, play.debug)
 				}
 			}
 			
@@ -408,9 +470,10 @@ window.play = (function(){
 					}
 				}
 				
-				if(key.down('action')){
+				if(key.down('action') && !this.actioning){
 					this.action()
 				}
+				this.actioning = key.down('action')
 				
 				if(key.down('left') && key.down('right')){
 					this.body.velocity.x *= this.friction
@@ -503,6 +566,39 @@ window.play = (function(){
 					this.jump_timer = 0 
 				}
 			}
+		},
+		projectile: function(sprite, s){
+			sprite.static = true 
+			sprite.alpha = 0
+			sprite.body.data.shapes.forEach(s => s.sensor = true)
+			projectiles.register(sprite, s)
+		},
+		_projectile: function(sprite, s, parent){
+			var theta = s.angle*Math.PI/180
+			var flip = parent.scale.x 
+			
+			var vx = sprite.speed * Math.cos(theta)
+			var vy = sprite.speed * Math.sin(-theta)
+			
+			sprite.body.x = parent.x + sprite.lead_x * flip 
+			sprite.body.y = parent.y + sprite.lead_y
+			
+			sprite.body.velocity.x = vx * flip 
+			sprite.body.velocity.y = vy 
+
+			sprite.timer = 0 
+			sprite.body.data.shapes.forEach(s => s.sensor = true)
+			
+			
+			sprite.intraupdate = function(){
+				this.timer += 1 
+				this.body.data.shapes.forEach(s => s.sensor = this.timer < this.warmup)
+				if(this.timer > this.lifetime){
+					this.kill()
+				}
+			}
+			
+			console.log(sprite.x - parent.x)
 		}
 	}
 	
@@ -531,11 +627,14 @@ window.play = (function(){
 			
 			var sprites = game.data.sprites.filter(Boolean)
 			sprites.sort( (x, y) => x.data.depth > y.data.depth ? 1 : -1 )
+			
+			var all_the_sprites = []
 			var data, s, sprite 
 			for(var i = 0; i < sprites.length; i++){
 				data = sprites[i]
 				sprite = game.add.sprite(data.x, data.y, data.key)
 				s = data.data
+				all_the_sprites.push(sprite)
 								
 				scale_and_center(sprite, s)
 				add_physics(sprite, s, game)
@@ -562,11 +661,14 @@ window.play = (function(){
 			game.physics.p2.onEndContact.add(lvl.contact.end)
 			
 			audio.init(game.data.audio)
+			projectiles.init(all_the_sprites)
 			
 			this.audio = audio 
 			this.lvl = lvl 
 			
 			lvl.message()
+			
+			
 			
 			play.game.input.onDown.add(function(event){
 				if(game.paused){
