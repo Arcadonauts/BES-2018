@@ -15,7 +15,7 @@ var todo = {
 		
 		
 		'Sprite Mode Message Box',
-		'Sprite Mode Health Bar',
+		
 		
 		'Default Level Code',
 		'Foreground',
@@ -43,6 +43,7 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~Sprite Mode Counters',
 		'~Fixed Edit Sprite Bug',
 		'~Sprite Mode Projectile',
 		'~Notes Tab',

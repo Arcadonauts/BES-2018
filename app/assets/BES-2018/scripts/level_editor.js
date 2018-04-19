@@ -70,8 +70,8 @@ var types = [
 	}, {
 		type: 'Counter',
 		enumerate: true,
-		parent: 'player',
-		property: 'health',
+		who: 'player',
+		what: 'health',
 	}, {
 		type: 'Collectable',
 	}
@@ -850,7 +850,7 @@ var physics = {
 				if(defaults){
 					for(var k in defaults){
 						if(obj.data[k] === undefined){
-							console.log(k + ' is undefined and being updated to ' + defaults[k])
+							//console.log(k + ' is undefined and being updated to ' + defaults[k])
 							obj.data[k] = defaults[k]
 						}
 					}

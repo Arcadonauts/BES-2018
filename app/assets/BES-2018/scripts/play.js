@@ -599,6 +599,93 @@ window.play = (function(){
 			}
 			
 			console.log(sprite.x - parent.x)
+		},
+		counter: function(sprite, s){
+			if(s.enumerate){
+				types._enumerate(sprite.key, s)
+			}else{
+				types._copycopy(sprite.key, s)
+			}
+			sprite.destroy()
+			
+			
+			
+		},
+		_enumerate: function(key, data){
+			var counter = play.game.add.sprite(data.x0 || 0, data.y0 || 0)
+			counter.fixedToCamera = true 
+			
+			var symbol = play.game.add.sprite(0, 0, key)
+			symbol.anchor.set(.5)
+			scale_and_center(symbol, data)
+			counter.addChild(symbol)
+			
+			var dx = symbol.width 
+			
+			var text = play.game.add.text(symbol.width, 0, 'xxx')
+			counter.addChild(text)
+			counter.text = text 
+			
+			counter.update = function(){
+				if(!this.following){
+					console.log('Conter: finding a sprite to follow...')
+					if(data.who === 'player'){
+						this.following = play.er
+					}else{
+						this.following = play.all_the_sprites.filter(s => s.key === data.who || s.key === data.who +'.png')
+					}
+				}else{
+					this.text.text = 'x' + this.following[data.what]
+				}
+			}
+		},
+		_copycopy: function(key, data){
+			var counter = play.game.add.sprite(data.x0 || 0, data.y0 || 0)
+			counter.fixedToCamera = true 
+			counter.symbols = []
+			counter.count = 0 
+			
+			counter.update = function(){
+				if(!this.following){
+					console.log('Conter: finding a sprite to follow...')
+					if(data.who === 'player'){
+						this.following = play.er
+					}else{
+						this.following = play.all_the_sprites.filter(s => s.key === data.who || s.key === data.who +'.png')
+					}
+				}else{
+					var count = Math.floor(this.following[data.what])
+					while(count > this.count){
+						this.inc()
+					}
+					while(count < this.count){
+						this.dec()
+					}
+					
+				}
+			}
+			counter.inc = function(){
+				if(this.count < this.symbols.length){
+					this.symbols[this.count].alpha = 1
+				}else{
+					 
+					var symbol = play.game.add.sprite(0, 0, key)
+					var dx = symbol.width
+					symbol.x = dx * this.count
+					symbol.anchor.set(.5)
+					scale_and_center(symbol, data)
+					this.addChild(symbol)
+					this.symbols.push(symbol)
+					
+				}
+				this.count += 1
+			}
+			
+			counter.dec = function(){
+				this.count -= 1 
+				this.symbols[this.count].alpha = 0 
+			}
+
 		}
 	}
 	
@@ -665,6 +752,7 @@ window.play = (function(){
 			
 			this.audio = audio 
 			this.lvl = lvl 
+			this.all_the_sprites = all_the_sprites
 			
 			lvl.message()
 			
