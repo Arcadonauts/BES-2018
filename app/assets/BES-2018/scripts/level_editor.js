@@ -72,6 +72,7 @@ var types = [
 		enumerate: true,
 		who: 'player',
 		what: 'health',
+		dx: 0,
 	}, {
 		type: 'Collectable',
 	}

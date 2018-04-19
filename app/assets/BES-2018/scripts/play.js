@@ -620,9 +620,9 @@ window.play = (function(){
 			scale_and_center(symbol, data)
 			counter.addChild(symbol)
 			
-			var dx = symbol.width 
+			var dx = data.dx || symbol.width // FIX
 			
-			var text = play.game.add.text(symbol.width, 0, 'xxx')
+			var text = play.game.add.text(dx, 0, 'xxx')
 			counter.addChild(text)
 			counter.text = text 
 			
@@ -670,7 +670,7 @@ window.play = (function(){
 				}else{
 					 
 					var symbol = play.game.add.sprite(0, 0, key)
-					var dx = symbol.width
+					var dx = data.dx || symbol.width
 					symbol.x = dx * this.count
 					symbol.anchor.set(.5)
 					scale_and_center(symbol, data)
