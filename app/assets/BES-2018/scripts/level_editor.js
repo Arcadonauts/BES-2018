@@ -843,9 +843,13 @@ var physics = {
 				}
 				
 				var defaults = types.filter(t => t.type.toLowerCase() === obj.data.type)[0]
+				//console.log(defaults)
+				//console.log(old)
+				if(old) update(defaults, old.data)
 				if(defaults){
 					for(var k in defaults){
 						if(obj.data[k] === undefined){
+							console.log(k + ' is undefined and being updated to ' + defaults[k])
 							obj.data[k] = defaults[k]
 						}
 					}

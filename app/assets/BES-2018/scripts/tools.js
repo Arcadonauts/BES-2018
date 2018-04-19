@@ -43,6 +43,7 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~Fixed Edit Sprite Bug',
 		'~Sprite Mode Projectile',
 		'~Notes Tab',
 		'~Warn before loading/saving',
