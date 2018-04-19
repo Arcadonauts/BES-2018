@@ -132,6 +132,23 @@ Message: %(msg)s
 def codes():
     return flask.render_template('codes.html', lvls = lvl_list())
 
+@app.route('/all_the_images')
+def all_the_imgs():
+    lvls = lvl_list()
+    levels = {}
+    for code in lvls:
+        levels[code] = {}
+        levels[code]['name'] = lvls[code]
+        levels[code]['code'] = code
+        levels[code]['imgs'] = []
+        lvl = Lvl(code)
+        for img in os.listdir(lvl.dir_img):
+            levels[code]['imgs'].append(img)
+
+    return flask.render_template('all_the_imgs.html', levels = levels)
+
+
+
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     if flask.request.method == 'GET':
