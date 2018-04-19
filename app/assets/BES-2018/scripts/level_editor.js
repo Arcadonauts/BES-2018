@@ -65,8 +65,8 @@ var types = [
 		lead_y: 10,
 		warmup: 0,
 		lifetime: 120,
-	}, {
-		type: 'Message',
+//	}, {
+//		type: 'Message',
 	}, {
 		type: 'Counter',
 		enumerate: true,

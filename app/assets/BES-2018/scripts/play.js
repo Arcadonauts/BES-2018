@@ -264,7 +264,7 @@ window.play = (function(){
 	
 	function add_lvl_code(sprite, key){
 		
-		var copy = ['preupdate', 'intraupdate', 'postupdate', 'init', 'ondeath', 'action']
+		var copy = ['preupdate', 'intraupdate', 'postupdate', 'init', 'ondeath', 'action', 'collect']
 		copy.forEach(s => sprite[s] = lvl.get(key, s))
 		
 		sprite.update = function(){
@@ -434,6 +434,10 @@ window.play = (function(){
 			
 			can().init(sprite)
 			
+			sprite.collect = function(other){
+				other.collect(this)
+				other.destroy()
+			}
 	
 			sprite.lose = function(){
 				if(this.update === this.lost) return 
@@ -601,6 +605,7 @@ window.play = (function(){
 			console.log(sprite.x - parent.x)
 		},
 		counter: function(sprite, s){
+			console.log(s.enumerate)
 			if(s.enumerate){
 				types._enumerate(sprite.key, s)
 			}else{
@@ -686,6 +691,22 @@ window.play = (function(){
 				this.symbols[this.count].alpha = 0 
 			}
 
+		},
+		collectable: function(sprite, s){
+			sprite.body.kinematic  = true 
+			sprite.body.data.shapes.forEach(s => s.sensor = true)
+
+			sprite.body.onBeginContact.add(function(b1, b2, s1, s2, eq){
+				var player = b1 && b1.sprite && b1.sprite.player
+				if(player){
+					b1.sprite.collect(sprite)
+				}
+				
+			})
+			
+			/*sprite.collect = function(player){
+				console.log (this.key + ' collected by player (' + player.key + ')')
+			}*/
 		}
 	}
 	
