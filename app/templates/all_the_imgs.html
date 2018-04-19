@@ -7,7 +7,7 @@
 <body>
 	<table>
 		{% for code in levels %}
-			<h1>{{ levels[code]['name'] }}</h1>
+			<h1>{{ levels[code]['name'] }} ({{ code }})</h1>
 			<ul>
 			{% for img in levels[code]['imgs'] %}
 				<li>{{ img }}</li>
