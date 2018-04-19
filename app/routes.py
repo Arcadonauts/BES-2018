@@ -75,7 +75,7 @@ def lvl_list():
             return line
     with open(lvl.shared_levels+'/names.txt') as f:
         lines = f.readlines()
-        for l in sorted(lines, cmp=lambda x, y : 1 if name(x) > name(y) else -1):
+        for l in sorted(lines, key=name):
             line = l.split(' ')
             id = line[0]
             name = ' '.join(map(lambda x : x.capitalize(), line[1:]))
