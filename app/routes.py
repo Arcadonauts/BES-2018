@@ -4,6 +4,7 @@ import json
 import os
 from app.direct import Lvl
 import email_myself
+import collections
 
 ################################################################################
 #                               Globals
@@ -66,10 +67,15 @@ def test():
 def lvl_list():
     lvl = Lvl()
     dir = os.listdir(lvl.shared_levels)
-    op = {}
+    op = collections.OrderedDict()
+    def name(line):
+        if(line.count(' ')):
+            return line[line.index(' ') + 1:].lower()
+        else:
+            return line
     with open(lvl.shared_levels+'/names.txt') as f:
         lines = f.readlines()
-        for l in lines:
+        for l in sorted(lines, cmp=lambda x, y : 1 if name(x) > name(y) else -1):
             line = l.split(' ')
             id = line[0]
             name = ' '.join(map(lambda x : x.capitalize(), line[1:]))
