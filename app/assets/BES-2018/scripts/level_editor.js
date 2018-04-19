@@ -842,7 +842,8 @@ var physics = {
 					frame_rate: sprite.frame_rater.get()
 				}
 				
-				var defaults = types.filter(t => t.type.toLowerCase() === obj.data.type)[0]
+				var defaults = {}
+				update(defaults, types.filter(t => t.type.toLowerCase() === obj.data.type)[0])
 				//console.log(defaults)
 				//console.log(old)
 				if(old) update(defaults, old.data)
