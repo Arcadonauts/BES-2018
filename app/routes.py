@@ -128,6 +128,9 @@ Message: %(msg)s
     except:
         return 'Message failed to send.'
 
+@app.route('/codes')
+def codes():
+    return flask.render_template('codes.html', lvls = lvl_list())
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():

@@ -1,0 +1,25 @@
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<link rel="stylesheet" type="text/css" href="/static/BES-2018/style/upload.css">
+
+</head>
+<body>
+	<table>
+		{% for lvl in lvls %}
+			<tr>
+				<td>
+					{{ lvl }}
+				</td>
+				<td>
+				-
+				</td>
+				<td>
+					{{ lvls[lvl] }}
+				<td>
+			<tr>
+		{% endfor %}
+	</table>
+
+
+</body>
