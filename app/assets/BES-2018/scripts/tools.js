@@ -6,7 +6,7 @@ var todo = {
 	list: [
 		// To Do
 		'homepage bug.',
-		'! Alphabitze Level List',
+		'! Esacpe -> Escape',
 		'Change of type from dynamic to floating with multiple sprites bug.',
 		'!Resolve Escape the School Conflict',
 		'Fix animation add first time bug',
