@@ -1,0 +1,43 @@
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<link rel="stylesheet" type="text/css" href="/static/BES-2018/style/upload.css">
+	<script src="/static/BES-2018/scripts/all_the_things.js"></script>
+
+</head>
+<body>
+	<div>
+	<h1 id="filter">Filter:</h1>
+		<input id="search" type="text" placeholder="Search" autofocus></input>
+	</div>
+	
+		{% for code in levels %}
+			<div class="the_things">
+				<h1>{{ levels[code]['name'] }} ({{ code }})</h1>
+				<ul>
+					<li>
+						<a href="/editor/{{ code }}#">edit</a>
+					</li>
+					<li>
+						<a href="/BES-2018/{{ code }}">play</a>
+					</li>
+					<li>
+						<a href="/upload?level={{ code }}">upload</a>
+					</li>
+				</ul>
+				<ul>
+				{% for img in levels[code]['imgs'] %}
+					<li><a href="/static/BES-2018/levels/{{ code }}/img/{{ img }}">{{ img }}</a></li>
+				{% endfor %}
+				</ul>
+				<ul>
+				{% for audio in levels[code]['audio'] %}
+					<li><a href="/static/BES-2018/levels/{{ code }}/audio/{{ audio }}">{{ audio }}</a></li>
+				{% endfor %}
+				</ul>
+			</div>
+		{% endfor %}
+	
+
+
+</body>

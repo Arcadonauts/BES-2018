@@ -134,6 +134,10 @@ def codes():
 
 @app.route('/all_the_images')
 def all_the_imgs():
+    return flask.redirect(flask.url_for('all_the_things'))
+
+@app.route('/all_the_things')
+def all_the_things():
     lvls = lvl_list()
     levels = {}
     for code in lvls:
@@ -141,11 +145,14 @@ def all_the_imgs():
         levels[code]['name'] = lvls[code]
         levels[code]['code'] = code
         levels[code]['imgs'] = []
+        levels[code]['audio'] = []
         lvl = Lvl(code)
         for img in os.listdir(lvl.dir_img):
             levels[code]['imgs'].append(img)
+        for audio in os.listdir(lvl.dir_audio):
+            levels[code]['audio'].append(audio)
 
-    return flask.render_template('all_the_imgs.html', levels = levels)
+    return flask.render_template('all_the_things.html', levels = levels)
 
 
 

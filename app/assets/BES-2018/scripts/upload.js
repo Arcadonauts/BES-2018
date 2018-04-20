@@ -141,6 +141,18 @@ window.loader = (function(){
 		loader.do_the_thing()
 	}
 	
+	function getQueryString() {
+		//https://stackoverflow.com/questions/647259/javascript-query-string#647272
+	  var result = {}, queryString = location.search.slice(1),
+		  re = /([^&=]+)=([^&]*)/g, m;
+
+	  while (m = re.exec(queryString)) {
+		result[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+	  }
+
+	  return result;
+	}
+	
 	window.addEventListener('load', function(){
 		var browse = document.getElementById('file')
 		browse.onchange = loader.preview 
@@ -152,6 +164,16 @@ window.loader = (function(){
 		
 		var form = document.getElementById('form1')
 		form1.onchange = () => loader.is_valid()
+		
+		var level = getQueryString().level 
+		if(level){
+			var lvl = document.getElementById('lvl')
+			lvl.value = level 
+			if(!lvl.value){
+				console.log('default')
+				lvl.value = 'Level'
+			}
+		}
 	})
 	
 	

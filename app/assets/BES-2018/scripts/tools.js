@@ -43,6 +43,7 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~/all_the_things',
 		'~Sprite Mode Counters',
 		'~Fixed Edit Sprite Bug',
 		'~Sprite Mode Projectile',
