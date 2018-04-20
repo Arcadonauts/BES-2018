@@ -43,7 +43,7 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
-		'~/BES-2018 (level select)'',
+		'~/BES-2018 (level select)',
 		'~/all_the_things',
 		'~Sprite Mode Counters',
 		'~Fixed Edit Sprite Bug',
