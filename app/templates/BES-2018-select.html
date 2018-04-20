@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="/static/BES-2018/style/play.css" />
+	<link href="https://fonts.googleapis.com/css?family=Black+Han+Sans" rel="stylesheet"> 
+<!--
+    <script src="script/control.js"></script>
+    <script src="static/BES/scripts/level_select.js"></script>
+</head>
+<body onload="init()">
+-->
+</head>
+<body>
+    <h1>Barnstead Elementary School 2018</h1>
+	
+	<div class="select">
+		<div class="inner_select">
+			{% for code in levels %}
+			<a href="/BES-2018/{{ code }}">
+				<div class="container">
+					
+						<img src="{{ levels['6B']['thumb'] }}" alt="{{ code }}">
+					
+					<div class="center">{{ levels[code]['name'] }}</div>
+				</div>
+			</a>
+			{% endfor %}
+		</div>
+	</div>
+	
+	<!--
+    <div class="select">
+    {% for code in levels %}
+		<div>
+			<a href="/BES-2018/{{ code }}">
+				<img src="{{ levels[code]['thumb'] }}" />
+			</a>
+			<div class="center">
+				{{ levels[code]['name'] }}
+			</div>
+		</div>
+	{% endfor %}
+	-->
+
+    </div>
+</body>
+</html>

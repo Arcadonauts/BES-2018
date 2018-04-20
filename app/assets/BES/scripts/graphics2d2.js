@@ -64,11 +64,12 @@ var loader = {	sheet: undefined,
 					var loader = this
 					//this.name = document.URL.match(/\w+$/)[0]
 					this.name = document.location.pathname.match(/\w+$/)[0]
+					console.log(this.name)
 
 					//http://www.kryptonite-dove.com/blog/load-json-file-locally-using-pure-javascript
 					var xobj = new XMLHttpRequest();
 					xobj.overrideMimeType("application/json");
-					xobj.open('GET', 'static/BES/levels/data' + this.name + '.json', true); // Replace 'my_data' with the path to your file
+					xobj.open('GET', '/static/BES/levels/data' + this.name + '.json', true); // Replace 'my_data' with the path to your file
 					xobj.onreadystatechange = function () {
 						  if (xobj.readyState == 4 && xobj.status == "200") {
 							// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -262,7 +263,7 @@ var loader = {	sheet: undefined,
 					this.you_win.onload = function(){loader.inc()}
 
 					try{ // Did the data file load properly?
-						this.sheet.src = "static/BES/imgs/" + loader.data.sheetname
+						this.sheet.src = "/static/BES/imgs/" + loader.data.sheetname
 					}catch(e){
 						window.location = '/'
 					}
@@ -270,7 +271,7 @@ var loader = {	sheet: undefined,
 					if(loader.data.backgroundname){
 						try{
 							var bg_name = loader.data.backgroundname.split('.')[0]
-							this.background.src = 'static/BES/imgs/' + bg_name + '.jpg'
+							this.background.src = '/static/BES/imgs/' + bg_name + '.jpg'
 						}catch(e){
 							this.background.src = loader.data.backgroundname
 						}
@@ -279,12 +280,12 @@ var loader = {	sheet: undefined,
 					}
 
 					if(loader.data.foregroundname){
-						this.foreground.src = 'static/BES/imgs/' + loader.data.foregroundname
+						this.foreground.src = '/static/BES/imgs/' + loader.data.foregroundname
 					}else{
 						this.count += 1
 					}
 
-					this.you_win.src = 'static/BES/imgs/you_win.png'
+					this.you_win.src = '/static/BES/imgs/you_win.png'
 
 				}
 			}

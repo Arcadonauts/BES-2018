@@ -1,0 +1,66 @@
+body {
+	font-family: 'Black Han Sans', sans-serif;
+	background-image: url("/static/BES-2018/img/background.png");
+	background-attachment: fixed;
+}
+
+h1 {
+	text-align: center;
+	font-size: 36pt;
+		color: white;
+	text-shadow:
+		3px 	3px 	0 	#000,
+		-1px -1px 	0 	#000,  
+		1px 	-1px 	0 	#000,
+		-1px 	1px 	0 	#000,
+       1px 	1px 	0 	#000;
+}
+
+.select {
+	max-width: 1200px;
+	margin: 0 auto;
+	text-align: center;
+	
+}
+
+.inner_select {
+	width: 100%;
+	display: inline-block;
+}
+
+.select a{
+	text-decoration: none;
+	color: white;
+	text-shadow:
+		3px 	3px 	0 	#000,
+		-1px -1px 	0 	#000,  
+		1px 	-1px 	0 	#000,
+		-1px 	1px 	0 	#000,
+       1px 	1px 	0 	#000;
+}
+
+.container {
+    position: relative;
+	width: 200px;
+	height: 150px;
+	display: inline-block;
+	margin: 40px;
+	
+}
+
+
+.center {
+    position: absolute;
+    left: 0;
+    top: 20%;
+    width: 100%;
+    text-align: center;
+    font-size: 24px;
+}
+
+img { 
+    width: 100%;
+	height: 100%;
+    height: auto;
+	border:1px solid #021a40;
+}

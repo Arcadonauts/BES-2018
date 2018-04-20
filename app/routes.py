@@ -13,13 +13,20 @@ import collections
 GET = 'GET'
 POST = 'POST'
 
+################################################################################
+#                               School
+################################################################################
+@app.route('/BES')
+def bes():
+    return flask.redirect('/BES-2015')
+
 
 ################################################################################
 #                               BES 2015
 ################################################################################
 
-@app.route('/BES')
-def bes():
+@app.route('/BES-2015')
+def bes_2015():
     levels  =  [[('0Hw', 'K Howe'), ('0Ho', 'K Hobby'), ('0T', 'K Turgeon'), ('0W', 'K Walsh')],
                  [('1H', '1 Hamilton'), ('1D', '1 DeLuca'), ('1C', '1 Call')],
                  [('2B', '2 Butts'), ('2H', '2 Haddock'), ('2D', '2 Dalrymple')],
@@ -31,7 +38,7 @@ def bes():
                  [('8M', '8 Miller'), ('8R', '8 Rayno')]]
     return flask.render_template('BES_level_select.html', levels=levels)
 
-@app.route('/BES-<lvl>')
+@app.route('/BES-2015/<lvl>')
 def example(lvl):
 
     if lvl[0] == '0':
@@ -105,6 +112,24 @@ def editor_select():
 @app.route('/editor/<lvl>')
 def editor(lvl):
     return lvl_template('level_editor.html', lvl)
+
+@app.route('/BES-2018')
+def bes_2018():
+    levels = {}
+    lvls = lvl_list()
+    for code in lvls:
+        lvl = Lvl(code)
+        levels[code] = {}
+        levels[code]['code'] = code
+        levels[code]['name'] = lvls[code]
+
+        if os.path.isfile(lvl.dir_img + 'thumb.png'):
+            levels[code]['thumb'] = lvl.url_img + 'thumb.png'
+        else:
+             levels[code]['thumb'] = '/static/BES-2018/img/blank_thumb.png'
+        print levels[code]
+    return flask.render_template('BES-2018-select.html', levels=levels)
+
 
 @app.route('/BES-2018/<lvl>')
 def play(lvl):
