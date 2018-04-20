@@ -127,7 +127,6 @@ def bes_2018():
             levels[code]['thumb'] = lvl.url_img + 'thumb.png'
         else:
              levels[code]['thumb'] = '/static/BES-2018/img/blank_thumb.png'
-        print levels[code]
     return flask.render_template('BES-2018-select.html', levels=levels)
 
 
