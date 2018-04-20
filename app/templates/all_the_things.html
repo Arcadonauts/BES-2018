@@ -12,30 +12,32 @@
 	</div>
 	
 	{% for code in levels %}
-		<div class="the_things">
-			<h1>{{ levels[code]['name'] }} ({{ code }})</h1>
-			<ul>
-				<li>
-					<a href="/editor/{{ code }}#">edit</a>
-				</li>
-				<li>
-					<a href="/BES-2018/{{ code }}">play</a>
-				</li>
-				<li>
-					<a href="/upload?level={{ code }}">upload</a>
-				</li>
-			</ul>
-			<ul>
-			{% for img in levels[code]['imgs'] %}
-				<li><a href="/static/BES-2018/levels/{{ code }}/img/{{ img }}">{{ img }}</a></li>
-			{% endfor %}
-			</ul>
-			<ul>
-			{% for audio in levels[code]['audio'] %}
-				<li><a href="/static/BES-2018/levels/{{ code }}/audio/{{ audio }}">{{ audio }}</a></li>
-			{% endfor %}
-			</ul>
-		</div>
+		{% if code not in ['img_count', 'audio_count'] %}
+			<div class="the_things">
+				<h1>{{ levels[code]['name'] }} ({{ code }})</h1>
+				<ul>
+					<li>
+						<a href="/editor/{{ code }}#">edit</a>
+					</li>
+					<li>
+						<a href="/BES-2018/{{ code }}">play</a>
+					</li>
+					<li>
+						<a href="/upload?level={{ code }}">upload</a>
+					</li>
+				</ul>
+				<ul>
+				{% for img in levels[code]['imgs'] %}
+					<li><a href="/static/BES-2018/levels/{{ code }}/img/{{ img }}">{{ img }}</a></li>
+				{% endfor %}
+				</ul>
+				<ul>
+				{% for audio in levels[code]['audio'] %}
+					<li><a href="/static/BES-2018/levels/{{ code }}/audio/{{ audio }}">{{ audio }}</a></li>
+				{% endfor %}
+				</ul>
+			</div>
+		{% endif %}
 	{% endfor %}
 	
 	<div>
