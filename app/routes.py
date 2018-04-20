@@ -105,7 +105,7 @@ def lvl_template(html, name):
         audio_dir = lvl.url_audio
     )
 
-@app.route('/editor')
+@app.route('/editor/')
 def editor_select():
     return flask.render_template('editor_select.html', levels=lvl_list())
 
@@ -113,7 +113,7 @@ def editor_select():
 def editor(lvl):
     return lvl_template('level_editor.html', lvl)
 
-@app.route('/BES-2018')
+@app.route('/BES-2018/')
 def bes_2018():
     levels = {}
     lvls = lvl_list()
