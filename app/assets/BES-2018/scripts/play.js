@@ -4,12 +4,17 @@ window.play = (function(){
 	var x_axis = p2.vec2.fromValues(1, 0)
 	
 	var lvl = {
-		init: function(){
+		preinit: function(){
 			this.lvl = window.level_code
 			if(this.lvl && typeof this.lvl.init === 'function'){
-				this.lvl.init()
+				this.lvl.preinit()
 			}
 		}, 
+		postinit: function(sprites){
+			if(this.lvl && typeof this.lvl.postinit === 'function'){
+				this.lvl.postinit(sprites)
+			}
+		},
 		none: function(){
 			// This space intentionally left blank.
 		},
@@ -747,7 +752,7 @@ window.play = (function(){
 		},
 		create: function(){
 			
-			lvl.init()
+			lvl.preinit()
 			
 			if(this.debug && window.le && window.le.types){
 				window.le.types.forEach(function(t){
@@ -803,7 +808,7 @@ window.play = (function(){
 			this.all_the_sprites = all_the_sprites
 			
 			
-			
+			lvl.postinit(all_the_sprites)
 			lvl.message()
 			
 			
