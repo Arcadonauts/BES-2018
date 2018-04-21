@@ -20,11 +20,10 @@ window.play = (function(){
 				return this.none 
 			}
 		},
-		message: function(){
-			var msg = this.lvl && this.lvl.message && this.lvl.message.value
+		message: function(msg){
+			var msg = msg || (this.lvl && this.lvl.message && this.lvl.message.value)
 			if(!msg) return 
-			
-			
+		
 			var buff = 20
 			
 			var style = this.lvl.message 
@@ -44,6 +43,7 @@ window.play = (function(){
 			
 			text.update = function(){
 				if(!play.game.paused) {
+					lvl.get('message', 'close')()
 					this.destroy()
 				}
 			}
@@ -799,6 +799,8 @@ window.play = (function(){
 			this.audio = audio 
 			this.lvl = lvl 
 			this.all_the_sprites = all_the_sprites
+			
+			
 			
 			lvl.message()
 			
