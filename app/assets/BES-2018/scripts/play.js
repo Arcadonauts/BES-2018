@@ -818,7 +818,7 @@ window.play = (function(){
 		create_bg: function(game){
 			var bg = game.add.sprite(0, 0, 'bg')
 			
-			game.world.setBounds(0, 0, bg.width, bg.height)
+			game.world.setBounds(0, 0, bg.width, bg.height + 30)
 			
 			game.physics.startSystem(Phaser.Physics.P2JS);
 			
