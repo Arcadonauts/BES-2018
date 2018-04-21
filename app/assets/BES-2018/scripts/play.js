@@ -20,9 +20,10 @@ window.play = (function(){
 				return this.none 
 			}
 		},
-		message: function(msg){
+		message: function(msg, close){
 			var msg = msg || (this.lvl && this.lvl.message && this.lvl.message.value)
 			if(!msg) return 
+			if(close && this.lvl && this.lvl.message) this.lvl.message.close = close 
 		
 			var buff = 20
 			
@@ -38,6 +39,7 @@ window.play = (function(){
 				wordWrapWidth: style.wordWrapWidth || play.game.width - 4*buff
 			})
 			text.setTextBounds(buff, buff, play.game.width - 2*buff, play.game.height - 2*buff)
+			text.fixedToCamera = true 
 			
 			play.game.paused = true 
 			
