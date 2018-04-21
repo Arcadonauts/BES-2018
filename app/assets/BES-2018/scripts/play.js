@@ -459,6 +459,10 @@ window.play = (function(){
 				audio.play('lose')
 			}
 			
+			sprite.win = function(){
+				alert('You Win!')
+			}
+			
 			sprite.lost = function(){
 				/*
 				if(this.lost_timer > 0){

@@ -3,30 +3,36 @@ window.alt = (function(){
 	
 	function filter(){
 		var the_things = document.getElementById('all_the_things').getElementsByClassName('the_things')
+		var value = document.getElementById('search').value
 		console.log(the_things)
 		for(var i = 0; i < the_things.length; i++){
 			var title = the_things[i].getElementsByTagName('h1')[0].innerHTML
-			if(title.toLowerCase().indexOf(this.value.toLowerCase()) > -1){
+			if(title.toLowerCase().indexOf(value.toLowerCase()) > -1){
 				the_things[i].hidden = false 
 			}else{
 				the_things[i].hidden = true 
 			}
 		}
+		
+		for(var s in status){
+			if(!status[s]){
+				the_things = document.getElementById('all_the_things').getElementsByClassName(s)
+				for(var i = 0; i < the_things.length; i++){
+					the_things[i].hidden = true 
+				}
+			}
+		}
+		
+		
 	}
 	
+	var status = {}
+	
 	function filter_status(){
-		var status = this.innerText.toLowerCase().replace(' ', '_')
-		
+		console.log('hello??')
+		status[this.id] = this.checked 
+		filter()
 		console.log(status)
-		var the_things = document.getElementsByClassName('the_things')
-		for(var i = 0; i < the_things.length; i++){
-			the_things[i].hidden = true 
-		}
-		
-		var show = document.getElementsByClassName(status)
-		for(var i = 0; i < show.length; i++){
-			show[i].hidden = false 
-		}
 	}
 	
 	window.addEventListener('load', function(){
@@ -38,13 +44,18 @@ window.alt = (function(){
 			search.addEventListener(e, filter)
 		})
 		
-		/*
-		var butts = document.getElementById('status_buttons')
-		for(var i = 0; i < butts.children.length; i++){
-			butts.children[i].onclick = filter_status
-		}
-		*/
-	
+		
+		var butts = document.getElementsByTagName('input')
+		boxes = []
+		for(var i = 0; i < butts.length; i++){boxes.push(butts[i])}
+		boxes.forEach(function(box){
+			if(box.type === 'checkbox'){
+				box.onclick = filter_status
+				status[box.id] = box.checked 
+			}
+		})
+		
+		filter()
 		
 		
 		

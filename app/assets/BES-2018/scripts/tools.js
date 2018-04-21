@@ -895,7 +895,7 @@ window.addEventListener('load', function(){
 	if(window.location.hostname === 'localhost'){
 		add_tool(todo)
 	}else{
-		add_tool(report)
+		//add_tool(report)
 	}
 	add_tool(links)
 	add_tool(player)

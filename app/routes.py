@@ -111,7 +111,8 @@ def lvl_template(html, name):
         imgs = os.listdir(lvl.dir_img),
         audios = os.listdir(lvl.dir_audio),
         img_dir = lvl.url_img,
-        audio_dir = lvl.url_audio
+        audio_dir = lvl.url_audio,
+        name = lvl_list()[name]
     )
 
 @app.route('/editor/')

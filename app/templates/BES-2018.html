@@ -8,14 +8,21 @@
 	<link rel="stylesheet" type="text/css" href="/static/BES-2018/style/play.css">
 </head>
 <body>
-	<div id="outer">
-		<div id="game"></div>
-	</div>
-	<div hidden>
-		<div id="lvl">{{ lvl }}</div>
-		<div id="img_dir">{{ img_dir }}</div>
-		<div id="audio_dir">{{ audio_dir }}</div>
-		<div id="static_dir">{{ static }}</div>
+	<div class="level_page">
+		<div  class="level_head">
+			<h1>
+				{{ name }}
+			</h1>
+		</div>
+		<div id="outer">
+			<div id="game"></div>
+		</div>
+		<div hidden>
+			<div id="lvl">{{ lvl }}</div>
+			<div id="img_dir">{{ img_dir }}</div>
+			<div id="audio_dir">{{ audio_dir }}</div>
+			<div id="static_dir">{{ static }}</div>
+		</div>
 	</div>
 </body>
 
