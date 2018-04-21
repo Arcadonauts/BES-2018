@@ -633,11 +633,11 @@ window.play = (function(){
 			
 			counter.update = function(){
 				if(!this.following){
-					console.log('Conter: finding a sprite to follow...')
-					if(data.who === 'player'){
+					console.log('Counter: finding a sprite to follow...')
+					if(this.who === 'player'){
 						this.following = play.er
 					}else{
-						this.following = play.all_the_sprites.filter(s => s.key === data.who || s.key === data.who +'.png')
+						this.following = play.all_the_sprites.filter(s => s.key === data.who || s.key === data.who +'.png')[0] //Untested 
 					}
 				}else{
 					this.text.text = 'x' + this.following[data.what]
@@ -649,14 +649,14 @@ window.play = (function(){
 			counter.fixedToCamera = true 
 			counter.symbols = []
 			counter.count = 0 
-			
+
 			counter.update = function(){
 				if(!this.following){
-					console.log('Conter: finding a sprite to follow...')
+					console.log('Counter: finding a sprite to follow...')
 					if(data.who === 'player'){
 						this.following = play.er
 					}else{
-						this.following = play.all_the_sprites.filter(s => s.key === data.who || s.key === data.who +'.png')
+						this.following = play.all_the_sprites.filter(s => s.key === data.who || s.key === data.who +'.png')[0] //Untested
 					}
 				}else{
 					var count = Math.floor(this.following[data.what])
@@ -709,6 +709,23 @@ window.play = (function(){
 			/*sprite.collect = function(player){
 				console.log (this.key + ' collected by player (' + player.key + ')')
 			}*/
+		}, 
+		shadow: function(sprite, s){
+			sprite.body.kinematic = true 
+			sprite.body.data.shapes.forEach(s => s.sensor = true)
+			sprite.intraupdate = function(){
+				if(!this.following){
+					console.log('Shadow: finding a sprite to follow...')
+					if(this.who === 'player'){
+						this.following = play.er
+					}else{
+						this.following = play.all_the_sprites.filter(s => s.key === this.who || s.key === this.who +'.png')[this.which || 0]
+					}
+				}else{
+					this.body.x = this.following.body.x 
+					this.body.y = this.following.body.y 
+				}
+			}
 		}
 	}
 	

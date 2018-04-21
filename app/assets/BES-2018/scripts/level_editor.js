@@ -81,6 +81,9 @@ var types = [
 		amplitude_x: 0,
 		period_x: 0,
 		shift_x: 0
+	}, {
+		type: 'Shadow',
+		who: 'player'
 	}
 ]
 
@@ -525,6 +528,12 @@ function add_sprite(data, bg, id){
 
 function edit_sprite(sprite){
 	le.editor.state.start('sprite_editor', true, false, false, sprite)
+}
+
+function edit_sprite_by_key(key){
+	var sprite 
+	main.bg.children.forEach(s => sprite = s.key === key ? s : sprite)
+	if(sprite) edit_sprite(sprite)
 }
 
 function add_control_node(parent, x_key, y_key){
@@ -1767,6 +1776,8 @@ window.addEventListener('load', function(){
 	
 })
 
+
+
 var le = {
 	Triangle: Triangle,
 	physics: physics,
@@ -1776,7 +1787,8 @@ var le = {
 	sprite_editor: sprite_editor,
 	get_lvl: get_lvl,
 	get_list: get_list,
-	types: types 
+	types: types,
+	edit_sprite_by_key: edit_sprite_by_key
 }
 
 return le 

@@ -353,7 +353,22 @@ var data = {
 
 		var select = document.createElement('select')
 		div.appendChild(select)
-
+		select.style.width = '80%'
+		
+		var edit = document.createElement('a')
+		div.appendChild(edit)
+		edit.href = '#'
+		edit.style.padding = '0 20px'
+		edit.onclick = function(){
+			le.edit_sprite_by_key(select.value)
+		}
+		
+		var icon = document.createElement('i')
+		edit.appendChild(icon)
+		
+		icon.className = 'material-icons'
+		icon.innerHTML = 'mode_edit'
+		
 		var sprites = this.sprites = {}
 		for(var i = 0; i < le.physics.data.sprites.length; i++){
 			var s = le.physics.data.sprites[i]
@@ -380,6 +395,9 @@ var data = {
 		//select.onchange = (function(){
 			that.build(this.value)
 		})
+		
+		
+		
 			
 		this.table_div = document.createElement('div')
 		div.appendChild(this.table_div)
