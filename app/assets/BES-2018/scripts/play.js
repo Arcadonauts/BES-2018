@@ -693,6 +693,8 @@ window.play = (function(){
 
 		},
 		collectable: function(sprite, s){
+			this.floating(sprite, s)
+			
 			sprite.body.kinematic  = true 
 			sprite.body.data.shapes.forEach(s => s.sensor = true)
 
@@ -714,8 +716,10 @@ window.play = (function(){
 	var play = {
 		no_copy: no_copy,
 		preload: function(){
-			game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-			game.scale.setMinMax(400, 300, 800, 600);
+			if(game.scale){
+				game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+				game.scale.setMinMax(400, 300, 800, 600);
+			}
 		},
 		init: function(game, callback, debug){
 			this.callback = callback // function 

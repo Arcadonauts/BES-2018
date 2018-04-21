@@ -75,6 +75,12 @@ var types = [
 		dx: 0,
 	}, {
 		type: 'Collectable',
+		amplitude_y: -5,
+		period_y: 240,
+		shift_y: 0,
+		amplitude_x: 0,
+		period_x: 0,
+		shift_x: 0
 	}
 ]
 

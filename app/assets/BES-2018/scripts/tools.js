@@ -5,12 +5,7 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
-		
-		'Collectables + Float',
-		'Auto Size Notes area',
 		'thumbs',
-		'death on ground option',
-		'play css',
 		
 		'! Esacpe -> Escape',
 		'Change of type from dynamic to floating with multiple sprites bug.',
@@ -48,6 +43,8 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~Auto Size Notes area',
+		'~Collectables + Float',
 		'~Fix Drag Bug',
 		'~/BES-2018 (level select)',
 		'~/all_the_things',
@@ -523,6 +520,7 @@ var notes = {
 			gutter: true,
 		})*/
 		editor = document.createElement('textarea')
+		editor.rows = 100
 
 		editor.value = this.value
 
