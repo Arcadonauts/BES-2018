@@ -5,10 +5,16 @@ var todo = {
 	id: 'todo',
 	list: [
 		// To Do
-		'homepage bug.',
+		
+		'Dist Function available to lvl',
+		'Collectables + Float',
+		'Auto Size Notes area',
+		'thumbs',
+		'death on ground option',
+		'play css',
+		
 		'! Esacpe -> Escape',
 		'Change of type from dynamic to floating with multiple sprites bug.',
-		'!Resolve Escape the School Conflict',
 		'Fix animation add first time bug',
 		
 		'?Sprite Mode Foreground',
@@ -43,6 +49,7 @@ var todo = {
 		'?Volume Sliders',
 
 		// To Done
+		'~Fix Drag Bug',
 		'~/BES-2018 (level select)',
 		'~/all_the_things',
 		'~Sprite Mode Counters',

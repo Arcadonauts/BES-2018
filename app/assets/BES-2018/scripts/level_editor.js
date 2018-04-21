@@ -946,7 +946,20 @@ var mouse = {
 				mouse.pointer.set('blue_move')
 				sprite.input.enableDrag()
 				sprite.children.forEach(function(c){
-					if(c.input)  c.input.enableDrag()
+					if(c.input) {
+						c.input.enableDrag()						
+						//c.events.onDragUpdate.add((s, p, x, y)=> console.log([s.x, s.y, x, y, p.x, p.y]))
+						c.events.onDragUpdate.add(function(sprite, mouse, x, y){
+							var parent = sprite.parent 
+							var s = parent.scale.x 
+							var x0 = parent.position.x 
+							var y0 = parent.position.y
+							
+							sprite.x = (mouse.x - x0)/s - sprite.width/2 
+							sprite.y = (mouse.y - y0)/s - sprite.height/2 
+							
+						})
+					}
 				})
 				sprite.ignoreChildInput = false 
 			},
@@ -1517,7 +1530,7 @@ var main = {
 		})
 	
 		butt('Load', function(){
-			var ok = confirm('Load level? You will lose any unsaved progress.')
+			var ok = true || confirm('Load level? You will lose any unsaved progress.')
 			if(ok){
 				physics.open()
 			}
