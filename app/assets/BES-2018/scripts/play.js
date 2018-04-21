@@ -713,6 +713,10 @@ window.play = (function(){
 
 	var play = {
 		no_copy: no_copy,
+		preload: function(){
+			game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+			game.scale.setMinMax(400, 300, 800, 600);
+		},
 		init: function(game, callback, debug){
 			this.callback = callback // function 
 			this.game = game // Phaser.Game object

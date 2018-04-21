@@ -20,6 +20,8 @@ var preloader = {
 		}
 		xhr.open('GET', '/json-handler/' + game.lvl, true);
 		xhr.send();
+		
+		
 	},
 }
 

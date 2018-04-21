@@ -6,7 +6,6 @@ var todo = {
 	list: [
 		// To Do
 		
-		'Dist Function available to lvl',
 		'Collectables + Float',
 		'Auto Size Notes area',
 		'thumbs',

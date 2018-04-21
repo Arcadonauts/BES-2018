@@ -129,3 +129,23 @@ body {
 	font-size: 15pt;
 	text-decoration: none;
 }
+
+.inline {
+	display: inline-block;
+}
+
+.unstarted {
+	background-color: #FF77A8;
+}
+
+.editing {
+	background-color: #83769C;
+}
+
+.fifth {
+	background-color: #FFCCAA;
+}
+
+.finished {
+	background-color: #29ADFF;
+}

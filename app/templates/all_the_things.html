@@ -10,36 +10,46 @@
 	<h1 id="filter">Filter:</h1>
 		<input id="search" type="text" placeholder="Search" autofocus></input>
 	</div>
-	
-	{% for code in levels %}
-		{% if code not in ['img_count', 'audio_count'] %}
-			<div class="the_things">
-				<h1>{{ levels[code]['name'] }} ({{ code }})</h1>
-				<ul>
-					<li>
-						<a href="/editor/{{ code }}#">edit</a>
-					</li>
-					<li>
-						<a href="/BES-2018/{{ code }}">play</a>
-					</li>
-					<li>
-						<a href="/upload?level={{ code }}">upload</a>
-					</li>
-				</ul>
-				<ul>
-				{% for img in levels[code]['imgs'] %}
-					<li><a href="/static/BES-2018/levels/{{ code }}/img/{{ img }}">{{ img }}</a></li>
-				{% endfor %}
-				</ul>
-				<ul>
-				{% for audio in levels[code]['audio'] %}
-					<li><a href="/static/BES-2018/levels/{{ code }}/audio/{{ audio }}">{{ audio }}</a></li>
-				{% endfor %}
-				</ul>
-			</div>
-		{% endif %}
+	{% set cls = {'5': 'fifth_grade', 'u': 'unstarted', 'e': 'editing', 'f': 'finished'} %}
+	<div id="status_buttons">
+	{% for key in cls %}
+		<div class="the_things {{ cls[key] }} inline">
+			<!--a id={{ cls[key] }} href='#'-->
+				{{ cls[key].replace('_', ' ').title() }}
+			<!--/a-->
+		</div>		
 	{% endfor %}
-	
+	</div>
+	<div id="all_the_things">
+		{% for code in levels %}
+			{% if code not in ['img_count', 'audio_count'] %}
+				<div class="the_things {{ cls[levels[code]['status']] }}">
+					<h1>{{ levels[code]['name'] }} ({{ code }})</h1>
+					<ul>
+						<li>
+							<a href="/editor/{{ code }}#">edit</a>
+						</li>
+						<li>
+							<a href="/BES-2018/{{ code }}">play</a>
+						</li>
+						<li>
+							<a href="/upload?level={{ code }}">upload</a>
+						</li>
+					</ul>
+					<ul>
+					{% for img in levels[code]['imgs'] %}
+						<li><a href="/static/BES-2018/levels/{{ code }}/img/{{ img }}">{{ img }}</a></li>
+					{% endfor %}
+					</ul>
+					<ul>
+					{% for audio in levels[code]['audio'] %}
+						<li><a href="/static/BES-2018/levels/{{ code }}/audio/{{ audio }}">{{ audio }}</a></li>
+					{% endfor %}
+					</ul>
+				</div>
+			{% endif %}
+		{% endfor %}
+	</div>
 	<div>
 		Image Count: {{ levels['img_count'] }}
 	</div>

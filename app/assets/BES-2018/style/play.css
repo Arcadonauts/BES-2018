@@ -1,7 +1,8 @@
 body {
 	font-family: 'Black Han Sans', sans-serif;
-	background-image: url("/static/BES-2018/img/background.png");
+	background-image: url("/static/BES-2018/img/background.jpg");
 	background-attachment: fixed;
+	background-size: cover;
 }
 
 h1 {
@@ -63,4 +64,23 @@ img {
 	height: 100%;
     height: auto;
 	border:1px solid #021a40;
+}
+
+#outer {
+	height:100%;
+	text-align: center;
+}
+
+#game {
+	height:100%;
+	display:inline-block;
+}
+#game canvas {
+	border-style: solid;
+	border-color: #5064b1;
+    border-width: 2px;
+	border-radius: 2px;
+	-webkit-box-shadow: 0px 0px 10px 10px rgba(80,99,177,1);
+	-moz-box-shadow: 0px 0px 10px 0px rgba(80,99,177,1);
+	box-shadow: 0px 0px 10px 10px rgba(80,99,177,1);
 }

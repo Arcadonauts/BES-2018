@@ -92,6 +92,15 @@ def lvl_list():
                 print(id, dir)
     return op
 
+def get_status():
+    lvl = Lvl()
+    op = {}
+    with open(lvl.shared_levels + '/status.txt') as f:
+        for line in f.readlines():
+            split = line.split(' ')
+            op[split[0]] = split[1][0]
+    return op
+
 
 def lvl_template(html, name):
     lvl = Lvl(name)
@@ -163,6 +172,7 @@ def all_the_imgs():
 @app.route('/all_the_things')
 def all_the_things():
     lvls = lvl_list()
+    status = get_status()
     levels = {'img_count': 0, 'audio_count': 0}
     for code in lvls:
         levels[code] = {}
@@ -170,6 +180,7 @@ def all_the_things():
         levels[code]['code'] = code
         levels[code]['imgs'] = []
         levels[code]['audio'] = []
+        levels[code]['status'] = status.get(code, '?')
         lvl = Lvl(code)
         for img in os.listdir(lvl.dir_img):
             levels[code]['imgs'].append(img)
