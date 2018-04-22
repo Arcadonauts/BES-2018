@@ -646,7 +646,7 @@ window.play = (function(){
 			counter.update = function(){
 				if(!this.following){
 					console.log('Counter: finding a sprite to follow...')
-					if(this.who === 'player'){
+					if(data.who === 'player'){
 						this.following = play.er
 					}else{
 						this.following = play.all_the_sprites.filter(s => s.key === data.who || s.key === data.who +'.png')[0] //Untested 
