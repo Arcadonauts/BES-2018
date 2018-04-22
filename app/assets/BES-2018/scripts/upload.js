@@ -174,6 +174,17 @@ window.loader = (function(){
 				lvl.value = 'Level'
 			}
 		}
+		
+		var select = document.getElementById('lvl')
+		var link = document.getElementById('edit_link')
+		select.onchange = function(){
+				
+				link.href = '/editor/' + this.value 
+		}
+		if(select.value){
+			link.href = '/editor/' + select.value 
+		}
+		
 	})
 	
 	

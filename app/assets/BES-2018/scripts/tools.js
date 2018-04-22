@@ -805,7 +805,7 @@ var links = {
 		this.outer.appendChild(div)
 
 		div.appendChild(
-			this.section('Upload', this.a('/upload', 'Click here'), ' to add an image or auido file to the level.', this.style('b', 'You must refresh the page (Ctrl + R) when you finish.'))
+			this.section('Upload', this.a('/upload?level=' + get_lvl(), 'Click here'), ' to add an image or auido file to the level.', this.style('b', 'You must refresh the page (Ctrl + R) when you finish.'))
 		)
 
 		div.appendChild(

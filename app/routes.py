@@ -127,7 +127,10 @@ def editor(lvl):
 def bes_2018():
     levels = {}
     lvls = lvl_list()
+    status = get_status()
     for code in lvls:
+        if status.get(code) != 'f':
+            continue
         lvl = Lvl(code)
         levels[code] = {}
         levels[code]['code'] = code
