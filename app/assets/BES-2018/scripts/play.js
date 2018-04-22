@@ -6,7 +6,7 @@ window.play = (function(){
 	var lvl = {
 		preinit: function(){
 			this.lvl = window.level_code
-			if(this.lvl && typeof this.lvl.init === 'function'){
+			if(this.lvl && typeof this.lvl.preinit === 'function'){
 				this.lvl.preinit()
 			}
 		}, 

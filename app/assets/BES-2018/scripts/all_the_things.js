@@ -57,6 +57,19 @@ window.alt = (function(){
 		
 		filter()
 		
+		var statuses = ['fifth_grade', 'unstarted', 'editing', 'finished']
+		var the_things = document.getElementById('all_the_things')
+		var keys = document.getElementById('status_buttons')
+		statuses.forEach(function(status){
+			var div = keys.getElementsByClassName(status)[0]
+			var count = the_things.getElementsByClassName(status).length 
+			var text = document.createTextNode(' (' + count + ') ')
+			div.appendChild(text)
+			
+		})
+		
+	
+		
 		
 		
 	})

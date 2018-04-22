@@ -15,8 +15,9 @@
 	{% for key in cls %}
 		<div class="the_things {{ cls[key] }} inline">
 			<!--a id={{ cls[key] }} href='#'-->
+			<input type="checkbox" id="{{ cls[key] }}" checked="true"></input>
 				{{ cls[key].replace('_', ' ').title() }}
-				<input type="checkbox" id="{{ cls[key] }}" checked="true"></input>
+				
 			<!--/a-->
 		</div>		
 	{% endfor %}
