@@ -471,8 +471,8 @@ window.play = (function(){
 					this.game.state.start('play', true, false, this.game)
 				}
 				*/
-				if(this.y > this.game.world.height + 150){ // 
-				//if(this.top > this.game.world.bounds.y + this.game.world.bounds.height){
+				//if(this.y > this.game.world.height + 150){ // 
+				if(this.top > this.game.world.bounds.y + this.game.world.bounds.height){
 					this.game.state.start('play', true, false, play.game, play.callback, play.debug)
 				}
 			}
