@@ -501,12 +501,54 @@ var code = {
 		xmlhttp.setRequestHeader("Content-Type", "application/json");
 		xmlhttp.send(JSON.stringify({code: this.value}));
 	},
+	auto: function(){
+		var imgs = document.getElementById('imgs')
+		var img 
+		var funcs = [
+			'preupdate',
+			'postupdate',
+			'init',
+			'ondeath',
+			'collect',
+			'action'
+			 // begin_contact(this_sprite, other_sprite, equation)
+			//  end_contact(this_sprite, other_sprite, equation)
+			  //message.value
+			  //message.close
+		]
+		var code = ''
+		code += 'window.level_code = (function(){ \n'
+		code += '\n\n'
+		code += '  return {\n'
+		code += '    preinit: function(){},\n'
+		code += '    postinit: function(sprites){},\n'
+		for(var i = 0; i < imgs.children.length; i++){
+			img = imgs.children[i].innerHTML
+			if(img.toLowerCase().endsWith('.png')){
+				code += '    "' + img + '": {\n'
+				for(var j = 0; j < funcs.length; j++){
+					code += '      ' + funcs[j] + ': function(){},\n'
+				}
+				code += '      begin_contact: function(sprite, other, eq){},\n'
+				code += '      end_contact: function(sprite, other, eq){}\n'
+				code += '    },\n'
+			}
+		}
+		code += '    message: {\n'
+		code += "      value : '',\n"
+		code += '      close : function(){}\n'
+		code += '    }\n'
+		
+		code += '  }\n'
+		code += '})()'
+		return code 
+	},
 	open: function(){
 		var xhr = new XMLHttpRequest()
 		var that = this
 		xhr.onreadystatechange = function(){
 			if(xhr.readyState === 4 && xhr.status === 200){
-				that.value = xhr.responseText
+				that.value = xhr.responseText || that.auto()
 			}
 		}
 		var lvl = get_lvl()
