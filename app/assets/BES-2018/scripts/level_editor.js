@@ -285,10 +285,11 @@ function textbutton(x, y, label, callback, callbackContext){
 	}
 	
 	butt = le.editor.add.button(x, y, 'button', callback, callbackContext, 1, 0, 2, 3)
-	var text = le.editor.add.text(butt.width/2, butt.height/2, label, {
-		fontSize: 16
+	var text = le.editor.add.text(0, 0, label, {
+		fontSize: 16,
+		fill: '#ffffff'
 	})
-	text.anchor.set(.5)
+	//text.anchor.set(.5)
 	butt.addChild(text)
 	butt.text = text 
 	
