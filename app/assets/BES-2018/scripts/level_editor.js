@@ -28,6 +28,7 @@ var icon_map = {
 	'Ground': ['action', 'timeline', 'Click from left to right to add ground. Click this button when finished.'],
 	'Rectangle': ['image', 'crop_5_4', 'Click to add rectangle (for terrain)'],
 	'Box': ['content', 'add_box', 'Rectangle Hitbox'],
+	'Copy': ['content', 'content_copy', 'Copy Sprite'],
 	'+' : ['content', 'add_circle_outline', '+1'],
 	'-' : ['content', 'remove_circle_outline', '-1']
 	
@@ -324,6 +325,7 @@ function iconbutton(x, y, label, callback, callbackContext, box){
 	
 	var empty = le.editor.add.sprite(x, y)
 	empty.anchor.set(1, 0)
+	empty.scale.set(.75)
 	
 	var cont = le.editor.add.sprite(0, 0, 'rect_container')
 	if(!box) cont.alpha = 0 // Ugly 
@@ -840,7 +842,7 @@ var physics = {
 				y: sprite.y,
 			}
 			
-			console.log(sprite.animations)
+			//console.log(sprite.animations)
 			
 			var old = physics.get.sprite(sprite.key)
 			if(old && !override){ // Copy 
@@ -920,8 +922,69 @@ var mouse = {
 	y: 0,
 	init: function(){
 		this.tip.init()
+		if(this.pointer.sprite){
+			this.pointer.set(this.pointer.sprite.key)
+		}
 	},
 	modes: {
+		copy: {
+			start: function(sprite){
+				sprite.ignoreChildInput = true // Maybe wrong
+			},
+			end: function(sprite){
+				mouse.pointer.destroy()
+				this.parent = undefined
+			},
+			click: function(bg, x, y){
+				if(this.parent){
+					//console.log('copying:' + this.parent.key)
+					this.copy_parent(bg, x, y)
+				}else{
+					
+					//console.log('searching...')
+					this.select_parent(bg, x, y)
+				}
+			},
+			copy_parent: function(bg, x, y){
+				x -= this.parent.width/2
+				y -= this.parent.height/2
+				
+				x -= bg.x 
+				y -= bg.y 
+				
+				x /= bg.scale.x 
+				y /= bg.scale.y
+				
+				var sprite = le.editor.add.sprite(x, y, this.parent.key)
+				physics.add.sprite(sprite)
+				//main.bg.addChild(sprite)
+				le.editor.state.start('reloader', true, true, physics.data)
+			},
+			select_parent: function(bg, x, y){
+				x -= bg.x 
+				y -= bg.y 
+				
+				x /= bg.scale.x 
+				y /= bg.scale.y
+				
+				
+				var child 
+			    var found_sprite = false 
+				for(var i = 0; i < bg.children.length; i++){
+					child = bg.children[i]
+					if(child.hit && child.hit(x, y)){
+						console.log('copy: sprite')
+						found_sprite = true 
+						break 
+					}
+				}
+				if(found_sprite){
+					this.parent = child 
+					mouse.pointer.set(child.key)
+				}
+			}
+			
+		},
 		edit: {
 			start: function(sprite){
 				mouse.pointer.set('green_edit')
@@ -1393,7 +1456,7 @@ var reloader = {
 
 var opener = {
 	init: function(data){
-		console.log(data)
+//		console.log(data)
 		this.data = data 
 	},
 	preload: function(){
@@ -1424,6 +1487,14 @@ var opener = {
 	
 }
 
+var view = {
+	update: function(){
+		this.x = main.bg.x 
+		this.y = main.bg.y 
+		this.zoom = main.bg.zoom
+	}
+}
+
 var main = {
 	init: function(bg_fn){
 		if(bg_fn){
@@ -1442,7 +1513,7 @@ var main = {
 		
 	},
 	create: function(){
-		var sprite = this.bg = le.editor.add.sprite(0,0,'bg')
+		var sprite = this.bg = le.editor.add.sprite(0, 0, 'bg')
 		sprite.inputEnabled = true 
 		
 		sprite.events.onInputDown.add(function(){
@@ -1450,31 +1521,41 @@ var main = {
 			mouse.click(sprite)
 		})
 		
-		
-		sprite.zoom= {
-			key: 'zoom',
-			max: 2,
-			min: .2,
-			value: 1,
-			shoe_size: .1,
-			step: function(d){
-				this.value = constrain(this.value + d*this.shoe_size, this.min, this.max)
-				this.value = Math.round(this.value*10)/10
-				return this.value 
+		if(view.zoom){
+			sprite.zoom = view.zoom
+		}else{
+			sprite.zoom= {
+				key: 'zoom',
+				max: 2,
+				min: .2,
+				value: 1,
+				shoe_size: .1,
+				step: function(d){
+					this.value = constrain(this.value + d*this.shoe_size, this.min, this.max)
+					this.value = Math.round(this.value*10)/10
+					return this.value 
+				}
 			}
 		}
 		
+		sprite.scale.set(sprite.zoom.value)
+		
 		physics.load(sprite)
+		
+		if(view.x !== undefined && view.y !== undefined){
+			sprite.x = view.x 
+			sprite.y = view.y 
+		}
 		
 		hud.follow(sprite, 'x', true)
 		hud.follow(sprite, 'y', true)
 		hud.follow(sprite.zoom, 'value')
 		
-		var mem = {x:le.editor.width - 48, y:0, buttons:[]}
+		var mem = {x:le.editor.width - 48*.75, y:0, buttons:[]}
 		function butt(name, callback){
 			var b = textbutton(mem.x, mem.y, name, callback)
 			//b.x -= b.width 
-			mem.y += b.height 
+			mem.y += b.height * .75
 			mem.buttons.push(b)
 		}
 		
@@ -1521,6 +1602,11 @@ var main = {
 			le.editor.state.start('img_selector', true, false, 'sprite_editor')
 		})
 		
+		butt('Copy', function(){
+			select(this)
+		})
+		
+		
 		butt('Ground', function(){
 			select(this)
 		})
@@ -1565,6 +1651,7 @@ var main = {
 		
 	},
 	update: function(){
+		view.update()
 		mouse.update(this.bg)
 		hud.update()
 	}
