@@ -1539,9 +1539,11 @@ var main = {
 			}
 		}
 		
-		sprite.scale.set(sprite.zoom.value)
+		
 		
 		physics.load(sprite)
+		
+		sprite.scale.set(sprite.zoom.value)
 		
 		if(view.x !== undefined && view.y !== undefined){
 			sprite.x = view.x 
