@@ -57,7 +57,7 @@ window.alt = (function(){
 		
 		filter()
 		
-		var statuses = ['fifth_grade', 'unstarted', 'editing', 'finished']
+		var statuses = ['fifth_grade', 'unstarted', 'editing', 'finished', 'missing']
 		var the_things = document.getElementById('all_the_things')
 		var keys = document.getElementById('status_buttons')
 		statuses.forEach(function(status){

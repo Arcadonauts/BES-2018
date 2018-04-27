@@ -99,6 +99,8 @@ def get_status():
         for line in f.readlines():
             split = line.split(' ')
             op[split[0]] = split[1][0]
+            if split[1][0] == 'm': # Missing
+                op[split[0]] = ' '.join(split[1:])
     return op
 
 
@@ -184,7 +186,8 @@ def all_the_things():
         levels[code]['code'] = code
         levels[code]['imgs'] = []
         levels[code]['audio'] = []
-        levels[code]['status'] = status.get(code, '?')
+        levels[code]['status'] = status.get(code, '?')[0]
+        levels[code]['missing'] = status[code][1:]  if levels[code]['status'] == 'm' else ''
         lvl = Lvl(code)
         for img in os.listdir(lvl.dir_img):
             levels[code]['imgs'].append(img)

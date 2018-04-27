@@ -10,7 +10,7 @@
 	<h1 id="filter">Filter:</h1>
 		<input id="search" type="text" placeholder="Search" autofocus></input>
 	</div>
-	{% set cls = {'5': 'fifth_grade', 'u': 'unstarted', 'e': 'editing', 'f': 'finished'} %}
+	{% set cls = {'5': 'fifth_grade', 'u': 'unstarted', 'e': 'editing', 'f': 'finished', 'm': 'missing'} %}
 	<div id="status_buttons">
 	{% for key in cls %}
 		<div class="the_things {{ cls[key] }} inline">
@@ -38,6 +38,11 @@
 							<a href="/upload?level={{ code }}">upload</a>
 						</li>
 					</ul>
+					
+					{% if levels[code]['missing'] %}
+						<div class="missing_message">Missing: {{ levels[code]['missing'] }}</div>
+					{% endif %}
+					
 					<ul>
 					{% for img in levels[code]['imgs'] %}
 						<li><a href="/static/BES-2018/levels/{{ code }}/img/{{ img }}">{{ img }}</a></li>

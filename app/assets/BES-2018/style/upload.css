@@ -149,3 +149,14 @@ body {
 .finished {
 	background-color: #29ADFF;
 }
+
+.missing { 
+	background-color: #C2C3C7;
+}
+
+.missing_message {
+	font-size: 15pt;
+	font-weight: bold;
+	background-color: inherit;
+	color: #FF024D;
+}
