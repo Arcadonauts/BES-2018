@@ -335,12 +335,12 @@ window.play = (function(){
 				if(!fired_from_key.toLowerCase().endsWith('.png')){
 					fired_from_key += '.png'
 				}
-				var firing = sprites.filter(s => s.key === fired_from_key)[0]
-				if(firing){
+				sprites.filter(s => s.key === fired_from_key).forEach(firing => firing.fireables.push(p))
+				/*if(firing){
 					firing.fireables.push(p)
 				}else{
 					console.warn('Invalid fire_from key: ' + fired_from_key + '/' + p.data.fired_from)
-				}
+				}*/
 			})
 		},
 		register: function(sprite, s){
