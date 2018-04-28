@@ -339,7 +339,7 @@ window.play = (function(){
 				if(firing){
 					firing.fireables.push(p)
 				}else{
-					console.warn('Invalid fire_from key: ' + fired_from_key + '/' + p.data.fire_from)
+					console.warn('Invalid fire_from key: ' + fired_from_key + '/' + p.data.fired_from)
 				}
 			})
 		},
