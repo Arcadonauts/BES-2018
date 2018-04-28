@@ -332,7 +332,7 @@ window.play = (function(){
 				if(fired_from_key === 'player'){
 					fired_from_key = play.er.key
 				}
-				if(!fired_from_key.endsWith('.png')){
+				if(!fired_from_key.toLowerCase().endsWith('.png')){
 					fired_from_key += '.png'
 				}
 				var firing = sprites.filter(s => s.key === fired_from_key)[0]
