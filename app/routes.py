@@ -18,7 +18,7 @@ POST = 'POST'
 ################################################################################
 @app.route('/BES')
 def bes():
-    return flask.redirect('/BES-2015')
+    return flask.render_template('BES-select.html')
 
 
 ################################################################################
@@ -99,8 +99,8 @@ def get_status():
         for line in f.readlines():
             split = line.split(' ')
             op[split[0]] = split[1][0]
-            if split[1][0] == 'm': # Missing
-                op[split[0]] = ' '.join(split[1:])
+            #if split[1][0] == 'm': # Missing
+            op[split[0]] = ' '.join(split[1:])
     return op
 
 
@@ -131,7 +131,7 @@ def bes_2018():
     lvls = lvl_list()
     status = get_status()
     for code in lvls:
-        if status.get(code) != 'f':
+        if status.get(code)[0] != 'f':
             continue
         lvl = Lvl(code)
         levels[code] = {}
@@ -187,7 +187,7 @@ def all_the_things():
         levels[code]['imgs'] = []
         levels[code]['audio'] = []
         levels[code]['status'] = status.get(code, '?')[0]
-        levels[code]['missing'] = status[code][1:]  if levels[code]['status'] == 'm' else ''
+        levels[code]['notes'] = status[code][1:].strip()
         lvl = Lvl(code)
         for img in os.listdir(lvl.dir_img):
             levels[code]['imgs'].append(img)
