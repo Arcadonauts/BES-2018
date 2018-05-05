@@ -5,6 +5,8 @@ import os
 from app.direct import Lvl
 import email_myself
 import collections
+import re, cStringIO
+from PIL import Image
 
 ################################################################################
 #                               Globals
@@ -220,6 +222,18 @@ def create():
                 f.write('\n%s %s'%(lvl.lvl, name))
 
             return 'Succesfully created new level: ' + lvl.lvl
+
+@app.route('/thumb', methods=['POST'])
+def thumb():
+    file = flask.request.files['img']
+    lvl = Lvl(flask.request.form['lvl'])
+    fn = lvl.dir_img + 'thumb_%s.png'%lvl.lvl
+    file.save(fn)
+
+    img = Image.open(fn).convert('RGB').resize((200, 150))
+    img.save(lvl.dir_img + lvl.lvl +'_thumb.jpg')
+
+    return 'ok!'
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():

@@ -153,7 +153,8 @@ window.play = (function(){
 			jump: ['SPACEBAR', 'UP', 'W'],
 			left: ['A', 'LEFT'],
 			right: ['D', 'RIGHT'],
-			action: ['E', 'SHIFT']
+			action: ['E', 'SHIFT'],
+			thumb: ['T']
 		},
 		down: function(code){
 			for(var i = 0; i < this.binding[code].length; i++){
@@ -743,6 +744,43 @@ window.play = (function(){
 		}
 	}
 	
+	var thumb = {
+		update: function(){
+			this.pressed = !this.key_down && key.down('thumb')
+			if(this.pressed){
+				this.snapshot()
+			}
+			this.key_down = key.down('thumb')
+		},
+		snapshot: function(){
+			var img = this.get_img()
+			this.save(img)
+		},
+		get_img: function(){
+			var canvas = document.getElementsByTagName('canvas')[0]
+			if(!canvas) return 
+			var dataURL = canvas.toDataURL()
+			
+			var blobBin = atob(dataURL.split(',')[1]);
+			var array = [];
+			for(var i = 0; i < blobBin.length; i++) {
+				array.push(blobBin.charCodeAt(i));
+			}
+			var file=new Blob([new Uint8Array(array)], {type: 'image/png'});
+			return file 
+			
+		},
+		save: function(img){
+			var xml = new XMLHttpRequest();
+			xml.open("POST", "/thumb", true);
+			var fd = new FormData();
+            fd.append("img", img)
+			var lvl = (''+window.location).match(/\w+$/)[0]
+			fd.append('lvl', lvl)
+				
+			xml.send(fd);
+		}
+	}
 
 	var play = {
 		no_copy: no_copy,
@@ -856,6 +894,9 @@ window.play = (function(){
 				//game.context.fillRect(zone.x, zone.y, zone.width, zone.height);
 			}
 			
+		},
+		update: function(){
+			thumb.update()
 		}
 	}
 
