@@ -5,7 +5,6 @@ import os
 from app.direct import Lvl
 import email_myself
 import collections
-import re, cStringIO
 from PIL import Image
 
 ################################################################################
