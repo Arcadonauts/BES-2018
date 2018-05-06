@@ -308,9 +308,9 @@ window.play = (function(){
 		},
 		play: function(key){
 			if(this.sounds[key]){
-				if(!this.sounds[key].isPlaying){
+				//if(!this.sounds[key].isPlaying){
 					this.sounds[key].play()
-				}
+				//}
 			}else{
 				if(play.debug){
 					console.warn('Unknown Sound Key: ' + key )
