@@ -302,7 +302,7 @@ window.play = (function(){
 			for(var k in data){
 				if(data.hasOwnProperty(k) && data[k]){
 					this.sounds[k] = play.game.add.audio(k)
-					this.sounds[k].allowMultiple = false 
+					this.sounds[k].allowMultiple = true 
 				}
 			}
 		},
