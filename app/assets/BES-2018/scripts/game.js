@@ -21,16 +21,73 @@ var preloader = {
 		xhr.open('GET', '/json-handler/' + game.lvl, true);
 		xhr.send();
 		
+		game.load.image('loading', '/static/BES-2018/img/loading.png')
 		
 	},
+	create: function(){
+		var loading = game.add.sprite(game.width/2, game.height/2, 'loading')
+		loading.anchor.set(.5)
+	}
+}
+
+function count(obj){
+	var op = 0
+	for(var key in obj){
+		if(obj.hasOwnProperty(key)){
+			op += 1
+		}
+	}
+	return op 
 }
 
 var loader = {
 	preload: function(){
 		console.log('loading...')
+		var loading = game.add.sprite(game.width/2, game.height/2, 'loading')
+		loading.anchor.set(.5, 1)
+		
+		
+		var buff = 3
+		var g = game.add.graphics(0, 0)
+		g.lineStyle(buff, 0xFFFFFF, 1)
+		var w = .75*game.width
+		var h = w/8
+		var x0 = game.width/2 - w/2
+		var y0 = game.height/2 + h/4
+		g.drawRect(x0, y0, w, h)
+		
+		
+		var bar = game.add.graphics(x0 + 2*buff, y0+ 2*buff)
+		bar.beginFill(0xFFFFFF, 1)
+		bar.drawRect(0, 0, w - 2*2*buff, h-2*2*buff)
+		bar.endFill()
+		bar.width = 0
+		
+		
+		var winning = ['win.jpg', 'replay', 'select', 'next']
+		
+		var c = 0 
 		var fp = document.getElementById('img_dir').innerHTML
 		var s 
+		var tot = game.data.sprites.length + count(game.data.audio) + winning.length 
+		
+		for(var i = 0; i < winning.length; i++){
+			c += 1
+			bar.scale.x = c/tot 
+			
+			s = winning[i]
+			var ext = '/static/BES-2018/img/'
+			var link = ext + s 
+			if(!link.endsWith('.jpg')){
+				link += '.png'
+			}
+			game.load.spritesheet(s, link)
+		}
+		
 		for(var i = 0; i < game.data.sprites.length; i++){
+			c += 1 
+			bar.scale.x = c/tot 
+			
 			s = game.data.sprites[i]
 			if(!s) continue
 			
@@ -57,12 +114,15 @@ var loader = {
 		for(var s in game.data.audio){
 			if(game.data.audio.hasOwnProperty(s)){
 				if(game.data.audio[s] !== ""){
+					c += 1 
+					bar.scale.x = c/tot 
 					console.log('\t', fp + game.data.audio[s])
 					game.load.audio(s, fp + game.data.audio[s])
 				}
 				
 			}
 		}
+		//console.log([c, tot])
 	},
 	create: function(){
 		game.state.start('menu')
