@@ -464,7 +464,7 @@ window.play = (function(){
 			
 			sprite.win = function(){
 				//alert('You Win!')
-				this.game.state.start('win')
+				play.has_beat_the_level = true 
 			}
 			
 			sprite.lost = function(){
@@ -945,6 +945,9 @@ window.play = (function(){
 		},
 		update: function(){
 			thumb.update()
+			if(this.has_beat_the_level){
+				game.state.start('win')
+			}
 		}
 	}
 
