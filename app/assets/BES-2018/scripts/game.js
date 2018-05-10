@@ -167,6 +167,7 @@ window.addEventListener('load', function(){
 	game.state.add('preloader', preloader)
 	game.state.add('play', play)
 	game.state.add('test', test)
+	game.state.add('win', play.win)
 	
 	game.state.start('preloader')
 })

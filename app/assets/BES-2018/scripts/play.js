@@ -463,7 +463,8 @@ window.play = (function(){
 			}
 			
 			sprite.win = function(){
-				alert('You Win!')
+				//alert('You Win!')
+				this.game.state.start('win')
 			}
 			
 			sprite.lost = function(){
@@ -781,8 +782,54 @@ window.play = (function(){
 			xml.send(fd);
 		}
 	}
+	
+	var win = {
+		create: function(){
+			game.add.sprite(0, 0, 'win.jpg')
+			var butts = ['replay', 'select']//, 'next']
+			var func = [
+				function(){
+					play.game.state.start('play', true, false, play.game, play.callback, play.debug)
+				},
+				function(){
+					window.location = '/BES-2018'
+				},
+				function(){
+					window.location = '/BES-2018/' + document.getElementById('next').innerHTML
+				}
+			]
+			
+			function fall(){
+				var a =.1
+				var f = x => x < 0 ? 0 : 1 - Math.cos(a*x)*Math.exp(-a*x)
+				if(this.yf === undefined){
+					this.yf = this.y 
+					this.y -= 600
+					this.y0 = this.y 
+					this.t = -this.x/20
+				}else{
+					this.t += 1
+					var d = f(this.t)
+					this.y = this.yf*d + (1 - d)*this.y0
+				}
+			}
+			
+			butts.forEach(function(butt, i){
+				
+				var b = game.add.button(175 + 400*i, 450, butt, func[i])
+				b.anchor.set(.5)
+				
+				b.onInputOver.add(()=>b.scale.set(1.25))
+				b.onInputOut.add(()=>b.scale.set(1))
+
+				b.update = fall
+			})
+			
+		}
+	}
 
 	var play = {
+		win: win,
 		no_copy: no_copy,
 		preload: function(){
 			if(game.scale){
@@ -868,6 +915,7 @@ window.play = (function(){
 			if(this.callback){
 				this.callback()
 			}
+			//play.er.win()
 		},
 		create_bg: function(game){
 			var bg = game.add.sprite(0, 0, 'bg')

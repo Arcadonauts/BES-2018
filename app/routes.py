@@ -104,6 +104,11 @@ def get_status():
             op[split[0]] = ' '.join(split[1:])
     return op
 
+def next_lvl(name):
+    ll = lvl_list()
+    next_index = ll.keys().index(name) + 1
+    next_index %= len(ll)
+    return ll.keys()[next_index]
 
 def lvl_template(html, name):
     lvl = Lvl(name)
@@ -115,7 +120,8 @@ def lvl_template(html, name):
         audios = os.listdir(lvl.dir_audio),
         img_dir = lvl.url_img,
         audio_dir = lvl.url_audio,
-        name = lvl_list()[name]
+        name = lvl_list()[name],
+        next = next_lvl(name)
     )
 
 @app.route('/editor/')
@@ -128,7 +134,7 @@ def editor(lvl):
 
 @app.route('/BES-2018/')
 def bes_2018():
-    levels = {}
+    levels = collections.OrderedDict()
     lvls = lvl_list()
     status = get_status()
     for code in lvls:
