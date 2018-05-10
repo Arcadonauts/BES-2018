@@ -845,7 +845,7 @@ window.play = (function(){
 		create: function(){
 			
 			lvl.preinit()
-			
+			this.has_beat_the_level = false 
 			if(this.debug && window.le && window.le.types){
 				window.le.types.forEach(function(t){
 					if(types[t.type.toLowerCase()] === undefined){
