@@ -785,6 +785,7 @@ window.play = (function(){
 
 	var win = {
 		create: function(){
+			game.world.setBounds(0, 0, 800, 600)
 			game.add.sprite(0, 0, 'win.jpg')
 			var butts = ['replay', 'select']//, 'next']
 			var func = [
