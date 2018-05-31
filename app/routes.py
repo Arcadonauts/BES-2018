@@ -78,7 +78,7 @@ def level_report():
 @app.route('/')
 @app.route('/index')
 def index():
-    return flask.redirect('/editor')
+    return flask.redirect('/BES')
 
 @app.route('/test')
 def test():
