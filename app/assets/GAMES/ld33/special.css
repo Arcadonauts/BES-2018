@@ -1,0 +1,10 @@
+.special{
+	border-width: 1px;
+	border-style: dotted;
+	width: 80%;
+	margin-bottom: 40px;
+}
+
+p {
+	margin-left: 20px;
+}
