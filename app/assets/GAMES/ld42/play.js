@@ -517,6 +517,7 @@ window.play = (function(){
 			}
 			
 			game.add.sprite(0,game.height - 100, 'progress')
+			
 			this.reset()
 		},
 		reset: function(){
