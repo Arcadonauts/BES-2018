@@ -136,6 +136,8 @@
 			game.scale.pageAlignVertically = true;
 			game.scale.refresh();
 			
+			game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
+			
 			let load = game.add.sprite(game.width/2, game.height/2,'loading')
 			load.anchor.set(.5)
 		}
@@ -736,7 +738,9 @@
 	
 	window.addEventListener('load', function(){
 		
-		window.game = new Phaser.Game(800,600, Phaser.CANVAS)
+		window.game = new Phaser.Game(800,600, Phaser.CANVAS, 'game', false, false)
+		
+		//game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
 		
 		game.state.add('preload', preload)
 		game.state.add('menu', menu)

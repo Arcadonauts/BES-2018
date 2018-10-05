@@ -5,7 +5,8 @@ window.play = (function(){
 	
 		To Do:
 			
-			Two Player
+			Intro Marquee
+			Resize
 			Classic Tennis vs. Roo Tennis 
 			
 			Music?
@@ -33,6 +34,7 @@ window.play = (function(){
 				Win State
 				Make Settings Look better
 				Sound FX 
+				Two Player
 	*/
 	
 	const SCALE = 1
@@ -356,7 +358,7 @@ window.play = (function(){
 		let s = make_character(id)
 		s.lefty = true 
 		s.x = .25*game.width
-		s.serving = play.settings.first === 'Player' 
+		s.serving = play.settings.first === 'Player' || play.settings.first === 'Player 1'
 		s.serve_dir = .05
 		
 		
@@ -428,7 +430,7 @@ window.play = (function(){
 	
 	function make_player2(id){
 		let s = make_player(id)
-		s.serving = play.settings.first !== 'Player' 
+		s.serving = !(s.serving = play.settings.first === 'Player' || play.settings.first === 'Player 1')
 		s.lefty = false 
 		s.x = .75*game.width 
 		s.scale.x = -1
