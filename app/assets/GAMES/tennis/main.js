@@ -43,7 +43,16 @@
 		map:{
 			left : ['LEFT', 'A'],
 			right: ['RIGHT', 'D'],
-			hit: ['UP', 'SPACEBAR', 'W']
+			hit: ['UP', 'SPACEBAR', 'W'],
+			
+			p1_left: ['A'],
+			p1_right: ['D'],
+			p1_hit: ['W'],
+			
+			p2_left: ['LEFT'],
+			p2_right: ['RIGHT'],
+			p2_hit: ['UP']
+			
 		},
 		down: function(code){
 			let rv = false 
@@ -145,6 +154,8 @@
 				'vs',
 				'wall',
 				'win',
+				['one_player', 220, 32],
+				['two_player', 220, 32],
 				['key', 50, 50],
 				'tut_bg',
 				['choose', 286*2, 32],
@@ -194,10 +205,24 @@
 			game.add.sprite(0,0,'menu')
 			make_mute()
 			
+			/*
 			game.add.button(game.width/2, 400, 'start', function(){
 				audio.play('begin')
 	
 				game.state.start('select')
+			}, this, 1,0,2).anchor.set(.5)
+			*/
+			
+			game.add.button(game.width/2, 375, 'one_player', function(){
+				audio.play('begin')
+	
+				game.state.start('select', true, false, false)
+			}, this, 1,0,2).anchor.set(.5)
+			
+			game.add.button(game.width/2, 425, 'two_player', function(){
+				audio.play('begin')
+	
+				game.state.start('select', true, false, true)
 			}, this, 1,0,2).anchor.set(.5)
 		},
 		update: function(){
@@ -417,6 +442,9 @@
 	}
 	
 	let select = {
+		init: function(two){
+			this.two = two 
+		},
 		create: function(){
 			game.add.sprite(0,0,'select')
 			make_mute()
@@ -472,7 +500,7 @@
 			
 			let go = game.add.button(game.width-4, game.height-4, 'go', function(){
 				audio.play('begin')
-				game.state.start('settings', true, false, left.get(), right.get())
+				game.state.start('settings', true, false, left.get(), right.get(), this.two)
 				
 			}, this, 1, 0, 2)
 			go.anchor.set(1,1)
@@ -599,20 +627,25 @@
 	}
 	
 	let settings = {
-		init: function(player, ai){
+		init: function(player, ai, two){
 			this.data = {
 				left: player,
-				right: ai
+				right: ai,
+				two: two
 			}
-			
+			console.log(this.data)
 		},
 		create: function(){
 			game.add.sprite(0,0,'select')
 			make_mute()
 				
 			let x = 20
-
-			let first = make_options(x, 100, ['First Serve:', 'Player', 'Computer'])
+			
+			if(this.data.two){
+				first = make_options(x, 100, ['First Serve:', 'Player 1', 'Player 2'])
+			}else{
+				first = make_options(x, 100, ['First Serve:', 'Player', 'Computer'])
+			}
 			let games = make_options(x, 200, ['Sets:', 1, 2, 3, 4, 5, 6, 7, 8], 2)
 			let by2 = make_options(x, 300, ['Win By Two:', 'On', 'Off'])
 			// Classic Tennis vs. Roo Tennis 
@@ -629,6 +662,7 @@
 				game.state.start('play', true, false, {
 					left: this.data.left, 
 					right: this.data.right,
+					two: this.data.two,
 					first: first.get(),
 					games: games.get(),
 					by2: by2.get()

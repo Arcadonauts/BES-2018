@@ -7,7 +7,7 @@ window.play = (function(){
 			
 			Two Player
 			Classic Tennis vs. Roo Tennis 
-			Sound FX 
+			
 			Music?
 			Wackiness
 				Bird
@@ -32,6 +32,7 @@ window.play = (function(){
 				Marquee 
 				Win State
 				Make Settings Look better
+				Sound FX 
 	*/
 	
 	const SCALE = 1
@@ -353,11 +354,28 @@ window.play = (function(){
 
 	function make_player(id){
 		let s = make_character(id)
+		s.lefty = true 
 		s.x = .25*game.width
 		s.serving = play.settings.first === 'Player' 
 		s.serve_dir = .05
 		
+		
+		
 		s.update = function(){
+			
+			let keys = {}
+			let ks = ['left', 'right', 'hit']
+			for(let i = 0; i < ks.length; i++){
+				let k = ks[i]
+				if(play.settings.two && s.lefty){
+					keys[k] = 'p1_' + k 
+				}else if(play.settings.two && !s.lefty){
+					keys[k] = 'p2_' + k
+				}else{
+					keys[k] = k 
+				}
+			}
+			
 			if(play.ball){
 				this.swing_angle = Math.atan2(play.ball.y - this.y, play.ball.x - this.x)
 			}
@@ -382,7 +400,7 @@ window.play = (function(){
 				this.marker.alpha = 0 
 			}
 			
-			if(key.down('hit') && !this.swinging){
+			if(key.down(keys.hit) && !this.swinging){
 				if(this.serving){
 					make_ball(this)
 					this.serving = false 
@@ -391,12 +409,12 @@ window.play = (function(){
 				}
 				
 			}
-			this.swinging = key.down('hit')
+			this.swinging = key.down(keys.hit)
 			
-			if(key.down('left')){
+			if(key.down(keys.left)){
 				this.body.velocity.x = -this.v
 				this.animations.play('run')
-			}else if(key.down('right')){
+			}else if(key.down(keys.right)){
 				this.body.velocity.x = this.v
 				this.animations.play('run')
 			}else{
@@ -404,6 +422,16 @@ window.play = (function(){
 				this.animations.play('stand')
 			}
 		}
+		
+		return s 
+	}
+	
+	function make_player2(id){
+		let s = make_player(id)
+		s.serving = play.settings.first !== 'Player' 
+		s.lefty = false 
+		s.x = .75*game.width 
+		s.scale.x = -1
 		
 		return s 
 	}
@@ -584,8 +612,9 @@ window.play = (function(){
 					left: 0, 
 					right: 1,
 					first: 'Player',
-					games: 1,
-					by2: 'Off'
+					games: 3,
+					by2: 'Off',
+					two: false 
 				}
 			}else{
 				this.settings = data 
@@ -599,7 +628,12 @@ window.play = (function(){
 			game.physics.startSystem(Phaser.Physics.ARCADE);
 			
 			this.er = make_player(this.settings.left)
-			this.ai = make_ai(this.settings.right)
+			if(this.settings.two){
+				this.ai = make_player2(this.settings.right)
+			}else{
+				this.ai = make_ai(this.settings.right)
+			}
+			
 			this.won = undefined
 			this.marqueeing = false 
 			this.winner = undefined
@@ -617,6 +651,8 @@ window.play = (function(){
 		},
 		update: function(){
 			game.physics.arcade.collide(this.walls, this.er)
+			game.physics.arcade.collide(this.walls, this.ai)
+			
 			game.physics.arcade.collide(this.walls, this.ball, function(){
 				audio.play('bomp')
 			})
