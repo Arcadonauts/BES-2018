@@ -1,0 +1,13 @@
+body {
+	background-color: #fff1e8;
+}
+canvas {
+	border: solid;
+}
+
+@font-face {
+	font-family: "press_start";
+	font-style: normal;
+	font-weight: 400;
+	src: url("/static/GAMES/tennis/PressStart2P.ttf");
+}
