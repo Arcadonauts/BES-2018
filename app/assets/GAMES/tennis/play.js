@@ -4,9 +4,13 @@ window.play = (function(){
 	http://www.html5gamedevs.com/topic/28424-solved-loading-custom-fonts-and-displaying-cyrillicfrenchturkish-characters/
 	
 		To Do:
+		
+			About Page
+			Loading bar
+			Button OnOver sound
 			
 			Intro Marquee
-			Resize
+			
 			Classic Tennis vs. Roo Tennis 
 			
 			Music?
@@ -35,6 +39,7 @@ window.play = (function(){
 				Make Settings Look better
 				Sound FX 
 				Two Player
+				Resize
 	*/
 	
 	const SCALE = 1
