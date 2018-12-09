@@ -24,7 +24,7 @@ BLUE = (29, 43, 83)
 GREY = (95, 87, 79)
 BLACK = (0, 0, 0)
 
-FONT_NAME = '/home/NickFegley/mysite/assets/LinLibertine_RB_G.ttf'
+FONT_NAME = '/home/NickFegley/mysite/app/assets/LinLibertine_RB_G.ttf'
 FONT = ImageFont.truetype(FONT_NAME, 32)
 FONT_BIG = ImageFont.truetype(FONT_NAME, 40)
 FONT_SMALL = ImageFont.truetype(FONT_NAME, 16)
