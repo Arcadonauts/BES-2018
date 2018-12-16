@@ -110,6 +110,7 @@ def graph(date=None, data=None, max_rate = None):
     if data == None:
         data = get_data(root)
     points = data.get(date)
+    print('Date:', date, list(data.keys())[-1])
     if not points:
         report.log('Not today!')
         return None
@@ -183,9 +184,10 @@ def graph(date=None, data=None, max_rate = None):
 
     return img
 
-def do_the_thing():
-    date = datetime.date.today()
-    fn = '/home/NickFegley/mysite/assets/yc/'+str(date)
+def do_the_thing(date=None):
+    if not date:
+        date = datetime.date.today()
+    fn = '/home/NickFegley/mysite/app/assets/yc/'+str(date)
     if os.path.isfile(fn  + '.png'):
         report.log("What's done is done.")
         return
@@ -197,6 +199,7 @@ def do_the_thing():
             #report.log(msg)
 
 if __name__ == '__main__':
-    print(os.getcwd())
-    #report.log('Do the thing!')
-    #do_the_thing()
+    #print(os.getcwd())
+    report.log('Do the thing!')
+    do_the_thing()
+    #tweet("I'm back!")

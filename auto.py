@@ -10,7 +10,7 @@ def do_the_thing(module):
     except Exception as e:
         exception = e
 
-do_the_thing(tweemail)
+#do_the_thing(tweemail)
 do_the_thing(yieldcurve)
 
 print(sys.version)
