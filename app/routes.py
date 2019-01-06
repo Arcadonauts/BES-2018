@@ -5,6 +5,7 @@ import os
 from app.direct import Lvl
 import email_myself
 import collections
+import ominos_api
 from PIL import Image
 
 ################################################################################
@@ -13,6 +14,18 @@ from PIL import Image
 
 GET = 'GET'
 POST = 'POST'
+
+################################################################################
+#                               API
+################################################################################
+
+@app.route('/api/ominos/<data>', methods=[GET, POST])
+def omino_api(data):
+    if flask.request.method == GET:
+        op = ominos_api.get(data)
+    if flask.request.method == POST:
+        op = ominos_api.post(data)
+    return str(op)
 
 ################################################################################
 #                               GAMES
