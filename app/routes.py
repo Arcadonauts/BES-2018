@@ -5,7 +5,7 @@ import os
 from app.direct import Lvl
 import email_myself
 import collections
-import ominos_api
+from app import ominos_api
 from PIL import Image
 
 ################################################################################

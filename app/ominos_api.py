@@ -2,9 +2,15 @@ from __future__ import print_function, division
 import sqlite3, datetime, random
 import os, random
 
+#from os import path
+#ROOT = path.dirname(path.realpath(__file__))
+#...
+#db = sqlite3.connect(path.join(ROOT, "database.db"))
+
 ################################################################################
 #                        CONSTANTS
 FILENAME = "omino_data.db"
+ROOT = os.path.dirname(os.path.realpath(__file__))
 
 PLAYER = "player"
 PASSWORD = 'password'
@@ -57,7 +63,7 @@ table_defs = [
 
 ################################################################################
 def do(command, args=None, fetch=None):
-    conn = sqlite3.connect(FILENAME)
+    conn = sqlite3.connect(os.path.join(ROOT, FILENAME))
     c = conn.cursor()
 
     if args:
@@ -288,7 +294,7 @@ def init(conn):
 
 
 def main():
-    conn = sqlite3.connect(FILENAME)
+    conn = sqlite3.connect(os.path.join(ROOT, FILENAME))
     init(conn)
     conn.commit()
     conn.close()
