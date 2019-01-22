@@ -1,0 +1,554 @@
+<body style="background: black;">
+<canvas id="canvas" style="width:100%;" ></canvas>
+<script>
+
+/*
+	Each gem has a fixed max_colors.
+	If gem.touched_count > gem.max_colors, gem explodes
+		Implement particle system.
+	Change gem wedges to arc().
+*/
+
+let canvas;
+let  context;
+canvas = document.getElementById('canvas');
+context = canvas.getContext('2d');
+canvas.width = 1000;
+canvas.height = 500;
+
+let xmin = -10
+let ymin = -10
+let xmax = 10
+let ymax = 10 
+
+let p8 = {
+	black: "#000000",
+	dark_blue: "#1D2B53",
+	dark_purple: "#7E2553",
+	dark_green: "#008751",
+	brown: "#AB5236",
+	dark_gray: "#5F574F",
+	light_gray: "#C2C3C7",
+	white: "#FFF1E8",
+	red: "#FF004D",
+	orange: "#FFA300",
+	yellow: "#FFEC27",
+	green: "#00E436",
+	blue: "#29ADFF",
+	indigo: "#83769C",
+	pink: "#FF77A8",
+	peach: "#FFCCAA"
+};
+
+const TWOPI = Math.PI * 2 ;
+
+
+let random = {
+	choose: function(list){
+		return list[Math.floor(list.length * this.random())];
+	},
+	random: function(x){
+		if(x === undefined){
+			x = 1
+		}
+		return x*Math.random()
+	},
+	range: function(min, max){
+		if(max === undefined){
+			max = min
+			min = 0
+		}
+		return Math.floor(this.random(max - min) + min)
+	},
+	shuffle: function(a){
+		let n = a.length 
+		for(let i = 0; i < n-1; i++){
+			let j = this.range(i, n)
+			let temp = a[i]
+			a[i] = a[j]
+			a[j] = temp 
+		}
+	}
+}
+
+
+let mouse = {
+	down: false,
+	clicked: false,
+	update: function(){
+		this.clicked = false 
+	},
+	x: 0,
+	y: 0
+};
+
+// https://stackoverflow.com/questions/7790725/javascript-track-mouse-position
+function handleMouseMove(event) {
+
+	let rect = canvas.getBoundingClientRect(); // abs. size of element
+	let scaleX = canvas.width / rect.width;    // relationship bitmap vs. element for X
+	let scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
+
+
+	mouse.x = (event.clientX - rect.left) * scaleX; // scale mouse coordinates after they have
+	mouse.y =  (event.clientY - rect.top) * scaleY;     // been adjusted to be relative to element
+	  
+
+}
+	
+function mouse_down(event){
+
+	mouse.down = true ;
+	mouse.clicked = true;
+	
+	handleMouseMove(event)
+	
+}
+
+function mouse_up(event){
+	mouse.down = false ;
+	
+	handleMouseMove(event)
+}
+
+canvas.addEventListener('mousedown', mouse_down);
+canvas.addEventListener('mousemove', handleMouseMove);
+canvas.addEventListener('mouseup', mouse_up);
+
+canvas.addEventListener('touchend', function(){
+	mouse.clicked = false
+	mouse.down = false;
+});
+canvas.addEventListener('touchstart', function(event){
+	mouse.clicked = !mouse.down; 
+	mouse.down = true;
+	
+	
+	let touch = event.touches[0]
+	handleMouseMove(touch)
+
+});
+
+function Button(label, x, y, w, h, callback){
+	this.label = label ;
+	this.x = x ;
+	this.y = y ;
+	this.w = w ;
+	this.h = h ;
+	this.callback = callback;
+	
+	this.draw = function(){
+		context.fillStyle = p8.dark_blue ;
+		context.fillRect(this.x, this.y, this.w, this.h);
+		context.strokeStyle = p8.black
+		context.strokeRect(this.x, this.y, this.w, this.h);
+		
+		
+		context.fillStyle = p8.white ;
+		context.textAlign = 'center';
+		context.textBaseline = 'middle';
+		context.font = '24pt Arial';
+		context.fillText(this.label, this.x + this.w/2, this.y + this.h/2);
+	};
+
+	this.update = function(){
+		if(mouse.clicked && this.callback){
+			if(mouse.x > this.x && mouse.x < this.x + this.w){
+				if(mouse.y > this.y && mouse.y < this.y + this.h){
+					this.callback();
+				}
+			}
+		}
+	};
+
+}
+
+function Line(k, b, id){
+	this.k = k 
+	this.b = b 
+	this.id = id 
+	this.x = undefined
+	this.ypos = this.id * canvas.height/line_size + canvas.height/(2*line_size)
+	this.r = 10 
+	
+	let lights = [
+		'red',
+		'orange',
+		'yellow',
+		'green',
+		'blue',
+		'indigo'
+	]
+	
+	let darks = [
+		'dark_purple',
+		'brown',
+		'orange',
+		'dark_green',
+		'dark_blue',		
+		'dark_purple',
+		
+	]
+	
+	this.color = p8[lights[id]]
+	this.color2 = p8[darks[id]]
+}
+
+Line.prototype.draw = function(){
+
+	if(this.off){
+		context.fillStyle = p8.dark_gray
+		context.font = '48pt Arial'
+		context.textBaseline = 'middle'
+		context.textAlign = 'left'
+		let text = 'off'
+		context.fillText(text, canvas.height + 50, this.ypos)
+		
+		context.font = '24pt Arial'
+		let dy = 18
+		context.fillStyle = p8.dark_gray
+		context.fillText('k', canvas.height + 5, this.ypos - dy)
+		context.fillText('b', canvas.height + 5, this.ypos + dy)
+		
+		return 
+	}
+
+	context.fillStyle = this.color
+	context.font = '48pt Arial'
+	context.textBaseline = 'middle'
+	context.textAlign = 'left'
+	let text = 'y = ' + this.k + 'x' + ' + ' + this.b
+	context.fillText(text, canvas.height + 50, this.ypos)
+	
+	context.font = '24pt Arial'
+	let dy = 18
+	context.fillStyle = this.color2
+	context.fillText('k', canvas.height + 5, this.ypos - dy)
+	context.fillText('b', canvas.height + 5, this.ypos + dy)
+	
+	if(x_value !== undefined){
+		let x = x_value 
+		let y = this.eval(x)
+		
+		let p1 = this.to_screen(-10, this.eval(-10))
+		let p2 = this.to_screen(x, y)
+		
+		context.beginPath()
+		context.strokeStyle = this.color 
+		context.lineWidth = 5
+		context.moveTo(p1.x, p1.y)
+		context.lineTo(p2.x, p2.y)
+		context.stroke()
+		
+		if(x_value < 10){
+			context.beginPath()
+			context.fillStyle = this.color2
+			context.strokeStyle = this.color
+			context.arc(p2.x, p2.y, this.r, 0, TWOPI)
+			context.fill()
+			context.stroke()
+		}
+	}
+	
+	//console.log('Line')
+}
+
+Line.prototype.update = function(){
+	let h =  canvas.height/12
+	
+	//this.off = isNaN(this.k) || isNaN(this.b)
+	line_on[this.id] = !this.off 
+	
+	if(!keypad.active && mouse.clicked && mouse.x > canvas.height && mouse.x < canvas.height + 200){
+		
+		if(Math.abs(this.ypos - mouse.y) < h){
+			if(mouse.y < this.ypos){
+				keypad.set(this, 'k')
+			}else{
+				keypad.set(this, 'b')
+			}
+		}
+	}
+	
+	if(x_value !== undefined){
+		let x = x_value 
+		let y = this.eval(x)
+		
+		for(let i = 0; i < gems.length; i++){
+			if(gems[i].hit(x, y, this.r)){
+				gems[i].touched[this.id] = true 
+			}
+		}
+	}
+}
+
+Line.prototype.eval = function(x){
+	return this.k * x + this.b 
+}
+
+Line.prototype.to_screen = function(x, y){
+	return {
+		x: map(x, xmin, xmax, 0, canvas.height),
+		y: map(y, ymin, ymax, canvas.height, 0)
+	}
+}
+
+function Gem(x, y){
+	this.x = x 
+	this.y = y 
+	this.r = random.range(10, 30)
+	this.touched = [false, false, false, false, false]
+	this.colors = [
+		'red',
+		'orange',
+		'yellow',
+		'green',
+		'blue',
+		'indigo'
+	]
+	this.t  = 0
+	
+}
+
+Gem.prototype.update = function(){
+	this.t += .01
+	if(x_value === undefined || x_value === -10){
+		this.touched = [false, false, false, false, false]
+	}
+}
+
+Gem.prototype.draw = function(){
+	
+	let c = 0
+	line_on.forEach(x => c += (+x))
+	
+	let n = this.colors.length 
+	let dt = TWOPI/c
+	let x = map(this.x, -10, 10, 0, canvas.height)
+	let y = map(this.y, -10, 10, canvas.height, 0)
+	let r = this.r 
+	
+	let j = 0 
+	for(let i = 0; i  < n; i++){
+		if(!line_on[i]) continue;
+	
+		let t = j*dt + this.t 
+		context.beginPath()
+		
+		context.moveTo(x, y)
+		context.lineTo(x + r*Math.cos(t-dt/2), y + r*Math.sin(t-dt/2))
+		context.lineTo(x + r*Math.cos(t), y + r*Math.sin(t))
+		context.lineTo(x + r*Math.cos(t+dt/2), y + r*Math.sin(t+dt/2))
+		
+		context.fillStyle = this.touched[i] ? p8[this.colors[i]] : p8.black
+		context.strokeStyle = p8.white
+		context.lineWidth = 2
+		context.fill()
+		context.stroke()
+		j += 1
+	}
+}
+
+Gem.prototype.hit = function(x, y, r){
+	let dx = this.x - x 
+	let dy = this.y - y 
+	let rr = map(r + this.r, 0, canvas.height/2, 0, 10)
+	return dx*dx + dy*dy < rr*rr
+}
+
+
+
+let keypad = {
+	init: function(){
+		this.buttons = []
+		this.value = ''
+		this.neg = false
+		this.active = false 
+		this.x0 =0// canvas.height
+		
+		let w = canvas.height/3
+		let h = canvas.height/6
+		
+		let butts = ['( - )', 'delete', 'on/off', '.', 0, 'ok', 1, 2, 3, 4, 5, 6, 7, 8, 9]
+		for(let i = 0; i < butts.length; i++){
+			let x = (i % 3) * w + this.x0
+			let y = (5 - Math.floor(i/3)) * h 
+			this.buttons.push(new Button(butts[i], x, y, w, h, this.click(butts[i])))
+		}
+	},
+	click: function(what){
+		return function(){
+			if(what === '( - )'){
+				keypad.neg = !keypad.neg 
+			}else if(what === 'delete'){
+				keypad.value = keypad.value.substring(0, keypad.value.length - 1)
+			}else if(what === 'ok'){
+				keypad.who[keypad.what] = keypad.neg ? - keypad.value : + keypad.value
+				keypad.active = false 
+			}else if(what === 'on/off'){
+				keypad.who.off = !keypad.who.off 
+				keypad.active = false 
+			}else{
+				keypad.value += what 
+			}
+		}
+	},
+	set: function(who, what){
+		this.who = who 
+		this.what = what 
+		this.value = ''
+		this.active = true 
+		this.neg = false 
+
+	},
+	draw : function(){
+		if(!this.active) return 
+		this.buttons.forEach(b => b.draw())
+		
+		context.fillStyle = p8.dark_gray
+		context.fillRect(0 + this.x0, 0, canvas.height, canvas.height/6)
+		context.strokeStyle = p8.black
+		context.strokeRect(0 + this.x0, 0, canvas.height, canvas.height/6)
+		context.fillStyle = p8.white
+		context.font = '48pt Arial'
+		context.textAlign = 'right'
+		context.textBaseline = 'middle'
+		context.fillText((this.neg ? '-' : '') + this.value, canvas.height - 10  + this.x0, canvas.height/12)
+	},
+	update : function(){
+		//console.log(this.who, this.what)
+		if(!this.active) return 
+		this.buttons.forEach(b => b.update())
+	},
+}
+
+function draw_axis(){
+	let height = canvas.height 
+	
+	
+	
+	for(let i = -10; i <= 10; i++){
+		context.beginPath()
+		if(i === 0){
+			context.strokeStyle = p8.white
+			context.lineWidth = 4
+		}else if(Math.abs(i) === 5){
+			context.strokeStyle = p8.light_gray
+			context.lineWidth = 2
+		}else{
+			context.strokeStyle = p8.dark_gray
+			context.lineWidth = 2
+		}
+		
+		
+		let a = i*height/20 + height/2
+		context.moveTo(a, 0)
+		context.lineTo(a, height)
+		context.moveTo(0, a)
+		context.lineTo(height, a)
+		
+		context.stroke()
+	}
+	
+	
+	/*
+	context.beginPath()
+	context.strokeStyle = p8.white
+	context.moveTo(height/2, 0)
+	context.lineTo(height/2, height)
+	context.moveTo(0, height/2)
+	context.lineTo(height, height/2)
+	context.stroke()
+	*/
+}
+
+
+function map(x, min1, max1, min2, max2){
+	let m = (max2 - min2)/(max1 - min1)
+	let b = min2 - m*min1 
+	return m*x + b 
+}
+
+function go(){
+	x_value = -10 
+	//draw_lines = true 
+}
+
+function clear(){
+	x_value = undefined
+}
+
+function reset(){
+	gems = []
+	for(let i = 0; i < 5; i ++){
+		gems.push(
+			new Gem(random.range(-9, 10), random.range(-9, 10))
+		)
+	}
+	x_value = undefined
+}
+
+let drawables = []
+let line_size = 7
+let x_value = undefined
+let gems = []
+let line_on = [false, false, false, false, false, false]
+function pre_setup(){
+	keypad.init()
+	
+}
+
+
+function setup(){
+	let bw = canvas.height/3
+	for(let i = 0; i < 6; i++){
+		drawables.push(new Line(1, 8 - 3*i, i))
+	}
+	drawables.push(
+		new Button("GO", canvas.width - bw, canvas.height - 50, bw ,50, go),
+		new Button("CLEAR", canvas.width - 2*bw, canvas.height - 50, bw ,50, clear),
+		new Button("RESET", canvas.width - 3*bw, canvas.height - 50, bw ,50, reset),
+	)
+	
+	reset()
+}
+
+
+
+function update(){
+	console
+	context.fillStyle = p8.black;
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	
+	draw_axis()
+	
+	keypad.update()
+	
+	drawables.forEach(x => x.draw())
+	drawables.forEach(x => x.update())
+	
+	gems.forEach(x => x.draw())
+	gems.forEach(x => x.update())
+	
+	
+	
+
+		if(x_value < 10){
+			x_value += 0.1
+		}
+	
+	
+	
+	keypad.draw()
+	
+	mouse.update()
+	window.requestAnimationFrame(update);
+}
+
+pre_setup();
+setup();
+update();
+
+
+</script>
+</body>
