@@ -1,0 +1,587 @@
+
+:BLOCK{paddle family}{
+	:BLOCK{hello paddle}{
+		:GOTO{:GET{hello paddle}}
+	}
+	
+	:BLOCK{paddle locked}{
+		:TITLE{P.A.D.D.L.E}
+		:ICON{paddle}
+		It's locked.
+	}
+	
+	:BLOCK{paddle open}{
+		:TITLE{P.A.D.D.L.E}
+		:ICON{paddle}
+		What would you like to do?
+		:OPT{Enter}{paddle enter}
+		:OPT{Upgrade}{paddle upgrade}
+		:OPT{Leave}{nothing}
+	}
+	
+	:BLOCK{paddle enter}{
+		:ACT{start mission}
+	}
+	
+	:BLOCK{paddle upgrade}{
+		:ACT{upgrade paddle}
+	}
+}
+
+
+:BLOCK{payne family}{
+	:BLOCK{hello payne}{
+		:GOTO{:GET{hello payne}}
+	}
+
+	:BLOCK{payne intro}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Roxy, you're awake. Good.
+		:OPT{Who are you?}{I'm payne}
+		:OPT{What is this place?}{I'm payne}
+		:OPT{Why did you kidnap me?}{I'm payne}
+		:SET{hello payne}{payne more}
+	}
+	
+	
+	:BLOCK{I'm payne}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		I'm Major Payne, and this is a top secret miltiary base dedicated to humanity's survival in the upcoming war with the Blockoids.
+		:OPT{But why am I here?}{payne cont}
+		
+	}
+	
+	:BLOCK{payne cont}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		The Blockoids have nearly indestructable ships. Traditional weapons are useless against them. After extensive research our scientists developed the anti-matter orb.
+		:OPT{So what?}{payne cont2}
+		
+	}
+	
+	:BLOCK{payne cont2}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		The anti-matter orb can destroy most of their ships in one hit, the only problem is it bounces back and if it's not controlled, it can do unspeakable damage.
+		:OPT{Whatever.}{payne cont3}
+	}
+	
+	:BLOCK{payne cont3}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Our pilots can't handle the rebounding orbs. So we recurited you and the other kids to pilot the P.A.D.D.L.E.s.
+		:OPT{Lame.}{payne more}
+	}
+	
+	:BLOCK{payne more}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Do you have any more questions?
+		:OPT{Tell me more about the Blockoids}{payne blockoids}
+		:OPT{Tell me more about the P.A.D.D.L.E.}{payne paddle}
+		:OPT{Tell me more about the orbs}{payne orbs}
+		:OPT{I want to leave.}{:GET{payne leave}}
+	}
+	
+	:BLOCK{payne blockoids}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		The Blockoids are an alien race bent on world domination. They're also really ugly. If we don't stop them, eveyone you know and love will be lost.
+		:OPT{Whatever. Everyone leaves eventually anyways.}{payne more}
+	}
+	
+	:BLOCK{payne paddle}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		The Piloted Antimatter Deflection Dish & Laser Engine (or P.A.D.D.L.E for short) is the ship you and the other kids will be piloting. It can be updgaded to meet your needs.
+		:OPT{Ok.}{payne more}
+	}
+	
+	:BLOCK{payne orbs}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		The orbs are our only weapon against the Blockoids. They're very expensive and in each battle you'll only have a few available to use.
+		:OPT{Ok.}{payne more}
+	
+	}
+	
+	:BLOCK{payne leave}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		:SET{payne leave}{nothing}
+		:SET{hello paddle}{paddle open}
+		Before you leave, I need to give you something...
+		:OPT{I don't want whatever it is.}{payne upgrade}
+	}
+	
+	:BLOCK{payne upgrade}{
+		:TITLE{Upgrade Chip}
+		:ICON{upgrade}
+		:ACT{get upgrade}
+		Major Payne gave you an upgade chip! Use it to upgrade your P.A.D.D.L.E.
+		:OPT{ok}{nothing}
+	}
+}
+
+:BLOCK{kathrine family}{
+	:BLOCK{hello kathrine}{
+		:TITLE{Kathrine}
+		:ICON{kathrine}
+		Hi! I'm Kathrine!
+		:OPT{Nice to meet you.}{nothing}
+		:OPT{What are you doing here?}{kathrine here}
+	}
+	
+	:BLOCK{kathrine here}{
+		:TITLE{Kathrine}
+		:ICON{kathrine}
+		After winning a Breakout contest are the local arcade, Major Payne invited me to be part of this team.
+	}
+}
+
+:BLOCK{dweeby family}{
+	:BLOCK{hello dweeby}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		I heard the Blockoids are 30 feet tall and can start fires with their minds!
+		:OPT{Blockoids?}{dweeby blockoids}
+		:OPT{Who are you?}{dweeby intro}
+		:OPT{Whatever, nerd.}{nothing}
+	}
+	
+	:BLOCK{dweeby intro}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		My name is Donald Winston Eeby, but everybody just calls me Dweeby Kid.
+	}
+	
+	:BLOCK{dweeby blockoids}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		You know, the alien invaders we're here to fight! I heard they eat people whole!
+		:OPT{Who are you?}{dweeby intro}
+		:OPT{Whatever, nerd.}{nothing}
+	}
+}
+
+:BLOCK{wesley family}{
+	:BLOCK{hello wesley}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		Roxy?!?
+		:OPT{Wesley! I haven't seen you in years!}{wesley years}
+		:OPT{It's so good to see a familiar face, Wesley. We have escape!}{wesley escape}
+	
+	}
+	
+	:BLOCK{wesley years}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		I know! You've really grown! How are you?
+		:OPT{You've grown too. Grown more handsome that is...}{wesley thanks}
+		:OPT{I'm fine. What are you doing here?}{wesley here}
+		:OPT{I'm so happy to see a familiar face. Wesley, we have to escape}{wesley escape}
+	}
+	
+	:BLOCK{wesley thanks}{
+		:ICON{heart}
+		:TITLE{Wesley}
+		Uh, gee, thanks... 
+		:OPT{What are you doing here?}{wesley here}
+		:OPT{We have to escape}{wesley escape}
+	}
+	
+	:BLOCK{wesley here}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		It looks like all those years we spent playing Breakout together really paid off! Now we're both part of the team to defeat the Blockoids.
+		:OPT{Blockoids?}{wesley blockoids}
+	}
+	
+	:BLOCK{wesley escape}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		Escape? Why? We have to stop the Blockoids.
+		:OPT{Blockoids?}{wesley blockoids}
+		:OPT{Whatever man. I never thought you'd be a sellout.}{nothing}
+	}
+	
+	:BLOCK{wesley blockoids}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		The alien invaders. That's why we're here. We have to stop them!
+	}
+	
+}
+
+:BLOCK{sally family}{
+	:BLOCK{hello sally}{
+		:TITLE{Sally}
+		:ICON{sally}
+		Stop bothering me. I have to focus.
+	}
+}
+
+:BLOCK{bed family}{
+	:BLOCK{sally bed}{
+		:SET{name}{Sally}
+		:GOTO{hello bed}
+	}
+	
+	:BLOCK{roxy bed}{
+		:SET{name}{Roxy}
+		:GOTO{hello bed}
+	}
+	
+	:BLOCK{kathrine bed}{
+		:SET{name}{Kathrine}
+		:GOTO{hello bed}
+	}
+	
+	:BLOCK{hello bed}{
+		:TITLE{:GET{name}'s Bed}
+		:ICON{bed}
+		It doesn't look very comfortable.
+		:OPT{Sleep}{bed sleep}
+		:OPT{Ignore}{nothing}
+	}
+	
+	:BLOCK{bed sleep}{
+		:ACT{sleep}
+	}
+}
+
+:BLOCK{agent family}{
+
+	:BLOCK{agent hello again}{
+		:TITLE{Agent Arkanoid}
+		:ICON{agent}
+		Hello again Roxy.
+		:OPT{I can't believe you kidnapped me!}{agent choice}
+		:OPT{Where am I?}{agent where}
+		:OPT{Let me through this door.}{agent boys}
+	}
+	
+	:BLOCK{agent where}{
+		:TITLE{Agent Arkanoid}
+		:ICON{agent}
+		We're in a secret military base preparing for our upcoming war with the Blockoids.
+		:OPT{Blockoids?}{agent payne}
+		:OPT{I want to leave.}{agent choice}
+		
+	}
+	
+	:BLOCK{agent choice}{
+		:TITLE{Agent Arkanoid}
+		:ICON{agent}
+		I'm sorry, but I didn't have a choice.
+	}
+	
+	:BLOCK{agent payne}{
+		:TITLE{Agent Arkanoid.}
+		:ICON{agent}
+		You should see Major Payne about any other questions you have.
+	}
+	
+	:BLOCK{agent boys}{
+		:TITLE{Agent Arkanoid.}
+		:ICON{agent}
+		No can do. This is the door to the boy's dorm. You're not allowed there.
+	}
+
+	:BLOCK{agent hello}{
+		:TITLE{Mysterious Guy}
+		:ICON{agent}
+		I was watching you play Breakout just now. You're pretty good.
+		:OPT{Pretty good?!? I'm the best.}{agent best}
+		:OPT{I'm still not good enough to get the highest score.}{agent intro}
+		:OPT{Holy crap! Stranger Danger!}{agent intro}
+	}
+	
+	:BLOCK{agent best}{
+		:TITLE{Mysterious Guy}
+		:ICON{agent}
+		Judging by the high scores, you're only second best.
+		:OPT{What do you want old man?}{agent intro}
+		
+	}
+	
+	:BLOCK{agent intro}{
+		:TITLE{Mysterious Guy}
+		:ICON{agent}
+		My name is Agent Arkanoid. I'm with the U.S. military. I need you to come with me.
+		:OPT{That's not going to happen.}{agent stars}
+		:OPT{Why?}{agent stars}
+		:OPT{Seriously?!? Someone call the cops! Stranger Danger!}{agent time}
+	}
+	
+	:BLOCK{agent stars}{
+		:TITLE{Mysterious Guy}
+		:ICON{agent}
+		The world is in trouble, and we need your help! Haven't you noticed the stars are going out?
+		:OPT{I don't see why that's my problem.}{agent time}
+		:OPT{So? My dad left us, what's it matter if the stars leave too?}{agent time}
+	}
+	
+	:BLOCK{agent time}{
+		:TITLE{Mysterious Guy}
+		:ICON{agent}
+		I don't have time for this. You're coming with me.
+		:OPT{No!}{agent no}
+	}
+	
+	:BLOCK{agent no}{
+		:ACT{get kidnapped}
+	}
+}
+
+:BLOCK{mom family}{
+	:BLOCK{hi mom}{
+		:TITLE{Mom}
+		:ICON{mom}
+		Hi honey, can you please help me mow the lawn?
+		
+		:OPT{I'm going to the arcade to play Breakout.}{nothing}
+		:OPT{Dad walked out on us, so I'm walking out on this lawn.}{mom sense}
+	}
+	
+	:BLOCK{mom sense}{
+		:TITLE{Mom}
+		:ICON{mom}
+		That doesn't even make sense.
+	}
+}
+
+:BLOCK{breakout family}{
+	:BLOCK{tv on}{
+		:TITLE{TV}
+		:ICON{tv}
+		Play Breakout?
+		:OPT{Yes}{play breakout}
+		:OPT{No}{nothing}
+	}
+	
+	:BLOCK{play breakout}{
+		:ACT{play breakout}
+	}
+	
+	:BLOCK{arcade on}{
+		:ACT{test has quarter}
+	}
+	
+	:BLOCK{arcade play}{
+		:TITLE{Arcade Machine}
+		:ICON{arcade}
+		It costs one quarter to play a game of Breakout.
+		
+		
+		:IF{
+			:EQUAL{:GET{has quarter}}{yes}
+		}{
+			:OPT{Use quarter}{play arcade with quarter}
+		}{}
+		
+		:IF{
+			:EQUAL{:GET{has quarter string}}{yes}
+		}{
+			:OPT{Use quarter on a string}{play arcade}
+		}{}
+		
+		:OPT{Ignore}{nothing}
+		
+	}
+	
+	:BLOCK{play arcade with quarter}{
+		:ACT{play arcade with quarter}
+	}
+	
+	:BLOCK{play arcade}{
+		:ACT{play arcade}
+	}
+	
+	:BLOCK{has quarter}{
+		:SET{has quarter}{yes}
+	}
+	
+	:BLOCK{lost quarter}{
+		:SET{has quarter}{no}
+	}
+	
+	:BLOCK{has quarter string}{
+		:SET{has quarter string}{yes}
+	}
+	
+	:BLOCK{lost quarter string}{
+		:SET{has quarter string}{no}
+	}
+}
+
+:BLOCK{glenn family}{
+	:BLOCK{hello glenn}{
+		:ICON{glenn}
+		:TITLE{Glenn}
+		Hey Man, what's up?
+		:OPT{I'm going to the arcade.}{glenn arcade}
+		:OPT{None of your business.}{glenn ok}
+		:OPT{Who are you?}{glenn intro}
+	}
+	
+	:BLOCK{glenn arcade}{
+		:ICON{glenn}
+		:TITLE{Glenn}
+		:ACT{check trick}
+		Right on! Hey, you want to see a cool trick?
+		:OPT{Yes}{glenn trick}
+		:OPT{No}{glenn nevermind}
+	}
+	
+	:BLOCK{glenn trick}{
+		:ICON{glenn}
+		:TITLE{Glenn}
+		Do you have a quarter and a piece of string?
+		:IF{
+			:EQUAL{:GET{glenn trick yes no}}{yes}
+		}{
+			:OPT{Yes}{glenn quarter string}
+			:OPT{No}{glenn nevermind}
+		}{
+			:OPT{No}{glenn nevermind}
+		}
+	}
+	
+	:BLOCK{glenn trick yes}{
+		:SET{glenn trick yes no}{
+			yes
+		}
+	}
+	
+	:BLOCK{glenn trick no}{
+		:SET{glenn trick yes no}{
+			no
+		}
+	}
+	
+	:BLOCK{glenn quarter string}{
+		:ICON{quarterstring}
+		:TITLE{Quarter On A String}
+		You received a quarter tied to a string!
+		:ACT{get quarter string}
+		:OPT{Ok}{glenn use this}
+	}
+	
+	:BLOCK{glenn use this}{
+		:ICON{glenn}
+		:TITLE{Glenn}
+		Use this when you go to the arcade. Unlimited plays for only one quarter!
+	}
+	
+	:BLOCK{glenn nevermind}{
+		:ICON{glenn}
+		:TITLE{Glenn}
+		Oh, never mind then.
+	}
+	
+	
+	:BLOCK{glenn ok}{
+		:ICON{glenn}
+		:TITLE{Glenn}
+		Cool.
+	}
+	
+	:BLOCK{glenn intro}{
+		:ICON{glenn}
+		:TITLE{Glenn}
+		You ever heard of the Glenn Close Trio?
+		:OPT{No}{glenn that}
+	}
+	
+	:BLOCK{glenn that}{
+		:ICON{glenn}
+		:TITLE{Glenn}
+		I'm that Glenn Close.
+	}
+
+}
+
+:BLOCK {quarter family}{
+	:BLOCK {street quarter} {
+		You found a quarter!
+		:ICON{quarter}
+		:TITLE{A Quarter}
+		:OPT{Pick it up}{get quarter}
+		:OPT{Ignore it}{nothing}
+	}
+
+	:BLOCK {couch quarter} {
+		You found a quarter!
+		:ICON{quarter}
+		:TITLE{A Quarter}
+		:ACT{add_quarter}
+	}
+
+	:BLOCK {get quarter}{
+		:ACT{pickup_quarter}
+	}
+
+	:BLOCK {sit}{
+		:ACT{sit}
+	}
+
+	:BLOCK{couch}{
+		This is a couch.
+		:ICON{couch}
+		:TITLE{A Couch}
+		:OPT{Search}{couch quarter}
+		:OPT{Sit}{sit}
+		:OPT{Ignore}{nothing}
+	}
+}
+
+:BLOCK{mailbox family}{
+
+	:BLOCK {mailbox everyteen}{
+		:SET{name}{Everyteen}
+		:SET{contents}{:GET{found_string}}
+		:GOTO{mailbox}
+	}
+
+	:BLOCK {mailbox close}{
+		:SET{name}{Close}
+		:SET{contents}{empty}
+		:GOTO{mailbox}
+	}
+
+	:BLOCK {empty}{
+		:ICON{mailbox}
+		:TITLE{Mailbox}
+		It's empty.
+	}
+
+	:BLOCK {string}{
+		:ICON{string}
+		:TITLE{String}
+		:SET{found_string}{empty}
+		You found a piece of string!
+		:ACT{string}
+	}
+
+	:BLOCK{mailbox}{
+		:ICON{mailbox}
+		:TITLE{Mailbox}
+		The_ :GET{name}_family mailbox.
+		:OPT{Open}{:GET{contents}}
+		:OPT{Ignore}{nothing}
+	}
+
+}
+
+:SET{found_string}{string}
+:SET{has quarter}{no}
+:SET{has string quarter}{no}
+:SET{payne leave}{payne leave}
+:SET{hello payne}{payne intro}
+:SET{hello paddle}{paddle open}
+
+

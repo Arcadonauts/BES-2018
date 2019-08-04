@@ -3,7 +3,10 @@ import flask
 import json
 import os
 from app.direct import Lvl
-import email_myself
+try:
+    import email_myself
+except ImportError:
+    pass 
 import collections
 from app import ominos_api
 from PIL import Image
