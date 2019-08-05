@@ -97,7 +97,7 @@
 			let dx = 0 
 			let y0 = 12 
 			let dy = 0 
-			for(let i = 0; i < 24; i++){
+			for(let i = 0; i < 27; i++){
 				let butt = this.add.sprite(x0 + dx, y0 + dy, 'breakout', i)
 		
 				butt.index = i 

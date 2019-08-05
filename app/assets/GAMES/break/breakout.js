@@ -511,10 +511,10 @@
 			return paddle 
 		},
 		ball: function(){
-			let ball = this.physics.add.sprite(this.paddle.x + this.paddle.body.width/2, this.paddle.y - 24, 'breakout', 66)
+			let ball = this.physics.add.sprite(this.paddle.body.center.x, this.paddle.y - 6, 'breakout', 66)
 			ball.anims.play(this.creator.anim)
 			ball.setCollideWorldBounds(true)
-			ball.v = 120 
+			ball.v = 150 
 			let rot = -Math.PI/4
 			ball.body.velocity.x = ball.v * Math.cos(rot)
 			ball.body.velocity.y = ball.v * Math.sin(rot)
@@ -523,8 +523,11 @@
 			ball.body.bounce.y = 1.01
 			ball.setSize(8, 8)//.setOffset(4, 4)
 			ball.max_y = 0 
+			//ball.body.setCircle(4)
+			ball.allowGravity = false 
+			//ball.body.setMaxVelocity(ball.v * 2)
 			
-			this.physics.add.collider(this.paddle, ball, function(paddle, ball){
+			this.physics.add.collider(this.paddle, ball, (paddle, ball) => {
 				let px = paddle.body.x + paddle.body.width/2 
 				let bx = ball.body.x + ball.body.width/2 
 				
@@ -539,6 +542,8 @@
 				let vx = ball.v * Math.cos(rot)
 				let vy = ball.v * Math.sin(rot)
 				ball.body.velocity.set(vx, vy)
+				
+				this.cameras.main.shake(50, .005)
 			})
 			
 			return ball 
@@ -576,8 +581,9 @@
 			return blocks 
 		},
 		collide: function(ball, blocks){
-			this.physics.add.collider(ball, blocks, function(ball, block){
+			this.physics.add.collider(ball, blocks, null, (ball, block) => {
 				block.hit()
+				return !(block.that &&  block.that.control && block.that.control.acidic)
 			})
 		},
 		init: function(cursors){
@@ -601,9 +607,13 @@
 			
 			this.blocks = this.creator.blocks.call(this, this.lvl, this.name)
 			
-			this.balls = [create.ball.call(this)]
+			this.balls = []// [create.ball.call(this)]
 			
 			create.collide.call(this, this.balls, this.blocks)
+			
+			if(this.control && this.control.post_init){
+				this.control.post_init(this)
+			}
 			
 			this.input.keyboard.on('keydown-E', ()=> {
 	
@@ -630,6 +640,186 @@
 	}
 	
 	let control = {
+		acid: {
+			init: function(that){
+				that.control = this
+				this.icon = that.add.sprite(332, 153, 'icons', 54)
+				//this.icon.anims.play('timer')
+				this.icon.setDepth(11)
+				
+				
+				this.max_cool_off = 1000
+				this.cool_off = this.max_cool_off - 1 
+				this.acid = 0
+				this.max_acid = 200
+				this.acidic = false 
+			},
+			post_init: function(that){
+				this.that = that
+			},
+			register: function(block){
+				block.setFrame(12)
+			},
+			act: function(){
+				if(this.cool_off >= this.max_cool_off){
+					this.acidic = true 
+					this.that.balls.forEach(ball => ball.anims && ball.anims.play('ball-acid'))
+				}
+				
+			},
+			update: function(){
+				if(this.cool_off < this.max_cool_off){
+					this.cool_off += 1 
+				}
+				if(this.acidic){
+					console.log('acid!')
+					this.acid += 1
+					if(this.acid >= this.max_acid){
+						this.acid = 0
+						this.acidic = false 
+						this.cool_off = 0
+						this.that.balls.forEach(ball => ball.anims && ball.anims.play('ball-real'))
+					}
+					let fr = 32
+					this.icon.setFrame(
+						41 + Math.floor(4*(this.acid%fr)/fr)
+					)
+				}else{
+					this.icon.setFrame(
+						54 + Math.floor(8*this.cool_off/(this.max_cool_off))
+					)
+				}
+			},
+			shutdown: function(){
+				
+			}
+		},
+		grav: {
+			out: true,
+			grav: 200000,
+			blocks: [],
+			init: function(that){
+				that.control = this 
+				this.icon = that.add.sprite(332, 153, 'icons', 50)
+				this.icon.anims.play('agrav')
+				this.icon.setDepth(11)
+				this.out = true 
+			},
+			register: function(block){
+				
+				//*
+				let sun = block.that.add.container(block.x, block.y)
+				let top = block.that.add.sprite(0, 0, 'breakout')
+				let bot = block.that.add.sprite(0, 0, 'breakout')
+				top.setOrigin(.5, 1)
+				bot.setOrigin(.5, 0)
+				top.anims.play('sun-top')
+				bot.anims.play('sun-bot')
+				
+				sun.add(top)
+				sun.add(bot)
+				sun.setDepth(5)
+				
+				//block.that.physics.world.enable(sun)
+				//sun.body.setCircle(12).setOffset(-12)
+				//block.that.blocks.push(sun)
+				
+				block.alpha = 0 
+				//*/
+				block.body.checkCollision.none = true 
+				block.setOrigin(.5)
+				block.grav = this.grav 
+				block.out = this.out 
+				
+				block.ignore = true 
+				let r = 6
+				//block.body.setCircle(2*r)
+				//block.body
+				//block.sun = sun 
+				this.blocks.push(block)
+				
+				
+				block.update = function(){
+					this.that.balls.forEach(ball => {
+						
+						if(!ball.body || !this.body) return 
+						let acc = this.body.center.clone()
+						acc.subtract(ball.body.center)
+						
+						let r2 = acc.lengthSq()
+						
+						acc.normalize()
+						
+						acc.scale(this.grav/r2)
+						if(this.out){
+							acc.scale(-1)
+						}
+						
+						ball.body.acceleration.add(acc)
+						//ball.body.setAcceleration(acc.x, acc.y) 
+						//console.log(Math.floor(acc.x), Math.floor(acc.y))
+						//ball.body.reset(this.body.center.x, this.body.center.y)
+					})
+				}
+				
+				
+			},
+			post_init: function(that){
+				
+			},
+			act: function(){
+				this.out = !this.out 
+				this.icon.anims.play(this.out ? 'agrav' : 'grav')
+				this.blocks.forEach(b => b.out = this.out)
+			},
+			shutdown: function(){
+				
+			}
+			
+		},
+		slide: {
+			left: true,
+			
+			init: function(that){
+				that.control = this 
+				this.icon = that.add.sprite(332, 153, 'icons', 50)
+				this.icon.anims.play('slide')
+				this.icon.setDepth(11)
+				this.blocks = [] 
+				this.left = true 
+				this.dir = -1 
+				
+				console.log('take control')
+			},
+			register: function(block){
+				this.blocks.push(block)
+				block.v = 60 
+				block.body.velocity.x = -block.v  
+				block.body.setCollideWorldBounds(true)
+				block.ignore = true 
+
+			}, 
+			post_init: function(that){
+			
+				that.physics.add.collider(this.blocks, that.blocks, function(b1, b2){
+					b1.body.reset(TW*Math.round(b1.x/TW), b1.y)
+				})
+			},
+			act: function(block){
+				this.left = !this.left 
+				this.icon.scaleX *= -1 
+				this.dir = -this.icon.scaleX
+				this.blocks = this.blocks.filter(b => !b.dead)
+				this.blocks.forEach(b => {
+					//b.x += v/60 
+					b.dir = this.dir
+					b.body.velocity.x = this.dir*b.v
+				})
+				
+			},
+			shutdown: function(){
+			}
+		},
 		toggle: {
 			red: true,
 			icons: {
@@ -637,9 +827,11 @@
 				blue: 64
 			},		
 			init: function(that){
-				this.icon = that.add.sprite(332, 152, 'icons', this.icons.red)
+				that.control = this 
+				this.icon = that.add.sprite(332, 153, 'icons', this.icons.red)
 				this.icon.setDepth(11)
 				this.blocks = [] 
+				
 			},
 			register: function(block){
 				this.blocks.push(block)
@@ -675,6 +867,9 @@
 				this.blocks = this.blocks.filter(b => !b.dead)
 				this.blocks.forEach(b => b.toggle())
 				this.icon.setFrame(this.red ? this.icons.red : this.icons.blue)
+			},
+			shutdown: function(){
+				
 			}
 		}
 	}
@@ -836,24 +1031,58 @@
 				lives.set(this.data.lives)
 				return lives 
 			},
-			next_level: function(){
-				
-				this.balls.forEach(ball => ball.dead = true) 
-				this.lvl += 1 
-				if(this.lvl > 3){
-					this.creator.game_over.call(this)
+			explode: function(){
+				if(this.countdown === undefined){
+					this.balls.forEach(ball => {
+						ball.body.reset(ball.x, ball.y)
+						ball.anims.play('ball-explode')
+					})
+					
+					this.countdown = 200 
+					let fps = this.game.loop.actualFps
+					this.cameras.main.shake(1000*this.countdown/fps, .01, true)
+				}else if(this.countdown > 0){
+					this.countdown -= 1 
+					
+				}else{
+					this.cameras.main.flash()
+					this.cameras.main.shake(0, 0, true)
+					this.countdown = undefined
+					
+					if(this.control){
+						this.control.shutdown()
+						this.control = undefined
+					}
+					this.blocks.forEach(b => {b.destroy(); b.dead = true})
+					this.balls.forEach(ball => ball.dead = true) 
+					this.lvl += 1 
+					//console.log(this.lvl)
+					
+					
+					if(this.lvl > 3){
+						this.creator.game_over.call(this)
+						return 
+					}
+					this.level.set(this.lvl)
+					
+					this.blocks = create.blocks.call(this, this.lvl, this.name)
+					if(this.control && this.control.post_init){
+						this.control.post_init(this)
+					}
 				}
-				this.level.set(this.lvl)
 				
-				this.blocks = create.blocks.call(this, this.lvl, this.name)
+			},
+			next_level: function(){
+				this.creator.explode.call(this)
+				
 			},
 			q_press: function(){
 
 				if(this.control){
 					this.control.act()
 				}else{
-					this.blocks.forEach(b => {b.destroy(); b.dead = true})
-					this.creator.next_level.call(this)
+					//this.blocks.forEach(b => {b.destroy(); b.dead = true})
+					//this.creator.next_level.call(this)
 				}
 			},
 			game_over: function(){
@@ -932,20 +1161,66 @@
 					}
 				},
 				20: function(block){
-					if(!block.that.control){
-						block.that.control = control.toggle 
-						block.that.control.init(block.that)
+					if(!block.that.control){ 
+						control.toggle.init(block.that)
 					}
 					block.that.control.register(block)
 					
 				},
 				21: function(block){
 					if(!block.that.control){
-						block.that.control = control.toggle 
-						block.that.control.init(block.that)
+						control.toggle.init(block.that)
 					}
 					block.that.control.register(block)
+				},
+				16: function(block){
+					if(!block.that.control){
+						control.slide.init(block.that)
+					}
+					block.that.control.register(block)
+				},
+				17: function(block){
+					if(!block.that.control){
+						control.slide.init(block.that)
+					}
+					block.that.control.register(block)
+				},
+				18: function(block){
+					if(!block.that.control){
+						control.slide.init(block.that)
+					}
+					block.that.control.register(block)
+				},
+				19: function(block){
+					if(!block.that.control){
+						control.slide.init(block.that)
+					}
+					block.that.control.register(block)
+				},
+				24: function(block){
+					if(!block.that.control){
+						control.grav.init(block.that)
+					}
+					block.that.control.register(block)
+				},
+				25: function(block){
+					if(!block.that.control){
+						control.acid.init(block.that)
+					}
+					block.that.control.register(block)
+				},
+				26: function(block){
+					block.update = function(){
+						if(this.that.balls){
+							let ball = this.that.balls[0]
+							if(ball){
+								ball.v += .1
+								this.x = ball.x 
+							}
+						}
+					}
 				}
+				
 			},
 			block_hit: function(side){
 				let blocks = this.that.blocks 
@@ -957,8 +1232,9 @@
 				let is_red = x => x === 0 || x === 4 || x === 5
 				let is_green = x => 12 < x && x < 16
 				let is_toggle = x => x === 21 || x === 20 
+				let is_yellow = x => 15 < x && x < 20 
 				
-				
+				let shake = () => this.that.cameras.main.shake(50, .005)
 				
 				if(!side && is_left(this.index)){
 					blocks.forEach(b => {
@@ -978,18 +1254,26 @@
 				
 				if(is_green(this.index)){
 					if(this.index === 13 && !side){
+						shake()
 						return 
 					}
+				}
+				
+				if(is_yellow(this.index)){
+					shake()
+					return 
 				}
 				
 				if(is_brown(this.index)){
 					let browns = {2:12, 6:10, 7:11 }
 					this.setFrame(browns[this.index])
 					this.index = browns[this.index]
+					shake()
 					return 
 				}
 				
 				if(is_toggle(this.index) && this.on){
+					shake()
 					return 
 				}
 				
@@ -1002,6 +1286,15 @@
 					ball.y = this.y 
 				}
 				
+				if(this.index === 24){ //gravity ball 
+					return 
+				}
+				
+				if(this.index === 26){ // paddle 
+					shake()
+					return 
+				}
+				
 				if(is_blue(this.index)){
 					for(let i = 0; i < 3; i++){
 						create.power_drop.call(this.that, this.x, this.y)
@@ -1012,6 +1305,7 @@
 					create.fire.call(this.that, this.x, this.y)
 				}
 				
+				shake()
 				this.destroy()
 				this.dead = true 
 				
@@ -1046,7 +1340,13 @@
 			
 			// toggle 
 			20: [213, 228, 243],
-			21: [214, 229, 244]
+			21: [214, 229, 244],
+			
+			// yellow 
+			16: [257, 272, 287],
+			17: [258, 273, 288],
+			18: [259, 274, 289],
+			19: [260, 275, 290],
 			
 		},
 		init: function(){
@@ -1054,6 +1354,8 @@
 			this.anims.create(a.anim('ball-game', 66))
 			this.anims.create(a.anim('ball-bad', 65))
 			this.anims.create(a.anim('ball-real', 67, 68, 69, 68))
+			this.anims.create(a.anim('ball-acid', 70, 71, 72, 71))
+			this.anims.create(a.anim('ball-explode', 73, 74))
 			
 			this.anims.create(a.anim('laser', 110, 111))
 			this.anims.create(a.anim('fire', 105, 120, 135, 150, 135, 120))
@@ -1064,6 +1366,16 @@
 			this.anims.create(a.once('blue-on', 271, 226, 211, 196))
 			this.anims.create(a.once('red-on', 271, 228, 241, 256))
 			
+			this.anims.create(a.icon('slide', 50, 51, 52, 53))
+			this.anims.create(a.icon('grav', 36, 37, 38, 39, 40, 45, 46, 47, 48))
+			this.anims.create(a.icon('agrav', 48, 47, 46, 45, 40, 39, 38, 37, 36 ))
+			//this.anims.create(a.icon_once('timer', 54, 54, 56, 57, 58, 59, 60, 61, 62 ))
+			
+			this.anims.create(a.anim('sun-top', 124, 125, 126, 125))
+			this.anims.create(a.anim('sun-bot', 139, 140, 141, 140))
+
+			
+			
 			for(let k in animations.blocks){
 				let flick = animations.blocks[k]
 				flick.unshift(k)
@@ -1073,8 +1385,37 @@
 			
 			this.anims.create(a.anim('power-drop', 79, 80, 81, 80))
 		},
-		_frame: function(f){
-			return {key: 'breakout', frame: f}
+		_frame: function(f, sheet){
+			sheet = sheet || 'breakout'
+			return {key: sheet, frame: f}
+		},
+		icon: function(){
+			let frames = []
+			for(let i = 1; i < arguments.length; i++){
+				frames.push(this._frame(arguments[i], 'icons'))
+			}
+			let op =  {
+				key: arguments[0],
+				frames: frames,
+				repeat: -1,
+				frameRate: 12,
+			}	
+			
+			return op 
+		},
+		icon_once: function(){
+			let frames = []
+			for(let i = 1; i < arguments.length; i++){
+				frames.push(this._frame(arguments[i], 'icons'))
+			}
+			let op =  {
+				key: arguments[0],
+				frames: frames,
+				repeat: 1,
+				frameRate: 12,
+			}	
+			
+			return op 
 		},
 		anim: function(){
 			
@@ -1134,18 +1475,24 @@
 			if(this.game_over){
 				return 
 			}
+			
+			if(this.control && this.control.update){
+				this.control.update()
+			}
+			
+			
 			this.paddle.update()
 			this.blocks.forEach(b => b.update && b.update(this.blocks))
 			this.blocks = this.blocks.filter(b => !b.dead)
 			
 			let min_blocks = this.data.bomb || 0 
 			if(this.blocks.filter(b => !b.ignore).length <= min_blocks){
-				this.blocks.forEach(b => {b.destroy(); b.dead = true})
+				//this.blocks.forEach(b => {b.destroy(); b.dead = true})
 				this.creator.next_level.call(this)
 			}
 			
-			//*
 			this.balls.forEach(ball => {
+				//ball.body.setAcceleration(0, 0)
 				if(ball.y > 240){
 					ball.dead = true 
 					if(this.balls.length === 1){
@@ -1160,11 +1507,14 @@
 				
 			})
 			
+			//*
+			
+			
 			this.balls = this.balls.filter(b => !b.dead)
 			
 			if(this.lives.get() < 0){
 				this.game_over = true 
-				this.creator.game_over.call(this)
+				this.creator.game_over.call(this, false)
 			}
 			//*/
 			

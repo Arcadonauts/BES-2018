@@ -76,16 +76,29 @@
 		
 		},
 		create:	function create(){
-	
+			/*
+				boston
+				new york
+				chicago 
+				zhengzhou 
+				berlin 
+				london 
+				sydney 
+			*/
 			
-			//this.scene.start('breditor', {name: 'chicago'}) // Change this
 			//*
-			this.scene.start('breakout', {
-				style: 'real',
-				lvl: 0,
-				name: 'chicago',
-				length: 3,
-			})// Change this
+			let name = 'london'
+			if(!true){
+				this.scene.start('breditor', {name: name}) // Change this
+			}else{
+				this.scene.start('breakout', {
+					style: 'real',
+					lvl: 0,
+					name: name,
+					bomb: 4,
+					length: 3,
+				})// Change this
+			}				
 			//*/
 			
 			/*
