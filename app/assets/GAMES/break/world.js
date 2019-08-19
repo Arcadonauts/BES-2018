@@ -4,6 +4,403 @@
 	let show_layer = {}
 	let grid = {}
 	
+	window.monolog = {
+		init: function(data){
+			this.name = data.name 
+			this.next = data.next 
+		},
+		create: function(){
+			this.cursors = this.input.keyboard.addKeys({
+				up:Phaser.Input.Keyboard.KeyCodes.W,
+				down:Phaser.Input.Keyboard.KeyCodes.S,
+				left:Phaser.Input.Keyboard.KeyCodes.A,
+				right:Phaser.Input.Keyboard.KeyCodes.D
+			});
+			message.init(this.add)
+			message.say('monolog ' + this.name)
+			
+			this.input.keyboard.on('keydown-E', ()=> {
+				message.enter()
+			})
+			this.cameras.main.flash(6000, 0, 0, 0)
+		},
+		update: function(){
+			message.update(this.cursors)
+			if(!message.open){
+				console.log(this.next)
+				this.scene.start('world', {name:this.next})
+			}
+		}
+	}
+	
+	function aim(player, dx, dy, live){
+		let bullet = this.scene.physics.add.sprite(this.x, this.y, 'roxy', 33)
+		let size = live ? 12 : 6 
+		bullet.setSize(size, size)
+		bullet.setDepth(live ? 1000000 : 10000000)
+		let v = live ? 400 : 500 
+		bullet.body.velocity.x = dx * v
+		bullet.body.velocity.y = dy * v 
+		bullet.origin = this 
+		
+		this.cooldown = 0 
+		
+		if(!live){
+			this.scene.physics.add.collider(bullet, player.walls, function(bullet, wall){
+				bullet.destroy()
+			})
+			
+			this.scene.physics.add.collider(bullet, interactable.sprites, undefined, function(bullet, wall){
+				if(wall.name === 'paddle'){
+					bullet.destroy()
+				}else{
+					return false
+				}
+			})
+			
+			this.scene.physics.add.overlap(bullet, player, (bullet, player)=>{
+				console.log('aim!')
+				if(this.fired <= 0){
+					aim.call(this, player, dx, dy, true)
+					this.fired = 20 
+				}
+			})
+		}else{
+			this.scene.physics.add.overlap(bullet, player, (bullet, player)=>{
+				player.kill()
+			})
+		}
+		
+		
+	}
+	
+	let recurring = {
+		alien_paddle: function(tag){
+			//console.log(tag)
+			return {
+				name: 'paddle',
+				move: function(){
+					
+				},
+				init: function(){
+					this.setImmovable(true)
+					this.setSize(24, 24).setOffset(0, 0)
+					this.tag = tag
+					this.setFrame(68)
+					this.update = ()=>{}
+				}
+			}
+		},
+		fire: function(tag){
+			return {
+				auto: true,
+				on: 0,
+				activate: function(player, sprite){
+					if(this.on <= 0){
+						
+						let launcher
+						interactable.sprites.forEach(s => {
+							//console.log(s.interact_id, s.tag)
+							if(s.tag === tag){
+								
+								launcher = s 
+							}
+						})
+						if(launcher){
+							launcher.fire(player, launcher)
+						}else{
+							console.log('Unfound tag:', tag)
+						}
+					}
+					this.on = 3 
+					sprite.setFrame(215)
+				},
+				update: function(player, sprite){
+					sprite.setFrame(214)
+					this.on -= 1 
+				}
+			}
+		},
+		launcher: function(tag){
+			return {
+				name: 'launch',
+				tag: tag,
+				auto: true,
+				activate: function(player, sprite){
+					console.log(this.tag)
+				},
+				fire: function(player, sprite){
+					console.log('fire!')
+					let ball = sprite.scene.physics.add.sprite(sprite.x, sprite.y, 'roxy', 33)
+					ball.setDepth(10000)
+					//let v = 100
+					//ball.body.velocity.set(v, v)
+					ball.body.setSize(12, 12)
+					ball.body.bounce.x = 1 
+					ball.body.bounce.y = 1
+					ball.tag = tag 
+					ball.alpha = 0 
+					
+					sprite.scene.physics.add.collider(ball, player.walls, function(b1, b2){
+						return true 
+					})
+					
+					sprite.scene.physics.add.overlap(ball, interactable.sprites, function(b1, b2){
+						//console.log(b1.t)
+						if(b1.t > 20 && b2.type === 'launcher'){
+							b1.body.reset()
+						}
+					})
+					
+					return ball 
+				},
+				update: function(player, sprite){
+					sprite.ball = this.fire(player, sprite)
+					sprite.tag = tag 
+					sprite.type = 'launcher'
+					sprite.fire = function(player, sprite){
+						this.ball.x = this.x 
+						this.ball.y = this.y 
+						this.ball.body.velocity.set(100, 100)
+						this.ball.alpha = 1 
+						this.ball.t = 0 
+					}
+					sprite.setSize(2, 2)
+					this.update = function(player, sprite){
+						sprite.ball.t += 1 
+					}
+				}
+			}
+		},
+		paddle_control: function(tag, v){
+			return {
+				auto: true,
+				activate: function(player, sprite){
+					sprite.setFrame(215)
+					let paddle
+					interactable.sprites.forEach(s => {
+					//	console.log(s.tag)
+						if(s.tag === tag){
+							paddle = s 
+						}
+					})
+					
+					paddle.body.velocity.x = v 
+					paddle.update = ()=>{}
+					sprite.scene.physics.add.collider(paddle, player.walls, function(b1, b2){
+						
+						b1.body.reset(TW*Math.round(b1.x/TW), b1.y)
+					})
+					
+				},
+			
+				update: function(player, sprite){
+					sprite.setFrame(214)
+					
+				}
+				
+			}
+		},
+		stand_alien: {
+			name: 'alien',
+			move: function(player){
+				this.dir = 'down'	
+				
+				if(this.v === undefined){
+					this.v = 30
+					this.cooldown = 5 
+					this.fired = 0 
+				}
+				
+				let dx = player.body.x - this.x
+				let dy = player.body.y - this.y
+				let dd = 5 
+				this.fired -= 1
+				//console.log('stand alien')
+				if(this.cooldown >= 5){
+					
+					if(Math.abs(dx) < dd){
+						aim.call(this, player, 0, dy/Math.abs(dy))
+					}else if(Math.abs(dy) < dd){
+						aim.call(this, player, dx/Math.abs(dx), 0)
+					}
+				}else{
+					this.cooldown += 1 
+				}
+				
+			},
+		},
+		right_alien: {
+			name: 'alien',
+			move: function(player){
+				//console.log(this.body.velocity.x)
+				if(this.v === undefined){
+					this.v = 30
+					this.cooldown = 5 
+					this.fired = 0 
+				}
+				if(Math.abs(this.body.velocity.x) < .75*Math.abs(this.v)){
+					this.v *= -1
+				}
+				this.body.velocity.x = this.v 
+				this.body.velocity.y = 0 
+				
+				let dx = player.body.x - this.x
+				let dy = player.body.y - this.y
+				let dd = 5 
+				this.fired -= 1
+				if(this.cooldown >= 5){
+					
+					if(Math.abs(dx) < dd){
+						aim.call(this, player, 0, dy/Math.abs(dy))
+					}else if(Math.abs(dy) < dd){
+						aim.call(this, player, dx/Math.abs(dx), 0)
+					}
+				}else{
+					this.cooldown += 1 
+				}
+			}
+		},
+		up_alien: {
+			name: 'alien',
+			move: function(player){
+				//console.log(this.body.velocity.x)
+				if(this.v === undefined){
+					this.v = 30
+					this.cooldown = 5 
+					this.fired = 0 
+				}
+				if(Math.abs(this.body.velocity.y) < .75*Math.abs(this.v)){
+					this.v *= -1
+				}
+				this.body.velocity.y = this.v 
+				this.body.velocity.x = 0 
+				
+				let dx = player.body.x - this.x
+				let dy = player.body.y - this.y
+				let dd = 5 
+				this.fired -= 1
+				if(this.cooldown >= 5){
+					
+					if(Math.abs(dx) < dd){
+						aim.call(this, player, 0, dy/Math.abs(dy))
+					}else if(Math.abs(dy) < dd){
+						aim.call(this, player, dx/Math.abs(dx), 0)
+					}
+				}else{
+					this.cooldown += 1 
+				}
+				
+			},
+		},
+		agent: {
+			name: 'agent',
+			move: function(player){
+				if(!this.first){
+					this.setImmovable(true)
+					this.y -= 7
+					this.first = true 
+				}
+				
+				let dx = player.x - this.x 
+				let dy = player.y - this.y 
+				
+				if(dy < -48){
+					this.anims.play('agent-stand-down')
+				}else if(Math.abs(dy) > Math.abs(dx)){
+					this.anims.play('agent-stand-up')
+				}else if(dx < 0){
+					this.anims.play('agent-stand-left')
+				}else{
+					this.anims.play('agent-stand-right')
+				}
+			}
+		},
+		paddle: {
+			name: 'paddle',
+			move: function(player){
+				
+				
+				if(player.y < 72 && player.x > 220){
+					//this.x = 260
+					this.body.velocity.x = 4*(280 - this.x)
+				}else{
+					//this.x = 380
+					this.body.velocity.x = 4*(380 - this.x)
+				}
+				
+				if(this.x > 340){
+					this.paddle.alpha = 0
+				}else{
+					this.paddle.alpha = 1 
+				}
+				
+				this.paddle.x = this.x - 6
+				
+			},
+			init: function(add){
+				this.alpha = 0 
+				
+				this.setImmovable(true)
+				this.paddle = add.container(this.x, this.y)
+				this.paddle.add(add.sprite(0, 0, 'tiles', 166))
+				this.paddle.add(add.sprite(TW, 0, 'tiles', 167))
+				this.paddle.add(add.sprite(0, -TW, 'tiles', 151))
+				this.paddle.add(add.sprite(TW, -TW, 'tiles', 152))
+				this.paddle.setDepth(10000)
+				this.y -= 14
+				this.shadow.alpha = 0
+				
+				message.say('lock paddle')
+			}
+		},
+		payne: {
+			name: 'payne',
+			move: function(){
+				//console.log(this.body.velocity.x)
+				if(this.v === undefined){
+					this.v = 30
+				}
+				if(Math.abs(this.body.velocity.x) < .75*Math.abs(this.v)){
+					this.v *= -1
+				}
+				this.body.velocity.x = this.v 
+				this.body.velocity.y = 0 
+			},
+			init: function(){
+				this.y -= 7
+			}
+		}
+	}
+	
+	function next(lvl){
+		let flow = [
+				'Lvl 1', // Home 
+				'Lvl 2', // Get Kidnapped 
+				'Lvl 3', // Wake up 
+				'new york', // multi ball and red green  blue 
+				'Lvl 4', 
+				'chicago', //toggle
+				'Lvl 5',
+				'dream',
+				'Lvl 6',
+				'zhengzhou', // slide 
+				'Lvl 7',
+				'london', // acid 
+				'Lvl 8',
+				'sydney', // lose 
+				'Lvl 9',
+				'Lvl 10', // Payne 
+				'Lvl 11', // Ship 
+		]
+		for(let i = 0; i < flow.length; i++){
+			if(flow[i] === lvl){
+				return flow[i+1]
+			}
+		}
+		return undefined 
+	}
+	
 	function reorder(){
 		for(let s in grid){
 			//grid[s].setDepth(grid[s].layer + grid[s].y/100)
@@ -144,12 +541,263 @@
 		
 	}
 	
+	
+	let message = {
+		open: false,
+		selected: 0,
+		pressed: false,
+		icons: {
+			roxy: 0,
+			sally: 1,
+			kathrine: 2,
+			wesley: 3,
+			pj: 4,
+			alien: 5,
+			glenn: 6,
+			dweeby: 7,
+			agent: 8,
+			payne: 10,
+			mystery: 11, 
+			heart: 12, 
+			mom: 13,
+			dark: 14, 
+			//quarter: 18,
+			bed: 18,
+			mailbox: 19,
+			paddle: 20,
+			string: 21,
+			gloves: 22,
+			quarterstring: 23,
+			notes: 24,
+			tv: 27,
+			couch: 28,
+			arcade: 29,
+			door: 30,
+			quarter: 31,
+			upgrade: 32,
+			gem: 33,
+			id: 34,
+			artifact: 35,
+			grav1: 37,
+			grav2: 38,
+			grav3: 39,
+			grav4: 40,
+			grav5: 45, 
+			grav6: 46,
+			grav7: 47,
+			grav8: 48,
+			grav9: 49,
+			acid1: 41,
+			acid2: 42,
+			acid3: 43,
+			acid4: 44,
+			arrow1: 50,
+			arrow2: 51,
+			arrow3: 52,
+			arrow4: 53,
+			timer1: 54,
+			timer2: 55,
+			timer3: 56,
+			timer4: 57,
+			timer5: 58,
+			timer6: 59,
+			timer7: 60,
+			timer8: 61,
+			redblock: 63,
+			blueblock: 64
+			
+		},
+		chat: function(what){
+			return function(player, sprite){
+				message.say(what, player, sprite)
+			}
+		},
+		init: function(add){
+			let x0 = 1*TW 
+			let y0 = 1*TW 
+			
+			let xf = 14*TW 
+			let yf = 8*TW 
+			
+			let w = (xf - x0 - TW)/TW
+			let h = (yf - y0 - TW)/TW 
+			
+			this.box = []
+			this.box.push(add.sprite(x0, y0, 'tiles', 41))
+			this.box.push(add.sprite(xf, y0, 'tiles', 41))
+			this.box.push(add.sprite(xf, yf, 'tiles', 41))
+			this.box.push(add.sprite(x0, yf, 'tiles', 41))
+			this.box.forEach((s, i) => s.angle = 90*i)
+			
+			let top = add.sprite(TW*7.5, y0, 'tiles', 42)
+			top.scaleX = w
+			this.box.push(top)
+			
+			let bott = add.sprite(TW*7.5, yf, 'tiles', 42)
+			bott.scaleX = w
+			bott.scaleY = -1
+			this.box.push(bott)
+			
+			let left = add.sprite(x0, 4.5*TW, 'tiles', 44)
+			left.scaleY = h
+			this.box.push(left)
+			
+			let right = add.sprite(xf, 4.5*TW, 'tiles', 44)
+			right.scaleY = h
+			right.scaleX = -1
+			this.box.push(right)
+			
+			let center = add.sprite(TW*7.5, TW*4.5, 'tiles', 43)
+			center.scaleX = w
+			center.scaleY = h
+			this.box.push(center)
+			
+			this.text = add.text(x0, y0 + 2.25*TW, 'hello world!', {
+				fontSize: '14px',
+				align: 'left',
+				wordWrap: {
+					width: (w+1)*TW
+				}
+			})
+			this.box.push(this.text)
+		
+			this.title = add.text(x0 + 2.5*TW, y0 + .5*TW, 'Hello', {
+				fontSize: '18px',
+				fontStile: 'strong',
+				align: 'left',
+				fill: '#ffffff'
+				
+			})
+			this.box.push(this.title)
+			
+			this.icon = add.sprite(x0 + TW, y0 + TW, 'icons')
+			this.box.push(this.icon)
+			
+			this.pointer = add.sprite(x0 + .5*TW, 0, 'tiles', 6)
+			this.box.push(this.pointer)
+			
+			this.options = [] 
+			for(let i = 0; i < 4; i++){
+				let o = add.text(x0 + TW, y0 + 2.25*TW, 'hello world!', {
+					fontSize: '14px',
+					align: 'left',
+					wordWrap: {
+						width: w*TW
+					},
+					fill: '#9badb7'
+				})
+				this.options.push(o)
+				this.box.push(o)
+			}
+			
+			
+			this.box.forEach(s => s.setDepth(30000))
+			this.box.forEach(s => s.setScrollFactor(0))
+			
+			this.text.setDepth(300001)
+			this.icon.setDepth(300001)
+			this.title.setDepth(300001)
+			this.pointer.setDepth(300001)
+			this.options.forEach(o => o.setDepth(300001))
+			
+			
+		},
+		update: function(cursors){
+			if(this.open){
+				this.box.forEach(s => s.alpha = 1)
+				
+				
+				this.options.forEach(s => s.setColor('#9badb7'))
+				let s = this.options[this.selected]
+				s.setColor('#5fcde4')
+				this.pointer.y = s.getCenter().y
+				
+				if(!this.pressed){
+					if(cursors.down.isDown &&
+					this.selected + 1 < this.options.length &&
+					this.options[this.selected + 1].text){
+						this.selected += 1 
+					
+					}
+					
+					if(cursors.up.isDown && this.selected > 0){
+						this.selected -= 1
+					}
+				}
+				
+				this.pressed = cursors.down.isDown || cursors.up.isDown
+				
+			}else{
+				this.box.forEach(s => s.alpha = 0)
+			}
+			
+			
+		},
+		say: function(block, player, speaker){
+			let m = dialog.say(block)
+			//console.log(block)
+			this.player = player || this.player 
+			this.speaker = speaker || this.speaker 
+			
+			//console.log('say:', block, 'text:', m.text)
+			//console.log(m)
+			if(m.act){
+				if(interactable.actions['event'][m.act]){
+					interactable.actions['event'][m.act](this.player, this.speaker)
+				}else{
+					console.log('Unknown action:', m.act)
+				}
+			}
+			
+			if(!m.text){
+				this.open = false 
+				return 
+			}
+			
+			this.open = true 
+			this.text.text = m.text 
+			this.title.text = m.title
+			this.icon.setFrame(this.icons[m.icon])
+			
+			
+			
+			if(m.options.length === 0){
+				m.options.push({text: 'Ok', go:'nothing'})
+			}
+			
+			this.selected = 0 
+			
+			let y = this.text.getBottomLeft().y + .5*TW
+			this.options.forEach((o, i) => {
+			//m.options.forEach((o, i) => {
+				o.y = y 
+				o.text = m.options[i] ? m.options[i].text : ''
+				o.go = m.options[i] ? m.options[i].go : undefined
+				y = o.getBottomLeft().y
+			})
+			
+		},
+		enter: function(){
+			let go = (this.options[this.selected].go)
+			if(go === 'nothing'){
+				this.open = false 
+				return
+			}else{
+				return this.say(go)
+			}
+		}
+	}
+	
+	
 	let interactable = {
 		sprites: [],
 		threshold: 24,
 		active: false, 
 		action_key: 'E',
 		init: function(add){
+		
+			this.sprites = []
+			npc.npcs = [] 
 			this.active = add.sprite(0, 0, 'tiles', 22) 
 			this.active.setDepth(20000)
 			let text = add.text(0, 0, this.action_key, { 
@@ -172,6 +820,7 @@
 				}
 			}
 			
+			console.log('sprites:' , this.sprites.length)
 			
 			window.active = this.active 
 		},			
@@ -180,7 +829,7 @@
 				sprite.interact_id = sprite.x + ',' + sprite.y 
 			}
 			this.sprites.push(sprite)
-			
+			//console.log(this.sprites.length)
 		},
 
 		actions: {
@@ -243,8 +892,8 @@
 					interactable.actions['event']['play arcade'](player, sprite)
 				},
 				'play arcade': function(player, sprite){
-					sprite.scene.scene.pause('world')
-					sprite.scene.scene.launch('breakout', {
+					//sprite.scene.scene.pause('world')
+					sprite.scene.scene.start('breakout', {
 						style: 'arcade',
 						lvl: 1,
 					})
@@ -252,14 +901,39 @@
 				'sleep': function(player, sprite){
 					player.bed = sprite 
 				},
+				'dream': function(player, sprite){
+					player.bed = sprite 
+					sprite.scene.cameras.main.fade(1000, 0, 0, 0, false, function(cam, r){
+						if(r === 1){
+							cam.scene.scene.start('breakout', {
+								style: 'dream',
+								lvl: 'd'
+							})
+						}
+					})
+				},
+				'goto lvl 10': function(player, sprite){
+					sprite.scene.scene.start('world', {
+						name: 'Lvl 10'
+					})
+				},
 				'get upgrade': function(player, sprite){
 					inventory.add('upgrade')
 				},
+				'trade upgrade': function(player, sprite){
+					inventory.add('upgade')
+					for(let i = 0; i < inventory.gem_max; i++){
+						inventory.del('gems')
+					}
+				},
 				'start mission': function(player, sprite){
+					console.log(player.scene.name)
 					let data = {
 						style: 'real',
 						lvl: 0,
-						name: 'boston',
+						name: next(player.scene.name),
+						next: next(next(player.scene.name))
+						
 					}
 					
 					let keys = ['lives', 'lasers', 'length', 'bomb']
@@ -270,6 +944,95 @@
 				},
 				'upgrade paddle': function(player, sprite){
 					upgrades.open = true 
+				},
+				'get kidnapped': function(player, sprite){
+					//sprite.game.cameras.main.flash()
+					sprite.scene.scene.start('monolog', {
+						name: 'ouch',
+						next: 'Lvl 3'
+						
+						})
+				}
+			},
+			'Lvl 11': {
+				'paddle': {
+					auto: true,
+					activate: function(){}
+				},
+				'408,264': recurring.paddle_control('lower_paddle', 30),
+				'456,192': recurring.paddle_control('middle_paddle', 30),
+				'432,192': recurring.paddle_control('middle_paddle', -30),
+				'192,48': recurring.fire('left'),
+				'240,48': recurring.launcher('left'),
+				'456,48': recurring.launcher('catcher left'),
+			},
+			
+			'Lvl 10': {
+				'roxy': message.chat('roxy god speed'),
+				'312,264': function(player, sprite){
+					sprite.scene.scene.start('world', {
+						name: 'Lvl 11'
+					})
+				}
+			},
+			'Lvl 9': {
+				'payne': message.chat('payne lost')
+			},
+			'Lvl 8': {
+				'paddle':  message.chat('hello paddle'),
+				'payne': message.chat('payne attack'),
+			},
+			'Lvl 7': {
+				'paddle':  message.chat('hello paddle'),
+				'payne': message.chat('payne acid'),
+				'agent': message.chat('agent final'),
+				'dweeby': function(player, sprite){
+					if(inventory.count('gems') >= 10){
+						message.say('dweeby with gems', player, sprite)
+					}else{
+						message.say('dweeby without gems', player, sprite)
+					}
+				},
+				'24,48': message.chat('roxy bed'),
+				'96,48': message.chat('kathrine bed'),
+				'168,48': message.chat('sally bed'),
+			},
+			'Lvl 6': {
+				'paddle':  message.chat('hello paddle'),
+				'payne': message.chat('payne nightmare'),
+				'agent': message.chat('agent nightmare'),
+				'wesley': message.chat('wesley nightmare'),
+				'336,192': message.chat('desk papers')
+			},
+			'Lvl 5': {
+				'paddle':  message.chat('hello paddle'),
+				'agent':  message.chat('agent sleep'),
+				'dweeby': function(player, sprite){
+					if(inventory.count('gems') >= 10){
+						message.say('dweeby with gems', player, sprite)
+					}else{
+						message.say('dweeby without gems', player, sprite)
+					}
+				},
+				'24,48': message.chat('roxy dream'),
+				'336,192': message.chat('desk papers')
+			},
+			'Lvl 4': {
+				'24,48': message.chat('roxy bed'),
+				'96,48': message.chat('kathrine bed'),
+				'168,48': message.chat('sally bed'),
+				'sally':  message.chat('sally cant sleep'),
+				'paddle':  message.chat('hello paddle'),
+				'agent':  message.chat('agent hello again'),
+				'payne':  message.chat('payne hello again'),
+				'kathrine':  message.chat('kathrine chat'),
+				'wesley':  message.chat('kathrine chat'),
+				'dweeby': function(player, sprite){
+					if(inventory.count('gems') >= 10){
+						message.say('dweeby with gems', player, sprite)
+					}else{
+						message.say('dweeby without gems', player, sprite)
+					}
 				}
 			},
 			'Lvl 3': {
@@ -350,16 +1113,37 @@
 			}
 			return op 
 		},
-		update: function(player){
-			let c = this.closest(player)
-			if(!player.sitting && Phaser.Math.Distance.Between(player.x, player.y, c.x, c.y) < this.threshold){
-				this.active.alpha = 1 
-				this.active.text.alpha = 1 
-				this.active.x = c.x 
-				this.active.y = c.y - TW
-				this.active.text.x = this.active.x
-				this.active.text.y = this.active.y
+		update: function(player, lvl){
+			if(this.actions[lvl]){
+				this.sprites.forEach(s => {
+					if(this.actions[lvl][s.interact_id] && this.actions[lvl][s.interact_id].auto && this.actions[lvl][s.interact_id].update){
+						
+						this.actions[lvl][s.interact_id].update(player, s) 
+						
+					}						
+				})
+			}
 				
+			let c = this.closest(player)
+			
+			let auto = this.actions[lvl] && this.actions[lvl][c.interact_id] && this.actions[lvl][c.interact_id].auto 
+			//if(auto) return 
+			
+			if(!player.sitting && !player.bed && Phaser.Math.Distance.Between(player.x, player.y, c.x, c.y) < this.threshold){
+				if(auto){
+					let p = player.body 
+					let dy = (p.y - c.y)
+					if(-12 < dy && dy < 4){
+						this.actions[lvl][c.interact_id].activate(player, c)
+					}
+				}else{
+					this.active.alpha = 1 
+					this.active.text.alpha = 1 
+					this.active.x = c.x 
+					this.active.y = c.y - TW
+					this.active.text.x = this.active.x
+					this.active.text.y = this.active.y
+				}
 			}else{
 				this.active.alpha = 0 
 				this.active.text.alpha = 0 
@@ -380,9 +1164,10 @@
 		}
 	}
 	
-	window. inventory = {
+	window.inventory = {
 		items: [],
 		selected: 0,
+		gem_max: 10,
 		things: {
 			gloves:{
 				name: 'Fingerless Gloves',
@@ -408,10 +1193,22 @@
 				name: 'Upgrade',
 				description: 'Use it to upgade your P.A.D.D.L.E',
 				icon: 'upgrade'
+			},
+			gems: {
+				name:  'Mysterious Blue Gems',
+				description: 'These gems are dropped by the blue blocks. Trade them with Dweeby Kid for a P.A.D.D.L.E. upgrade.',
+				icon: 'gem'
+			},
+			id: {
+				name: 'Government Issued ID Card',
+				description: 'This ID card allows you to access anything in the base.',
+				icon: 'id'
 			}
 		},
 		open: false,
 		init: function(add){
+			this.initialized = true 
+			
 			let x0 = 1*TW 
 			let y0 = 1*TW 
 			
@@ -519,8 +1316,17 @@
 			this.title.setDepth(300001)
 			this.pointer.setDepth(300002)
 			this.icons.forEach(o => o.setDepth(300001))
+			
+			this.items.forEach((item, index) => {
+				this.icons[index].setFrame(message.icons[item.icon])
+			})
+			
+	
 		},
 		add: function(s){
+			if(!this.initialized){
+				return
+			}
 			let item = this.things[s]
 			if(!item){
 				console.log('Unknown item:', s)
@@ -633,7 +1439,7 @@
 			{
 				id: 'lives',
 				name: 'Extra Orbs',
-				value: 2,
+				value: 0,
 				description: 'How many extra orbs you have. When you run out, you lose.',
 				max: 4
 			},{
@@ -815,60 +1621,143 @@
 	
 	let npc = {
 		data: {
-			'Lvl 3': {
-				'384,48': {
-					name: 'paddle',
-					move: function(player){
-						
-						
-						if(player.y < 72 && player.x > 220){
-							//this.x = 260
-							this.body.velocity.x = 4*(280 - this.x)
-						}else{
-							//this.x = 380
-							this.body.velocity.x = 4*(380 - this.x)
-						}
-						
-						if(this.x > 340){
-							this.paddle.alpha = 0
-						}else{
-							this.paddle.alpha = 1 
-						}
-						
-						this.paddle.x = this.x - 6
-						
-					},
-					init: function(add){
-						this.alpha = 0 
-						
-						this.setImmovable(true)
-						this.paddle = add.container(this.x, this.y)
-						this.paddle.add(add.sprite(0, 0, 'tiles', 166))
-						this.paddle.add(add.sprite(TW, 0, 'tiles', 167))
-						this.paddle.add(add.sprite(0, -TW, 'tiles', 151))
-						this.paddle.add(add.sprite(TW, -TW, 'tiles', 152))
-						this.paddle.setDepth(10000)
-						this.y -= 14
-						this.shadow.alpha = 0
-					}
-				},
-				'288,168': {
-					name: 'payne',
-					move: function(){
-						//console.log(this.body.velocity.x)
-						if(this.v === undefined){
-							this.v = 30
-						}
-						if(Math.abs(this.body.velocity.x) < .75*Math.abs(this.v)){
-							this.v *= -1
-						}
-						this.body.velocity.x = this.v 
-						this.body.velocity.y = 0 
-					},
+			'Lvl 11': {
+				'48,168': recurring.up_alien,
+				'144,144': recurring.up_alien,
+				'288,48': recurring.up_alien,
+				'336,48': recurring.up_alien,
+				'384,48': recurring.up_alien,
+				'432,48': recurring.up_alien,
+				'336,240': recurring.alien_paddle('lower_paddle'),
+				'504,192': recurring.alien_paddle('middle_paddle'),
+				//'264,168': recurring.stand_alien,
+				'288,168': recurring.right_alien
+				
+			},
+			'Lvl 10': {
+				'192,216': {
+					name: 'roxy',
+					move: ()=>{},
 					init: function(){
-						this.y -= 7
+						this.y -= 10
+						this.x += 2
+						this.body.setImmovable(true)
+						this.dir = 'right'
+				}
+				}
+			},
+			'Lvl 9': {
+				'216,216': {
+					name: 'payne',
+					move: ()=>{},
+					init: function(){
+						this.y -= 10
+						this.x += 2
+						this.body.setImmovable(true)
+						this.dir = 'up'
+					}
+				}
+			},
+			'Lvl 8': {
+				'288,48': recurring.paddle,
+				'192,120': {
+					name: 'agent',
+					move: recurring.payne.move ,
+					init: function(){
+						this.v = -60
 					}
 				},
+				'288,72': {
+					name: 'payne',
+					move: ()=>{},
+					init: function(){
+						this.y -= 10
+						this.x += 2
+						this.body.setImmovable(true)
+						this.dir = 'left'
+					}
+				}
+			},
+			'Lvl 7': {
+				'288,48': recurring.paddle,
+				'288,168': recurring.payne,
+				'72,168': {
+					name: 'dweeby',
+					move: gaming_kid
+				},
+				'216,216': recurring.agent,
+			},
+			'Lvl 6': {
+				'384,48': recurring.paddle,
+				'72,168': {
+					name: 'wesley',
+					move: gaming_kid
+				},
+				'192,216': {
+					name: 'payne',
+					move: ()=>{},
+					init: function(){
+						this.y -= 10
+						this.x += 2
+						this.body.setImmovable(true)
+						this.dir = 'right'
+					}
+				},
+				'216,216': {
+					name: 'agent',
+					move: ()=>{},
+					init: function(){
+						this.y -= 10
+						this.x -= 0
+						this.body.setImmovable(true)
+						this.dir = 'left'
+					}
+				}
+			},
+			'Lvl 5': {
+				'264,48': recurring.paddle,
+				'72,168': {
+					name: 'dweeby',
+					move: gaming_kid
+				},
+				'216,216': recurring.agent 
+			},
+			'Lvl 4': {
+				'264,48': recurring.paddle,
+				'288,168': recurring.payne,
+				'72,168': {
+					name: 'dweeby',
+					move: gaming_kid
+				},
+				'216,216': recurring.agent,
+				'192,48': {
+					name: 'sally',
+					move: recurring.payne.move 
+				},
+				'72,216': {
+					name: 'wesley',
+					move: ()=>{},
+					init: function(){
+						this.y -= 10
+						this.x += 5
+						this.body.setImmovable(true)
+						this.dir = 'right'
+					}
+				},
+				'96,216': {
+					name: 'kathrine',
+					move: ()=>{},
+					init: function(){
+						this.y -= 10
+						this.x -= 3
+						this.body.setImmovable(true)
+						this.dir = 'left'
+					}
+				}
+			},
+			'Lvl 3': {
+				'384,48': recurring.paddle,
+				'288,168': recurring.payne,
 				'120,168': {
 					name: 'kathrine',
 					move: gaming_kid
@@ -885,29 +1774,7 @@
 					name: 'wesley',
 					move: gaming_kid
 				},
-				'216,216': {
-					name: 'agent',
-					move: function(player){
-						if(!this.first){
-							this.setImmovable(true)
-							this.y -= 7
-							this.first = true 
-						}
-						
-						let dx = player.x - this.x 
-						let dy = player.y - this.y 
-						
-						if(dy < -48){
-							this.anims.play('agent-stand-down')
-						}else if(Math.abs(dy) > Math.abs(dx)){
-							this.anims.play('agent-stand-up')
-						}else if(dx < 0){
-							this.anims.play('agent-stand-left')
-						}else{
-							this.anims.play('agent-stand-right')
-						}
-					}
-				},
+				'216,216': recurring.agent 
 			},
 			'Lvl 2': {
 				'576,120': {
@@ -935,21 +1802,12 @@
 			'Lvl 1': {
 				'288,96' : {
 					name: 'glenn',
-					move: function(){
-						//console.log(this.body.velocity.x)
-						if(this.v === undefined){
-							this.v = 30
-						}
-						if(Math.abs(this.body.velocity.x) < .75*Math.abs(this.v)){
-							this.v *= -1
-						}
-						this.body.velocity.x = this.v 
-						this.body.velocity.y = 0 
-					}
+					move: recurring.payne.move
 				},
 				'120,144': {
 					name: 'mom',
 					move: function(){
+						this.body.setImmovable(true)
 						if(this.v === undefined){
 							this.v = 15
 						}
@@ -990,6 +1848,8 @@
 				
 				chr.update = function(player){
 					//console.log(this.name, this.dir)
+					//if(!this.body) return 
+					
 					if(Math.abs(this.body.velocity.x) > Math.abs(this.body.velocity.y)){
 						if(this.body.velocity.x > 0){
 							this.dir = 'right'
@@ -1037,6 +1897,7 @@
 				payne: 3,
 				agent: 6,
 				alien: 9,
+				paddle: 68,
 				dweeby: 72,
 				sally: 75,
 				kathrine: 78,
@@ -1067,243 +1928,6 @@
 		}
 	}
 	
-	let message = {
-		open: false,
-		selected: 0,
-		pressed: false,
-		icons: {
-			roxy: 0,
-			sally: 1,
-			kathrine: 2,
-			wesley: 3,
-			pj: 4,
-			alien: 5,
-			glenn: 6,
-			dweeby: 7,
-			agent: 8,
-			payne: 10,
-			mystery: 11, 
-			heart: 12, 
-			mom: 13,
-			dark: 14, 
-			//quarter: 18,
-			bed: 18,
-			mailbox: 19,
-			paddle: 20,
-			string: 21,
-			gloves: 22,
-			quarterstring: 23,
-			tv: 27,
-			couch: 28,
-			arcade: 29,
-			door: 30,
-			quarter: 31,
-			upgrade: 32,
-			grav1: 37,
-			grav2: 38,
-			grav3: 39,
-			grav4: 40,
-			grav5: 45, 
-			grav6: 46,
-			grav7: 47,
-			grav8: 48,
-			grav9: 49,
-			acid1: 41,
-			acid2: 42,
-			acid3: 43,
-			acid4: 44,
-			arrow1: 50,
-			arrow2: 51,
-			arrow3: 52,
-			arrow4: 53,
-			timer1: 54,
-			timer2: 55,
-			timer3: 56,
-			timer4: 57,
-			timer5: 58,
-			timer6: 59,
-			timer7: 60,
-			timer8: 61,
-			redblock: 63,
-			blueblock: 64
-			
-		},
-		init: function(add){
-			let x0 = 1*TW 
-			let y0 = 1*TW 
-			
-			let xf = 14*TW 
-			let yf = 8*TW 
-			
-			let w = (xf - x0 - TW)/TW
-			let h = (yf - y0 - TW)/TW 
-			
-			this.box = []
-			this.box.push(add.sprite(x0, y0, 'tiles', 41))
-			this.box.push(add.sprite(xf, y0, 'tiles', 41))
-			this.box.push(add.sprite(xf, yf, 'tiles', 41))
-			this.box.push(add.sprite(x0, yf, 'tiles', 41))
-			this.box.forEach((s, i) => s.angle = 90*i)
-			
-			let top = add.sprite(TW*7.5, y0, 'tiles', 42)
-			top.scaleX = w
-			this.box.push(top)
-			
-			let bott = add.sprite(TW*7.5, yf, 'tiles', 42)
-			bott.scaleX = w
-			bott.scaleY = -1
-			this.box.push(bott)
-			
-			let left = add.sprite(x0, 4.5*TW, 'tiles', 44)
-			left.scaleY = h
-			this.box.push(left)
-			
-			let right = add.sprite(xf, 4.5*TW, 'tiles', 44)
-			right.scaleY = h
-			right.scaleX = -1
-			this.box.push(right)
-			
-			let center = add.sprite(TW*7.5, TW*4.5, 'tiles', 43)
-			center.scaleX = w
-			center.scaleY = h
-			this.box.push(center)
-			
-			this.text = add.text(x0, y0 + 2.25*TW, 'hello world!', {
-				fontSize: '14px',
-				align: 'left',
-				wordWrap: {
-					width: w*TW
-				}
-			})
-			this.box.push(this.text)
-		
-			this.title = add.text(x0 + 2.5*TW, y0 + .5*TW, 'Hello', {
-				fontSize: '18px',
-				fontStile: 'strong',
-				align: 'left',
-				fill: '#ffffff'
-				
-			})
-			this.box.push(this.title)
-			
-			this.icon = add.sprite(x0 + TW, y0 + TW, 'icons')
-			this.box.push(this.icon)
-			
-			this.pointer = add.sprite(x0 + .5*TW, 0, 'tiles', 6)
-			this.box.push(this.pointer)
-			
-			this.options = [] 
-			for(let i = 0; i < 4; i++){
-				let o = add.text(x0 + TW, y0 + 2.25*TW, 'hello world!', {
-					fontSize: '14px',
-					align: 'left',
-					wordWrap: {
-						width: w*TW
-					},
-					fill: '#9badb7'
-				})
-				this.options.push(o)
-				this.box.push(o)
-			}
-			
-			
-			this.box.forEach(s => s.setDepth(30000))
-			this.box.forEach(s => s.setScrollFactor(0))
-			
-			this.text.setDepth(300001)
-			this.icon.setDepth(300001)
-			this.title.setDepth(300001)
-			this.pointer.setDepth(300001)
-			this.options.forEach(o => o.setDepth(300001))
-			
-			
-		},
-		update: function(cursors){
-			if(this.open){
-				this.box.forEach(s => s.alpha = 1)
-				
-				
-				this.options.forEach(s => s.setColor('#9badb7'))
-				let s = this.options[this.selected]
-				s.setColor('#5fcde4')
-				this.pointer.y = s.getCenter().y
-				
-				if(!this.pressed){
-					if(cursors.down.isDown &&
-					this.selected + 1 < this.options.length &&
-					this.options[this.selected + 1].text){
-						this.selected += 1 
-					
-					}
-					
-					if(cursors.up.isDown && this.selected > 0){
-						this.selected -= 1
-					}
-				}
-				
-				this.pressed = cursors.down.isDown || cursors.up.isDown
-				
-			}else{
-				this.box.forEach(s => s.alpha = 0)
-			}
-			
-			
-		},
-		say: function(block, player, speaker){
-			let m = dialog.say(block)
-			//console.log(block)
-			this.player = player || this.player 
-			this.speaker = speaker || this.speaker 
-			
-			//console.log('say:', block, 'text:', m.text)
-			//console.log(m)
-			if(m.act){
-				if(interactable.actions['event'][m.act]){
-					interactable.actions['event'][m.act](this.player, this.speaker)
-				}else{
-					console.log('Unknown action:', m.act)
-				}
-			}
-			
-			if(!m.text){
-				this.open = false 
-				return 
-			}
-			
-			this.open = true 
-			this.text.text = m.text 
-			this.title.text = m.title
-			this.icon.setFrame(this.icons[m.icon])
-			
-			
-			
-			if(m.options.length === 0){
-				m.options.push({text: 'Ok', go:'nothing'})
-			}
-			
-			this.selected = 0 
-			
-			let y = this.text.getBottomLeft().y + .5*TW
-			this.options.forEach((o, i) => {
-			//m.options.forEach((o, i) => {
-				o.y = y 
-				o.text = m.options[i] ? m.options[i].text : ''
-				o.go = m.options[i] ? m.options[i].go : undefined
-				y = o.getBottomLeft().y
-			})
-			
-		},
-		enter: function(){
-			let go = (this.options[this.selected].go)
-			if(go === 'nothing'){
-				this.open = false 
-				return
-			}else{
-				return this.say(go)
-			}
-		}
-	}
-	
 	function construct_map(){
 			
 		let walls = []
@@ -1331,6 +1955,10 @@
 				if(index === 107){
 					player.x = TW*x 
 					player.y = TW*y
+				}else if(index === 22){
+					player.x = TW*x 
+					player.y = TW*y - 8
+					player.payne = true 
 				}else{
 					npc.create.call(this, TW*x, TW*y, index, this.name)
 				}
@@ -1373,17 +2001,43 @@
 	
 	function create_player(data){
 		
+		
 		let walls = data.walls 
 		let disappearing = data.disappearing
 		
-		inventory.add('gloves')
+		if(data.player.payne){
+			inventory.add('id')
+		}else{
+		
+			inventory.add('gloves')
+		}
+		
+		let name = data.player.payne ? 'payne' : 'roxy'
 
-		this.player = npc.create_character.call(this, data.player.x, data.player.y, 'roxy', 0)
+		this.player = npc.create_character.call(this, data.player.x, data.player.y, name, 0)
+		this.player.walls = data.walls 
 		
 		this.player.sitter = this.add.sprite(0, 0, 'roxy', 12)
+		this.player.name = name 
 		this.player.sitter.setDepth(20000-1)
 
-		//this.player.setSize(12, 6).setOffset(6, 18)
+		this.player.kill = ()=>{
+			console.log(this.name)
+			this.scene.start('world', {name:this.name})
+		}
+		
+		if(data.player.x === 48 && data.player.y === 48){
+			for(let i = 0; i < interactable.sprites.length; i++){
+				let b = interactable.sprites[i]
+				if(b.x === 24 && b.y === 48){
+					this.player.bed = b 
+					this.player.alpha = 0 
+					break 
+				}
+			}
+			//this.player.bed = 
+			
+		}
 		
 		this.player.v = 24*3 
 		this.player.update = function(cursors){
@@ -1410,19 +2064,20 @@
 			let bump_tol = 20
 			
 			if(cursors.down.isDown){
+				
 				this.setVelocityY(this.v)
 				if(this.body.velocity.x === 0)
-					this.anims.play('roxy-walk-down', true)
+					this.anims.play(this.name + '-walk-down', true)
 			}else if(cursors.up.isDown){
 				this.setVelocityY(-this.v)
 				if(this.body.velocity.x === 0)
-					this.anims.play('roxy-walk-up', true)
+					this.anims.play(this.name + '-walk-up', true)
 			}else{
 				let dir = this.body.velocity.y
 				if(dir < -bump_tol){
-					this.anims.play('roxy-stand-up')
+					this.anims.play(this.name + '-stand-up')
 				}else if(dir > bump_tol){
-					this.anims.play('roxy-stand-down')
+					this.anims.play(this.name + '-stand-down')
 				}
 				this.setVelocityY(0)
 				
@@ -1430,16 +2085,16 @@
 			
 			if(cursors.left.isDown){
 				this.setVelocityX(-this.v)
-				this.anims.play('roxy-walk-left', true)
+				this.anims.play(this.name + '-walk-left', true)
 			}else if(cursors.right.isDown){
 				this.setVelocityX(this.v)
-				this.anims.play('roxy-walk-right', true)
+				this.anims.play(this.name + '-walk-right', true)
 			}else{
 				let dir = this.body.velocity.x
 				if(dir < -bump_tol){
-					this.anims.play('roxy-stand-left')
+					this.anims.play(this.name + '-stand-left')
 				}else if(dir > bump_tol){
-					this.anims.play('roxy-stand-right')
+					this.anims.play(this.name + '-stand-right')
 				}
 				this.setVelocityX(0)
 				
@@ -1472,6 +2127,9 @@
 			
 		},
 		create: function(){
+			
+			console.log(this.name)
+			this.cameras.main.flash(500, 0, 0, 0)
 			
 			this.cursors = this.input.keyboard.addKeys({
 				up:Phaser.Input.Keyboard.KeyCodes.W,
@@ -1526,7 +2184,7 @@
 		},
 		update: function(){
 			disappearing.update()
-			interactable.update(this.player)
+			interactable.update(this.player, this.name)
 			message.update(this.cursors)
 			inventory.update(this.cursors)
 			upgrades.update(this.cursors)

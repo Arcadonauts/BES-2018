@@ -6,9 +6,9 @@
 	let config = {
 		width: 15*TW,
 		height: 10*TW,
-		backgroundColor: '#2d2d2d',
+		backgroundColor: '#323c39',
 		pixelArt: true,
-		zoom: 2,
+		zoom: 3,
 		physics: {
 			default: 'arcade',
 			arcade: {
@@ -27,6 +27,7 @@
 		game.scene.add('breakout', breakout)
 		game.scene.add('high_scores', breakout.high_scores)
 		game.scene.add('level_select', level_select)
+		game.scene.add('monolog', monolog)
 		
 		game.scene.start('setup') // Don't change this!
 	}
@@ -60,7 +61,7 @@
 			
 			let grounds =  ['fg_real', 'fg_game', 'bg_game', 'bg_bad', 'fg_bad',
 							'go_bad', 'yw_bad', 'go_game', 'pixc_boston', 
-							'bg_real'
+							'bg_real', 'mission_pass', 'mission_fail', 'fg_dream'
 							]
 		
 			sheets.forEach(s => 
@@ -86,8 +87,14 @@
 				sydney 
 			*/
 			
-			//*
-			let name = 'london'
+			/*
+				lvls = JSON.parse(localStorage.levels)
+				lvls['Lvl 11'] = {}//lvls['Lvl 10']
+				localStorage.levels = JSON.stringify(lvls)
+			//*/
+		
+			/*
+			let name = 'sydney'
 			if(!true){
 				this.scene.start('breditor', {name: name}) // Change this
 			}else{
@@ -95,16 +102,18 @@
 					style: 'real',
 					lvl: 0,
 					name: name,
+					lives: 3,
 					bomb: 4,
 					length: 3,
 				})// Change this
 			}				
 			//*/
 			
-			/*
-			this.scene.start('breakout', {
-				style: 'tv',
-				lvl: 0,
+			//*
+			this.scene.start('world', {
+				style: 'dream',
+				lvl: 'd',
+				name: 'Lvl 11'
 			})// Change this
 			//*/
 		},

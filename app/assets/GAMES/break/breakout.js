@@ -35,10 +35,11 @@
 	let numbers = {
 		make_empty: function(){
 			return {
-				get: ()=>{},
-				set: ()=>{},
+				val: 0,
+				get: function(){return this.val},
+				set: function(v){this.val = v},
 				pos: ()=>{},
-				inc: ()=>{}
+				inc: function(a){this.val += a}
 			}
 		},
 		make_score: function( val, add, rox, index, blink){
@@ -60,7 +61,7 @@
 				sprites[5].setFrame(59)
 			}
 			sprites[3].setFrame(52)
-			console.log(index)
+		//	console.log(index)
 			if(index === 10){
 				sprites[0].setFrame(41)
 				sprites[1].setFrame(40)
@@ -88,7 +89,7 @@
 			}
 		},
 		make_power: function(val, add){
-			let max = 100 
+			let max = inventory.gem_max 
 			
 			let bar = add.container(0, 0)
 			
@@ -330,36 +331,45 @@
 	let high_scores = {
 		init: function(data){
 			this.score = data.score 
+			this.next = data.next || 'Lvl 2'
 		},
 		create: function(){
-			// 28200
+	
 			this.t = 500
 			
-			this.add.sprite(this.game.canvas.width/2, this.game.canvas.height/2, 'go_game')
-			let scores = []
-			let score = 30000
-			for(let i = 0; i < 10; i+= 1){
-				let sc, blink 
-				if(this.score > score){
-					sc = this.score 
-					this.score = -1 
-					blink = true 
-				}else{
-					sc = score 
-					score -= 2000
-					blink = false 
+			if(this.score === 'win'){
+				let s = this.add.sprite(0, 0, 'mission_pass')
+				s.setOrigin(0)
+			}else if(this.score === 'lose'){
+				let s = this.add.sprite(0, 0, 'mission_fail')
+				s.setOrigin(0)
+			}else{
+				this.add.sprite(this.game.canvas.width/2, this.game.canvas.height/2, 'go_game')
+				let scores = []
+				let score = 30000
+				for(let i = 0; i < 10; i+= 1){
+					let sc, blink 
+					if(this.score > score){
+						sc = this.score 
+						this.score = -1 
+						blink = true 
+					}else{
+						sc = score 
+						score -= 2000
+						blink = false 
+					}
+					
+					let s = numbers.make_score(sc, this.add, i > 0, i+1, blink)
+					s.pos(60, 75 + 16*i)
+					scores.push(s)
 				}
-				
-				let s = numbers.make_score(sc, this.add, i > 0, i+1, blink)
-				s.pos(60, 75 + 16*i)
-				scores.push(s)
 			}
 		},
 		update: function(){
 			this.t -= 1 
 			if(this.t <= 0){
-				this.scene.stop('high_scores')
-				this.scene.start('world', {name:'Lvl 2'})
+				//this.scene.stop('high_scores')
+				this.scene.start('world', {name:this.next, win: this.score})
 			}
 		}
 	}
@@ -396,6 +406,8 @@
 		},
 		funcs: {
 			//0: (x, y) => x===8 && y===3 ? (x%2)+1 : false,
+			//d: (x, y) => (x===8 || x === 9) && (y===3 || y === 4) ? 31+x+15*y : false,
+			d: (x, y) => x+12*y,
 			0: (x, y) => 64,
 			1: (x, y) => y%2 && y < 5? (x%2)+61 : false,
 			2: (x, y) => (x%4 < 2) ^ (y%4 > 1) ? ((x+y)%2)*2 + 60 : false,
@@ -430,10 +442,11 @@
 			
 			this.physics.add.collider(this.paddle, drop, (paddle, drop) => {
 				drop.destroy()
-				this.score.inc(10)
-				if(this.score.get() > 100){
+				this.score.inc(1)
+				if(this.score.get() > inventory.gem_max){
 					this.score.set(0)
 				}
+				inventory.add('gems')
 			})
 			
 			return drop 
@@ -475,8 +488,6 @@
 			}
 			paddle.body.setSize(pl, TW/2).setOffset(-TW, TW/4)
 			
-			//paddle.add(this.add.sprite(-TW/2, TW/2, 'breakout', this.creator.paddle_left))
-			//paddle.add(this.add.sprite( TW/2, TW/2, 'breakout', this.creator.paddle_right))
 			this.creator.paddle_parts.forEach(p => {
 				let part = this.add.sprite(p[1], p[2], 'breakout', p[0])
 				paddle.add(part)
@@ -543,7 +554,9 @@
 				let vy = ball.v * Math.sin(rot)
 				ball.body.velocity.set(vx, vy)
 				
-				this.cameras.main.shake(50, .005)
+				if(this.creator && this.creator.shake){
+					this.creator.shake.call(this)
+				}
 			})
 			
 			return ball 
@@ -575,6 +588,8 @@
 				}
 				if(this.creator.block_init && this.creator.block_init[j]){
 					this.creator.block_init[j](block)
+				}else if(this.creator.block_init && this.creator.block_init['*']){
+					this.creator.block_init['*'](block)
 				}
 			}
 			
@@ -590,6 +605,7 @@
 			let xc = this.game.canvas.width/2
 			let yc = this.game.canvas.height/2
 			
+			this.game_over = false 
 			
 			this.add.sprite(this.add.sprite(xc, yc, this.creator.bg).setDepth(0))
 			this.add.sprite(this.add.sprite(xc, yc, this.creator.fg).setDepth(10))
@@ -607,7 +623,7 @@
 			
 			this.blocks = this.creator.blocks.call(this, this.lvl, this.name)
 			
-			this.balls = []// [create.ball.call(this)]
+			this.balls = []
 			
 			create.collide.call(this, this.balls, this.blocks)
 			
@@ -640,6 +656,27 @@
 	}
 	
 	let control = {
+		error: {
+			init: function(that){
+				that.control = this
+				this.icon = that.add.sprite(332, 153, 'icons', 54)
+				this.icon.setDepth(11)
+				this.t = 0 
+			},
+			act: function(){
+				
+			},
+			register: function(){
+				
+			},
+			update: function(){
+				this.t += 1 
+				let fr = 4 
+				this.icon.setFrame(
+					65 + Math.floor(this.t/fr)%4
+				)
+			}
+		},
 		acid: {
 			init: function(that){
 				that.control = this
@@ -672,7 +709,7 @@
 					this.cool_off += 1 
 				}
 				if(this.acidic){
-					console.log('acid!')
+	
 					this.acid += 1
 					if(this.acid >= this.max_acid){
 						this.acid = 0
@@ -882,8 +919,8 @@
 			//paddle_left: 77,
 			//paddle_right: 78,
 			paddle_parts: [
-				[77, -TW/2, TW/2],
-				[78,  TW/2, TW/2]
+				[77, -TW, TW/4],
+				[78,  0, TW/4]
 			],
 			blocks: create.blocks,
 			score: function(){
@@ -927,8 +964,8 @@
 			//paddle_left: 75,
 			//paddle_right: 76,
 			paddle_parts: [
-				[75, -TW/2, TW/2],
-				[76,  TW/2, TW/2]
+				[75, -TW, TW/4],
+				[76,  0, TW/4]
 			],
 			blocks: create.blocks,
 			score: function(){
@@ -961,9 +998,9 @@
 				this.blocks = create.blocks.call(this, this.lvl)
 			},
 			q_press: function(){
-				//this.creator.game_over.call(this)
-				this.blocks.forEach(b => b.hit())
-				this.creator.next_level.call(this)
+				this.creator.game_over.call(this)
+				//this.blocks.forEach(b => b.hit())
+				//this.creator.next_level.call(this)
 				//this.scene.stop('breakout')
 				//this.scene.resume('world')
 				
@@ -1000,8 +1037,6 @@
 				[109, TW/2, .75*TW],
 				
 			],
-			//paddle_left: 92,
-			//paddle_right: 94,
 			blocks: create.blocks,
 			paddle_length: function(len){
 				let w = this.length_factor
@@ -1060,7 +1095,7 @@
 					
 					
 					if(this.lvl > 3){
-						this.creator.game_over.call(this)
+						this.creator.game_over.call(this, true)
 						return 
 					}
 					this.level.set(this.lvl)
@@ -1085,14 +1120,20 @@
 					//this.creator.next_level.call(this)
 				}
 			},
-			game_over: function(){
+			game_over: function(win){
 				console.log('game over')
-				this.scene.start('high_scores', {score: this.score.get()})
+				this.scene.start('high_scores', {
+					next: this.next, 
+					score: win ? 'win' : 'lose'
+				})
 			},
 			animate: function(block){
 				if(animations.blocks[block.index]){
 					block.anims.play('block-'+block.index)
 				}
+			},
+			shake: function(){
+				this.cameras.main.shake(50, .005)
 			},
 			block_init: {
 				13: function(block){
@@ -1210,14 +1251,23 @@
 					block.that.control.register(block)
 				},
 				26: function(block){
+					if(!block.that.control){
+						control.error.init(block.that)
+					}
+					block.that.control.register(block)
+					
 					block.update = function(){
-						if(this.that.balls){
+						if(this.that.balls && this.that.balls.length){
 							let ball = this.that.balls[0]
 							if(ball){
 								ball.v += .1
 								this.x = ball.x 
 							}
+						}else{
+							this.x = this.that.paddle.x
 						}
+						this.x = Math.max(this.x, 24)
+						this.x = Math.min(this.x, 300-12)
 					}
 				}
 				
@@ -1306,6 +1356,12 @@
 				}
 				
 				shake()
+				let s = this.that.add.sprite(this.x, this.y, 'breakout', 215)
+				s.anims.play('block-explode')
+				s.on('animationcomplete', function(anim, frame){
+					s.destroy()
+				})
+			
 				this.destroy()
 				this.dead = true 
 				
@@ -1313,7 +1369,108 @@
 			}
 		},
 		dream: {
+			bg: 'bg_bad',
+			fg: 'fg_dream',
+			anim: 'ball-dream',
+			//paddle_left: 77,
+			//paddle_right: 78,
+			paddle_parts: [
+				[145, -TW, TW/4],
+				[146,  0, TW/4]
+			],
+			blocks: create.blocks,
+			score: function(){
+				return numbers.make_empty()
+			},
+			level: function(){
+				return numbers.make_empty()
+			},
+			lives: function(){
+				let n = numbers.make_empty()
+				n.set(0)
+				return n 
+			},
+			lasers: () => numbers.make_empty(),
+			next_level: function(){
+				this.game_over = true 
+				this.add.sprite(this.game.canvas.width/2, this.game.canvas.height/2, 'yw_bad')
+			},
+			q_press: function(){
+				//this.scene.stop('breakout')
+				//this.scene.resume('world')
+				
+			},
+			game_over: function(){
+				this.game_over = true 
+				//console.log(this)
+				this.cameras.main.fade(1000, 0, 0, 0, false, function(cam, r){
+					if(r === 1){
+						cam.scene.scene.start('world', {
+							name: 'Lvl 6'
+						})
+					}
+				})
 			
+			},
+			
+			block_init: {
+				counter: {
+					value: 1,
+					max: 0
+				},
+				'*': function(block){
+					let n = block.index 
+					let i = n % 2 
+					let j = Math.floor(n/12) % 2
+					
+					let k = (n - (i%2) - (12*(j%2)))/2
+					k -= Math.floor(k/12)*6
+					
+					//= (n - (i%2) - (12*(j%2))) / (2*(Math.floor(j/2)+1))
+					let f = [88, 84, 86, 82, 112, 114, 116, 118][(k*11)%8] 
+					// 160 161, 175, 176
+					block.counter = this.counter 
+					block.alt = 160 + i + 15*j 
+					block.prime = f + i + 15*j
+					block.setFrame(block.prime)
+	
+					block.counter.max += .25 
+					block.value = ((k+15)*13)%24
+					block.alpha = 0 
+					//block.setFrame(f + i + 15*j)
+					
+					//console.log(block.index)
+					block.update = function(){
+						if(this.counter.value > this.value){
+							this.alpha = 1 
+							//this.setFrame(this.prime)
+						}else{
+							//this.setFrame(this.alt)
+							this.alpha = 0 
+						}
+						this.body.checkCollision.none = this.counter.value <= this.value
+						let ball = this.that.balls[0]
+						if(!ball) return 
+						
+						
+						if(this.counter.value === this.value && this.v && ball.v !== this.v && ball.y > 200){
+							this.counter.value += 1 
+						}
+						
+						this.v = ball.v 
+					}
+				}
+			},
+			block_hit: function(){
+				this.value = this.counter.max 
+				this.counter.max += 1 
+
+				this.that.balls.forEach(b => b.v += 10)
+				this.that.creator.shake.call(this.that)
+			},
+			shake: function(){
+				this.cameras.main.shake(50, .005)
+			},
 		}
 	}
 	
@@ -1353,9 +1510,11 @@
 			let a = animations
 			this.anims.create(a.anim('ball-game', 66))
 			this.anims.create(a.anim('ball-bad', 65))
+			this.anims.create(a.anim('ball-dream', 147))
 			this.anims.create(a.anim('ball-real', 67, 68, 69, 68))
 			this.anims.create(a.anim('ball-acid', 70, 71, 72, 71))
 			this.anims.create(a.anim('ball-explode', 73, 74))
+			this.anims.create(a.fast('block-explode', 215, 216, 217, 218))
 			
 			this.anims.create(a.anim('laser', 110, 111))
 			this.anims.create(a.anim('fire', 105, 120, 135, 150, 135, 120))
@@ -1445,6 +1604,20 @@
 			}	
 			
 			return op 
+		},
+		fast: function(){
+			let frames = []
+			for(let i = 1; i < arguments.length; i++){
+				frames.push(this._frame(arguments[i]))
+			}
+			let op =  {
+				key: arguments[0],
+				frames: frames,
+				repeat: 0,
+				frameRate: 24,
+			}	
+			
+			return op 
 		}
 	}
 	
@@ -1454,10 +1627,12 @@
 			this.lvl = data.lvl 
 			this.name = data.name 
 			this.data = data 
+			this.next = data.next 
 		},
 		create: function(){
 			console.log('Breakout:', this.data)
 			this.physics.world.setBounds(12, 12, 288, 228+24)
+			
 			
 			this.cursors = this.input.keyboard.addKeys({
 				up:Phaser.Input.Keyboard.KeyCodes.W,
@@ -1470,8 +1645,11 @@
 			
 			this.creator = creator[this.style]
 			create.init.call(this, this.cursors)
+			
+			//console.log(this)
 		},
 		update: function(){
+			//console.log(this.game_over)
 			if(this.game_over){
 				return 
 			}
@@ -1479,6 +1657,8 @@
 			if(this.control && this.control.update){
 				this.control.update()
 			}
+			
+			//console.log('update')
 			
 			
 			this.paddle.update()

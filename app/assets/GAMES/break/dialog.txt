@@ -1,7 +1,30 @@
 
+:BLOCK{monolog family}{
+	:BLOCK{monolog ouch}{
+		:ICON{roxy}
+		:TITLE{Roxy}
+		Ouch... my head...
+		:OPT{continue}{monolog kidnapped}
+	}
+	
+	:BLOCK{monolog kidnapped}{
+		:ICON{roxy}
+		:TITLE{Roxy}
+		Oh my God! I think I've been kidnapped!
+	}
+}
+
 :BLOCK{paddle family}{
 	:BLOCK{hello paddle}{
 		:GOTO{:GET{hello paddle}}
+	}
+	
+	:BLOCK{lock paddle}{
+		:SET{hello paddle}{paddle locked}
+	}
+	
+	:BLOCK{unlock paddle}{
+		:SET{hello paddle}{paddle open}
 	}
 	
 	:BLOCK{paddle locked}{
@@ -28,11 +51,250 @@
 	}
 }
 
+:BLOCK{roxy family}{
+	:BLOCK{roxy god speed}{
+		:ICON{roxy}
+		:TITLE{Roxy}
+		God speed, Major Payne.
+	}
+}
+
+:BLOCK{desk papers family}{
+	:BLOCK{desk papers}{
+		:ICON{notes}
+		:TITLE{Major Payne's Notes}
+		Major Payne has left some notes out on his desk!
+		:OPT{Read them}{papers 1}
+		:OPT{Ignore}{nothing}
+	}
+	
+	:BLOCK{papers 1}{
+		:ICON{notes}
+		:TITLE{Major Payne's Notes}
+		The kids have shown amazing skill at Breakout, but I'm not sure if they're capable of keeping up this fight.
+		:OPT{Continue}{papers 2}
+		:OPT{Leave}{nothing}
+	}
+	
+	:BLOCK{papers 2}{
+		:ICON{notes}
+		:TITLE{Major Payne's Notes}
+		Roxy is the best, but she's also arogant, and has a hard time socializing with the others. She reminds me of my son.
+		:OPT{Continue}{papers 3}
+		:OPT{Leave}{nothing}
+	}
+	
+	:BLOCK{papers 3}{
+		:ICON{notes}
+		:TITLE{Major Payne's Notes}
+		Wesley is a close second as far as skill goes, but he's seemed distracted ever since Roxy got here. I'll have to keep an eye on them.
+		:OPT{Continue}{papers 4}
+		:OPT{Leave}{nothing}
+	}
+	
+	:BLOCK{papers 4}{
+		:ICON{notes}
+		:TITLE{Major Payne's Notes}
+		Kathrine's positive attitude is her greatest strength. She's the glue that's keeping this team together.
+		:OPT{Continue}{papers 5}
+		:OPT{Leave}{nothing}
+	}
+	
+	:BLOCK{papers 5}{
+		:ICON{notes}
+		:TITLE{Major Payne's Notes}
+		Sally is too young. She's talented, but we never should have brought her here. Also, her habit of leaving pieces of string in odd places is just... weird.
+		:OPT{Continue}{papers 6}
+		:OPT{Leave}{nothing}
+	}
+	
+	:BLOCK{papers 6}{
+		:ICON{notes}
+		:TITLE{Major Payne's Notes}
+		Donald, or as the kids call him, Dweeby Kid, has the least amount of talent, but he more than makes up for it with his obsesive studying. I wonder what he's doing with all those blue gems he's collecting.
+		:OPT{Leave}{nothing}
+	}
+}
 
 :BLOCK{payne family}{
-	:BLOCK{hello payne}{
-		:GOTO{:GET{hello payne}}
+	:BLOCK{payne lost}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Those Blockoid bastards have hit us hard, Roxy. Almost all of our systems are offline. Fortunately, all the kids are on away missions, so they're still ok. For now, at least.
+		:OPT{Continue}{payne lost 2}
 	}
+	
+	:BLOCK{payne lost 2}{
+		:TITLE{Roxy Everyteen}
+		:ICON{roxy}
+		What about Agent Arkanoid?
+		:OPT{Continue}{payne lost 3}
+	}
+	
+	:BLOCK{payne lost 3}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		He didn't make it.
+		:OPT{Continue}{payne lost 4}
+	}
+	
+	:BLOCK{payne lost 4}{
+		:TITLE{Roxy Everyteen}
+		:ICON{roxy}
+		Oh my God!
+		:OPT{Continue}{payne lost 5}
+	}
+	
+	:BLOCK{payne lost 5}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		It's ok, Roxy. It's not your fault. A hand full of kids never had a chance against an entire alien invasion army. It was absurd to believe otherwise.
+		:OPT{Continue}{payne lost 6}
+	}
+	
+	:BLOCK{payne lost 6}{
+		:TITLE{Roxy Everyteen}
+		:ICON{roxy}
+		It's not just that. There's something else. The Blockoid ship that I lost to. I don't think it was being piloted by a Blockoid.
+		:OPT{Continue}{payne lost 7}
+	}
+	
+	
+	:BLOCK{payne lost 7}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Why do you say that?
+		:OPT{Continue}{payne lost 8}
+	}
+	
+	:BLOCK{payne lost 8}{
+		:TITLE{Roxy Everyteen}
+		:ICON{roxy}
+		Blockoid pilots just stay in one place. They never move. This ship moved back and fourth.
+		:OPT{Continue}{payne lost 9}
+	}
+	
+	:BLOCK{payne lost 9}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Are you saying that you think this ship was being piloted by a human?
+		:OPT{Continue}{payne lost 10}
+	}
+	
+	:BLOCK{payne lost 10}{
+		:TITLE{Roxy Everyteen}
+		:ICON{roxy}
+		Not only that. There's only one person on Earth better at Breakout than me.
+		:OPT{Continue}{payne lost 11}
+	}
+	
+	:BLOCK{payne lost 11}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		P.J.
+		:OPT{Continue}{payne lost 12}
+	}
+	
+	:BLOCK{payne lost 12}{
+		:TITLE{Roxy Everyteen}
+		:ICON{roxy}
+		You know him?
+		:OPT{Continue}{payne lost 13}
+	}
+	
+	:BLOCK{payne lost 13}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		He's my son.
+		:OPT{Continue}{payne lost 14}
+	}
+	
+	:BLOCK{payne lost 14}{
+		:TITLE{Roxy Everyteen}
+		:ICON{roxy}
+		What?!?!?
+		:OPT{Continue}{payne lost 15}
+	}
+	
+	:BLOCK{payne lost 15}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Two years ago, he walked out on me. We got in a big fight because I told him he plays too much Breakout. He told me that he wished I was a block that he could smash and ran out. I haven't seen him since.
+		:OPT{Continue}{payne lost 16}
+	}
+	
+	:BLOCK{payne lost 16}{
+		:TITLE{Roxy Everyteen}
+		:ICON{roxy}
+		Did you call the police...? 
+		:OPT{Continue}{payne lost 17}
+	}
+	
+	:BLOCK{payne lost 17}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		If he's out there, I have to go save him. I have to get him back.
+		:OPT{Continue}{payne lost 18}
+	}
+	
+	:BLOCK{payne lost 18}{
+		:ACT{goto lvl 10}
+	}
+	
+	
+	:BLOCK{payne attack}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		:SET{hello paddle}{paddle open}
+		The Blockoids have found our base! They're coming here now! Get back in the P.A.D.D.L.E.! You have to defend the base at all costs! 
+	}
+
+	:BLOCK{payne acid}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		The Blockoids are stepping up their attack. We're trying to keep up with them, but things aren't looking good.
+		:SET{hello paddle}{paddle open}
+		:OPT{Where is everyone?}{payne acid 2}
+		:OPT{What do you need from me?}{payne acid 3}
+	}
+	
+	:BLOCK{payne acid 2}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		All the kids are in battle.	
+		:OPT{What do you need from me?}{payne acid 3}
+	}
+	
+	:BLOCK{payne acid 3}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		I need you to get back out there! We've increased the power of your anti-matter orb. If you press Q, it should tear right through their blocks. Be aware that it has a cooloff period though.
+		:OPT{Ok, I'll do my best.}{payne nightmare 3}
+	}
+	
+	:BLOCK{payne nightmare}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Hey kid, tough night?
+		:SET{hello paddle}{paddle open}
+		:OPT{None of your business.}{payne nightmare 2}
+		:OPT{I won't rest until we've destroyed every single last Blockoid.}{payne nightmare 2}
+	}
+	
+	:BLOCK{payne nightmare 2}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		You should know that the Blockoids continue to evolve. They've developed a new block that can't be destroyed. You can, however, move them around with the Q button.
+		:OPT{Good to know.}{payne nightmare 3}
+	}
+	
+	:BLOCK{payne nightmare 3}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		I've unlocked the P.A.D.D.L.E. Feel free to use it when you're ready.
+		:OPT{Good to know.}{nothing}
+	}
+
 
 	:BLOCK{payne intro}{
 		:TITLE{Major Payne}
@@ -42,6 +304,36 @@
 		:OPT{What is this place?}{I'm payne}
 		:OPT{Why did you kidnap me?}{I'm payne}
 		:SET{hello payne}{payne more}
+	}
+	
+	:BLOCK{payne hello again}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		I watched your first battle with great interest. You show a lot of promise. But things are only going to get harder from here. The Blockoids are devloping a new block.
+		:OPT{Oh yeah?}{payne toggle}
+		:OPT{I don't care.}{payne toggle}
+	}
+	
+	:BLOCK{payne toggle}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		The new blocks are indestructable. The orb won't hurt them. Fortunately we've equipted your P.A.D.D.L.E with a positron poloarizer that can deactivate them with the Q key.
+		:OPT{So then what's the problem?}{payne toggle 2}
+	}
+	
+	:BLOCK{payne toggle 2}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		The problem is, whenever we deactivate them, new blocks appear! The positron poloarizer is only capable of deactivating half the blocks at a time.
+		:SET{hello paddle}{paddle open}
+		:OPT{Ok. Good to know.}{payne toggle 3}
+	}
+	
+	:BLOCK{payne toggle 3}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		I'll unlock the P.A.D.D.L.E so that you can start your next battle. God speed.
+		
 	}
 	
 	
@@ -113,14 +405,14 @@
 		:SET{payne leave}{nothing}
 		:SET{hello paddle}{paddle open}
 		Before you leave, I need to give you something...
-		:OPT{I don't want whatever it is.}{payne upgrade}
+		:OPT{I don't want whatever it is.}{get upgrade}
 	}
 	
-	:BLOCK{payne upgrade}{
+	:BLOCK{get upgrade}{
 		:TITLE{Upgrade Chip}
 		:ICON{upgrade}
 		:ACT{get upgrade}
-		Major Payne gave you an upgade chip! Use it to upgrade your P.A.D.D.L.E.
+		You received an upgade chip! Use it to upgrade your P.A.D.D.L.E.
 		:OPT{ok}{nothing}
 	}
 }
@@ -139,16 +431,113 @@
 		:ICON{kathrine}
 		After winning a Breakout contest are the local arcade, Major Payne invited me to be part of this team.
 	}
+	
+	:BLOCK{kathrine chat}{
+		:TITLE{Kathrine}
+		:ICON{kathrine}
+		We were just talking about how cool it is to have the world's best Breakout players all in one place!
+		:OPT{...}{kathrine chat 2}
+	}
+	
+	:BLOCK{kathrine chat 2}{
+		:TITLE{Wesley}
+		:ICON{wesley}
+		Yeah! You, me, Kathrine, Sally, Dweeby Kid,... everybody is here except P.J.
+		:OPT{...}{kathrine chat 3}
+	}
+	
+	:BLOCK{kathrine chat 3}{
+		:TITLE{Kathrine}
+		:ICON{kathrine}
+		You're right... I wonder where P.J. is? 
+		:OPT{...}{kathrine chat 4}
+	}
+	
+	:BLOCK{kathrine chat 4}{
+		:TITLE{Wesley}
+		:ICON{wesley}
+		Maybe he just didn't want to come for some reason.
+		:OPT{...}{nothing}
+	}
 }
 
 :BLOCK{dweeby family}{
+	:BLOCK{dweeby with gems}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		Holy cow! You've collected a bunch of gems! If you give me 10 gems, I'll give you my upgrade chip.
+		:OPT{OK.}{dweeby give gems}
+		:OPT{I want to talk about the blocks.}{dweeby blocks}
+		:OPT{Whatever, nerd.}
+		
+	}
+	
+	:BLOCK{dweeby without gems}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		If you bring me 10 blue gems from battle, I'll give you my upgrade chip.
+		:OPT{I want to talk about the blocks.}{dweeby blocks}
+		:OPT{Whatever, nerd.}
+		
+	}
+	
+	:BLOCK{dweeby give gems}{
+		:TITLE{Upgrade Chip}
+		:ICON{upgrade}
+		:ACT{trade upgrade}
+		You received an upgade chip! Use it to upgrade your P.A.D.D.L.E.
+		:OPT{ok}{nothing}
+	}
+
 	:BLOCK{hello dweeby}{
 		:TITLE{Donald Winston Eeby.}
 		:ICON{dweeby}
-		I heard the Blockoids are 30 feet tall and can start fires with their minds!
-		:OPT{Blockoids?}{dweeby blockoids}
+		I've been studying the Blockoid ships. Do you want to know what I've learned?
+		:OPT{Sure.}{dweeby blocks}
 		:OPT{Who are you?}{dweeby intro}
 		:OPT{Whatever, nerd.}{nothing}
+	}
+	
+	:BLOCK{dweeby blocks}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		What type of blocks are you interested in?
+		:OPT{Red}{dweeby red}
+		:OPT{Blue}{dweeby blue}
+		:OPT{Brown}{dweeby brown}
+		:OPT{Green}{dweeby green}
+	}
+	
+	:BLOCK{dweeby red}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		The red blocks are really dangerous. When they explode they fire a powerful blast that can momentarily disable your P.A.D.D.L.E.!
+		:OPT{Tell me about the other blocks.}{dweeby blocks}
+		:OPT{I just remembered I don't care.}{nothing}
+	}
+	
+	:BLOCK{dweeby blue}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		When the blue blocks explode, mysterious blue gems fall out. No one knows what they do, but I've been collecting them. If you find any, bring them to me!
+		:OPT{Tell me about the other blocks.}{dweeby blocks}
+		:OPT{I just remembered I don't care.}{nothing}
+	}
+	
+	:BLOCK{dweeby brown}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		The brown blocks are really strong. It takes two hits to destroy them.
+		:OPT{Tell me about the other blocks.}{dweeby blocks}
+		:OPT{I just remembered I don't care.}{nothing}
+	}
+	
+	:BLOCK{dweeby green}{
+		:TITLE{Donald Winston Eeby.}
+		:ICON{dweeby}
+		At first, everybody thought the green blocks couldn't be destroyed, but then we figured out that only the beam in the middle is unbreakable.
+		:OPT{Tell me about the other blocks.}{dweeby blocks}
+		:OPT{I just remembered I don't care.}{nothing}
 	}
 	
 	:BLOCK{dweeby intro}{
@@ -167,6 +556,32 @@
 }
 
 :BLOCK{wesley family}{
+
+	:BLOCK{wesley nightmare}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		You're up late.
+		:OPT{You too.}{wesley nightmare 2}
+		:OPT{I can't sleep}{wesley nightmare 2}
+	}
+
+	:BLOCK{wesley nightmare 2}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		You've been working harder than any of us. How are you holding up?
+		:OPT{I'm the best Breakout player we've got. I don't have much of a choice.}{wesley nightmare 3}
+		:OPT{I feel like everyone is counting on me.}{wesley nightmare 3}
+	}
+	
+	:BLOCK{wesley nightmare 3}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		We're a team, you know. You don't have to do it alone.
+		:OPT{That's not how it feels.}{nothing}
+	}
+
+
+
 	:BLOCK{hello wesley}{
 		:ICON{wesley}
 		:TITLE{Wesley}
@@ -222,6 +637,105 @@
 		:ICON{sally}
 		Stop bothering me. I have to focus.
 	}
+	
+	
+	:BLOCK{sally cant sleep}{
+		:GOTO{:GET{sally cant sleep}}
+	}
+	
+	:BLOCK{sally what do you want}{
+		:TITLE{Sally}
+		:ICON{sally}
+		What do you want?
+		:OPT{Are you ok?}{sally are you ok}
+		:OPT{Nothing.}{nothing}
+	}
+	
+	:BLOCK{sally are you ok}{
+		:TITLE{Sally}
+		:ICON{sally}
+		Leave me alone.
+		:OPT{Are you sure? You look really nervous when you pace back and fourth.}{sally nervous}
+		:OPT{Fine.}{nothing}
+	}
+	
+	:BLOCK{sally nervous}{
+		:TITLE{Sally}
+		:ICON{sally}
+		You wouldn't understand.
+		:OPT{Really? Try me.}{sally try}
+		:OPT{I understand all things. I am a God.}{sally alone}
+		:OPT{If you say so.}{nothing}
+	}
+	
+	:BLOCK{sally alone}{
+		:TITLE{Sally}
+		:ICON{sally}
+		Just leave me alone.
+		:SET{sally cant sleep}{sally alone}
+	}
+	
+	:BLOCK{sally just sayin}{
+		:TITLE{Sally}
+		:ICON{sally}
+		You just met me. How could you know that? You're just trying to make me feel better.
+		:OPT{No I'm not, it's the truth!}{sally alone}
+		:OPT{You're right.}{sally alone}
+	}
+	
+	:BLOCK{sally try}{
+		:TITLE{Sally}
+		:ICON{sally}
+		I'm just feeling really overwhelmed by the Blockoids, Major Payne, being a child soldier,... 
+		:OPT{Wow, you really are a loser.}{sally alone}
+		:OPT{Have you tried not being lame?}{sally alone}
+		:OPT{Yeah, things are pretty nuts.}{sally nuts}
+		:OPT{But you're amazing, you'll be fine.}{sally just sayin}
+		
+	}
+	
+	:BLOCK{sally nuts}{
+		:TITLE{Sally}
+		:ICON{sally}
+		How are you handling it?
+		:OPT{Easy peasy, lemon squeezy.}{sally alone}
+		:OPT{I'm kinda freaking out too.}{sally really}
+	}
+	
+	:BLOCK{sally really}{
+		:TITLE{Sally}
+		:ICON{sally}
+		Really?
+		:OPT{Yeah, but you're an amazing kid. You're gonna do great.}{sally just sayin}
+		:OPT{Yeah, but I guess we just gotta do our best.}{sally right}
+		:OPT{Nope! I'm just messing with you, loser!}{sally alone}
+	}
+	
+	:BLOCK{sally right}{
+		:TITLE{Sally}
+		:ICON{sally}
+		I guess you're right. You know, talking to you really makes me feel better. I want to thank you with a gift.
+		:OPT{Don't be absurd. No gift needed.}{sally insist}
+		:OPT{Really? Awesome!}{sally better}
+	}
+	
+	:BLOCK{sally insist}{
+		:TITLE{Sally}
+		:ICON{sally}
+		No, really, I insist.
+		:OPT{Thank you.}{sally better}
+	}
+	
+	:BLOCK{sally better}{
+		:SET{sally cant sleep}{sally feeling better}
+		:GOTO{get upgrade}
+	}
+	
+	:BLOCK{sally feeling better}{
+		:TITLE{Sally}
+		:ICON{sally}
+		Thanks for talking with me, I feel a lot better now.
+	}
 }
 
 :BLOCK{bed family}{
@@ -248,12 +762,50 @@
 		:OPT{Ignore}{nothing}
 	}
 	
+	:BLOCK{roxy dream}{
+		:TITLE{Roxy's Bed}
+		:ICON{bed}
+		It doesn't look very comfortable.
+		:OPT{Sleep}{bed dream}
+		:OPT{Ignore}{nothing}
+	}
+	
 	:BLOCK{bed sleep}{
 		:ACT{sleep}
+	}
+	
+	:BLOCK{bed dream}{
+		:ACT{dream}
 	}
 }
 
 :BLOCK{agent family}{
+
+	:BLOCK{agent final}{
+		:TITLE{Agent Arkanoid}
+		:ICON{agent}
+		Things are getting pretty dangerous out there. Please take care of yourself.
+	}
+
+	:BLOCK{agent sleep}{
+		:TITLE{Agent Arkanoid}
+		:ICON{agent}
+		You should really get some sleep. 
+	}
+	
+	:BLOCK{agent nightmare}{
+		:TITLE{Agent Arkanoid}
+		:ICON{agent}
+		You're up late.
+		:OPT{It's night time, and we're indoors, and you're wearing sun glasses. Why?}{agent nightmare 2}
+	}
+	
+	:BLOCK{agent nightmare 2}{
+		:TITLE{Agent Arkanoid}
+		:ICON{agent}
+		Sometimes you just gotta be yourself.
+	}
+
 
 	:BLOCK{agent hello again}{
 		:TITLE{Agent Arkanoid}
@@ -583,5 +1135,6 @@
 :SET{payne leave}{payne leave}
 :SET{hello payne}{payne intro}
 :SET{hello paddle}{paddle open}
+:SET{sally cant sleep}{sally what do you want}
 
 

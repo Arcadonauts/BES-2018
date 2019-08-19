@@ -27,11 +27,11 @@ class V3:
             return (self.x, self.y, self.z)
 
         
-colors = list(map(ImageColor.getrgb, ['#76428a', '#cbdbfc', '#fbf236', '#222034',
-                                      '#3f3f74', '#5b6ee1', '#639bff', '#d77bba']))
+#colors = list(map(ImageColor.getrgb, ['#76428a', '#cbdbfc', '#fbf236', '#222034',
+#                                      '#3f3f74', '#5b6ee1', '#639bff', '#d77bba']))
 
-#colors = list(map(ImageColor.getrgb, ['#595652', '#696a6a', '#9badb7', '#cbdbfc']))
-fn = 'boston.png'
+colors = list(map(ImageColor.getrgb, ['#000000', '#cbdbfc', '#9badb7']))
+fn = 'misson pass.png'
 pwr = 'c'
 img = Image.open(fn)
 
