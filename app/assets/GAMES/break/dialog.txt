@@ -1,3 +1,354 @@
+:BLOCK{finale family}{
+	:BLOCK{finale}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		Roxy! Come in Roxy! Can you hear me?
+		:OPT{Continue}{finale 1}
+	}
+	
+	:BLOCK{finale 1}{
+		:ICON{roxy}
+		:TITLE{Roxy Everyteen}
+		Loud and clear, Major, but I'm a little busy right now...
+		:OPT{Continue}{finale 2}
+	}
+	
+	:BLOCK{finale 2}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		I'm in an escape pod, but we're coming down fast. I need you to catch us.
+		:OPT{Continue}{finale 3}
+	}
+	
+	:BLOCK{finale 3}{
+		:ICON{roxy}
+		:TITLE{Roxy Everyteen}
+		I'm sorry Major, but I'm reading your location now, and there's no way I can get there in time.
+		:OPT{Continue}{finale 4}
+	}
+	
+	:BLOCK{finale 4}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		Me too. I'm pinned down, I'm sorry.
+		:OPT{Continue}{finale 5}
+	}
+	
+	:BLOCK{finale 5}{
+		:ICON{sally}
+		:TITLE{Sally}
+		I can't believe this.
+		:OPT{Continue}{finale 6}
+	}
+	
+	:BLOCK{finale 6}{
+		:ICON{kathrine}
+		:TITLE{Kathrine}
+		Oh my God.
+		:OPT{Continue}{finale 7}
+	}
+	
+	:BLOCK{finale 7}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		Then I guess this is the end. It was nice serving with you all.
+		:OPT{Continue}{finale 8}
+	}
+	
+	:BLOCK{finale 8}{
+		:ICON{roxy}
+		:TITLE{Roxy Everyteen}
+		Goodbye, Major Payne.
+		:OPT{Continue}{nothing}
+	}
+	
+	:BLOCK{finale 100}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		What?!?
+		:OPT{Continue}{finale 101}
+	}
+	
+	:BLOCK{finale 101}{
+		:TITLE{Roxy Everyteen}
+		:ICON{roxy}
+		Who?!?
+		:OPT{Continue}{finale 102}
+	}
+	
+	:BLOCK{finale 102}{
+		:ICON{wesley}
+		:TITLE{Wesley}
+		How?!?
+		:OPT{Continue}{finale 103}
+	}
+	
+	:BLOCK{finale 103}{
+		:ICON{dweeby}
+		:TITLE{Dweeby Kid}
+		I got you Major!
+		:OPT{Continue}{finale 104}
+	}
+	
+	:BLOCK{finale 104}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Dweeby Kid?!?
+		:OPT{Continue}{finale 105}
+	}
+	
+	:BLOCK{finale 105}{
+		:ICON{dweeby}
+		:TITLE{Dweeby Kid}
+		That's right Major, I'm here to save you!
+		:OPT{Continue}{finale 106}
+	}
+	
+	:BLOCK{finale 106}{
+		:TITLE{Major Payne}
+		:ICON{payne}
+		Thanks, Dweeby Kid, now let's get out of here!
+		:OPT{Continue}{finale 107}
+	}
+	
+	:BLOCK{finale 107}{
+		:ICON{dweeby}
+		:TITLE{Dweeby Kid}
+		You don't have to tell me twice!
+		:OPT{Continue}{finale 108}
+	}
+}
+
+:BLOCK{pj family}{
+	:BLOCK{hello pj}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		PJ... What happened to you?
+		:OPT{Continue}{pj 1}
+	}
+	
+	:BLOCK{pj 1}{
+		:ICON{pj}
+		:TITLE{PJ}
+		Who's there?
+		:OPT{Continue}{pj 2}
+	}
+	
+	:BLOCK{pj 2}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		It's me...
+		:OPT{Continue}{pj 3}
+	}
+	
+	:BLOCK{pj 3}{
+		:ICON{payne}
+		:TITLE{Dad}
+		...your Father.
+		:OPT{Continue}{pj 4}
+	}
+	
+	:BLOCK{pj 4}{
+		:ICON{dark}
+		:TITLE{???}
+		You're wasting your time, Major.
+		:OPT{Continue}{pj 5}
+	}
+	
+	:BLOCK{pj 5}{
+		:ICON{payne}
+		:TITLE{Dad}
+		Who's there?
+		:OPT{Continue}{pj 6}
+	}
+	
+	:BLOCK{pj 6}{
+		:ICON{dark}
+		:TITLE{???}
+		Don't tell me you don't know...
+		:OPT{Continue}{pj 7}
+	}
+	
+	:BLOCK{pj 7}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		...I am the Blockoid Supreme Commander! I am here to help you meet your doom!
+		:OPT{Continue}{pj 8}
+	}
+	
+	:BLOCK{pj 8}{
+		:ICON{payne}
+		:TITLE{Dad}
+		Give me back my son, you ugly son of a...
+		:OPT{Continue}{pj 9}
+	}
+	
+	:BLOCK{pj 9}{
+		:ICON{pj}
+		:TITLE{PJ}
+		Dad? Is that you?
+		:OPT{Continue}{pj 11}
+	}
+	
+	:BLOCK{pj 11}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		He's completly consumed by the game now, Major. His life is Breakout, and he's our greatest weapon.
+		:OPT{Continue}{pj 12}
+	}
+	
+	:BLOCK{pj 12}{
+		:ICON{payne}
+		:TITLE{Dad}
+		I don't understand.
+		:OPT{Continue}{pj 13}
+	}
+	
+	:BLOCK{pj 13}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		It's kinda like Ender's Game.
+		:OPT{Continue}{pj 14}
+	}
+	
+	:BLOCK{pj 14}{
+		:ICON{payne}
+		:TITLE{Dad}
+		Ender's Game?
+		:OPT{Continue}{pj 15}
+	}
+	
+	:BLOCK{pj 15}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		You've never read Ender's Game?
+		:OPT{Continue}{pj 16}
+	}
+	
+	:BLOCK{pj 16}{
+		:ICON{payne}
+		:TITLE{Dad}
+		I'm not much of a reader.
+		:OPT{Continue}{pj 17}
+	}
+	
+	:BLOCK{pj 17}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		Even so, it's kind of a classic. Admittedly, Orson Scott Card is a little problematic, but it's still a formative book for so many people.
+		:OPT{Continue}{pj 18}
+	}
+	
+	:BLOCK{pj 18}{
+		:ICON{pj}
+		:TITLE{PJ}
+		Dad, have you come to play breakout with me?
+		:OPT{Continue}{pj 19}
+	}
+	
+	:BLOCK{pj 19}{
+		:ICON{payne}
+		:TITLE{Dad}
+		No, son, I've come to save you.
+		:OPT{Continue}{pj 20}
+	}
+	
+	:BLOCK{pj 20}{
+		:ICON{pj}
+		:TITLE{PJ}
+		I don't want you to save me. All I've ever wanted was to play video games with you.
+		:OPT{Continue}{pj 21}
+	}
+	
+	:BLOCK{pj 21}{
+		:ICON{payne}
+		:TITLE{Dad}
+		I understand that, son. I want you to like me, but more than that, I want you to be safe and healthy. 
+		:OPT{Continue}{pj 22}
+	}
+	
+	:BLOCK{pj 22}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		That's adorable and all, but It's not going to mean anything when I DESTROY THE PLANET!
+		:OPT{Continue}{pj 23}
+	}
+	
+	:BLOCK{pj 23}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		I'm not going to let that happen.
+		:OPT{Continue}{pj 24}
+	}
+	
+	:BLOCK{pj 24}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		It's too late, Payne, you can't stop me. The mother ship's hull is completly shielded. Your anti-matter orbs are useless against us!
+		:OPT{Continue}{pj 25}
+	}
+	
+	:BLOCK{pj 25}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		Are you refering to the mother ship we're currently standing in?
+		:OPT{Continue}{pj 24b}
+	}
+	
+	:BLOCK{pj 24b}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		Of course! There's no way for your orbs to break in here!
+		:OPT{Continue}{pj 25b}
+	}
+	
+	:BLOCK{pj 25b}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		Maybe, but you're forgetting something. I'm already in here. I don't need to break in. I just need to Break Out!
+		:OPT{Continue}{pj 26}
+	}
+	
+	:BLOCK{pj 26}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		What?!?!?
+		:OPT{Continue}{pj 27a}
+	}
+	
+	:BLOCK{pj 27a}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		That's right, alien scum! I've set bombs all over this ship, and now my son and I are going home!
+		:OPT{Continue}{pj 26a}
+	}
+	
+	:BLOCK{pj 26a}{
+		:ICON{pj}
+		:TITLE{PJ}
+		Yeah!
+		:OPT{Continue}{pj 27}
+	}
+	
+	:BLOCK{pj 27}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		No!
+		:OPT{Continue}{pj 28}
+	}
+	
+	:BLOCK{pj 28}{
+		:ICON{payne}
+		:TITLE{Major Payne}
+		Come on, son, we're getting out of here.
+		:OPT{Continue}{pj 29}
+	}
+	
+	:BLOCK{pj 29}{
+		:ACT{finale}
+	}
+}
+
 
 :BLOCK{monolog family}{
 	:BLOCK{monolog ouch}{

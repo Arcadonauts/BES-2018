@@ -33,16 +33,191 @@
 		}
 	}
 	
+	window.finale = {
+		create: function(){
+			
+			this.cursors = this.input.keyboard.addKeys({
+				up:Phaser.Input.Keyboard.KeyCodes.W,
+				down:Phaser.Input.Keyboard.KeyCodes.S,
+				left:Phaser.Input.Keyboard.KeyCodes.A,
+				right:Phaser.Input.Keyboard.KeyCodes.D
+			});
+			
+			message.init(this.add)
+			dialog.init(this.cache)
+			
+			
+			function anim(anims, key, frames, sheet, fr){
+				fr = fr || 10
+				let fs = []
+				frames.forEach(i => fs.push({key: sheet, frame: i}))
+				anims.create({
+					key: key,
+					frames: fs,
+					frameRate: fr,
+					repeat: -1
+				})
+			}
+			
+			this.sprites = [] 
+			for(let i = 0; i < 16; i++){
+				for(let j = 0; j < 12; j++){
+					this.sprites.push(
+						this.add.sprite(TW*i, TW*j, 'tiles', j == 3 || j === 6 ? 15*14+3 : 15*13+1)
+					)
+				}
+			}
+			
+			this.pj = this.add.sprite(0, TW*4.5, 'roxy')
+			this.payne = this.add.sprite(0, TW*4.5, 'roxy')
+			
+			
+			
+			anim(this.anims, 'pj-push-right', [51, 52, 53], 'roxy')
+			anim(this.anims, 'payne-push-right', [69, 70, 71], 'roxy')
+			
+			anim(this.anims, 'flame', [262, 263, 264, 265, 266, 267], 'breakout', 24)
+			anim(this.anims, 'blast', [247, 248, 249, 250], 'breakout', 24)
+			//anim(this.anims, 'payne-push-right', [69, 70, 71], 'roxy')
+			
+			this.payne.anims.play('payne-push-right')
+			this.pj.anims.play('pj-push-right')
+			
+			this.cameras.main.shake(100000, .005, true)
+			
+			this.input.keyboard.on('keydown-E', ()=> {
+				message.enter()
+			})
+			
+			this.phase = -1
+		},
+		update: function(){
+			console.log('phase:', this.phase)
+			if(this.phase === -1){
+				message.update(this.cursors)
+				this.phase = 0 
+				
+			}else if(this.phase === 0){
+				this.payne.x += 1 
+				//console.log(this.payne.x)
+				this.pj.x = this.payne.x + 15
+				if(this.payne.x > 16*TW){
+					this.phase = 1 
+				}
+				
+			}else if(this.phase === 1){
+				this.sprites.forEach(s => s.destroy())
+				this.payne.destroy()
+				this.pj.destroy()
+				
+				this.cameras.main.shake(0, .005, true)
+				
+				this.bg = this.add.sprite(0, 0, 'bg_stars')
+				this.bg.setOrigin(0, 0)
+				this.escape_pod = this.add.container(TW*0, TW*4)
+				for(let i = 0; i < 4; i++){
+					for(let j = 0; j < 2; j++){
+						this.escape_pod.add(
+							this.add.sprite(TW*i, TW*j, 'tiles', (17+j)*15 + i)
+						)
+					}
+				}
+				this.flame = this.add.sprite(-10, 3, 'breakout')
+				this.flame.anims.play('flame')
+				this.escape_pod.add(this.flame)
+				
+				this.phase = 2 
+				
+			}else if(this.phase === 2){
+				this.escape_pod.x += .5 
+				
+				if(this.escape_pod.x > 5*TW){
+					this.blast = this.add.sprite(0, TW*4, 'breakout')
+					this.blast.anims.play('blast')
+					this.phase = 3
+				}
+			}else if(this.phase === 3){
+				this.escape_pod.x += .5 
+				this.blast.x += 2 
+				
+				if(Math.abs(this.blast.x - this.escape_pod.x) < 12){
+					this.blast.destroy()
+					this.escape_pod.list[0].setFrame(17*15+4)
+					this.cameras.main.flash()
+					this.flame.destroy()
+					
+					this.phase = 4 
+				}
+			}else if(this.phase === 4){
+				this.escape_pod.x += .5
+				this.escape_pod.y += .75 
+				
+				if(this.escape_pod.y > TW*11){
+					this.phase = 5
+					message.say('finale')
+				}
+			}else if(this.phase === 5){
+					message.update(this.cursors)
+					this.phase = 6 
+			
+			}else if(this.phase === 6){
+				message.update(this.cursors)
+				if(!message.open){
+					//console.log(this.next)
+					this.phase = 7
+					this.escape_pod.x = 6*TW 
+					this.escape_pod.y = -100
+					
+					this.paddle = this.add.container(TW*32, TW*9)
+					for(let i = 0; i < 4; i++){
+						this.paddle.add(
+							this.add.sprite(TW*i, 0, 'tiles', 16*15+i)
+						)
+					}
+				}
+			}else if(this.phase === 7){
+				this.escape_pod.y += 1.5 
+				this.paddle.x -= 3.4
+				if(this.paddle.x < this.escape_pod.x - 8){
+					this.phase = 8
+					this.t = 30 
+				}
+			}else if(this.phase === 8){
+				this.t -= 1
+				if(this.t < 0){
+					message.say('finale 100')
+					this.phase = 9 
+				}
+			}else if(this.phase === 9){
+				message.update(this.cursors)
+				if(!message.open){
+					this.phase = 10 
+				}
+			}else if(this.phase === 10){
+				this.escape_pod.x += 3 
+				this.paddle.x += 3 
+			}
+		}
+	}
+	
 	function aim(player, dx, dy, live){
-		let bullet = this.scene.physics.add.sprite(this.x, this.y, 'roxy', 33)
-		let size = live ? 12 : 6 
-		bullet.setSize(size, size)
-		bullet.setDepth(live ? 1000000 : 10000000)
-		let v = live ? 400 : 500 
-		bullet.body.velocity.x = dx * v
-		bullet.body.velocity.y = dy * v 
+		let bullet = this.scene.physics.add.sprite(this.x, this.y, 'roxy', live ? 33 : 35)
+		if(live){
+			bullet.setSize(12, 12)
+			bullet.setDepth(10000000)
+			let t = Math.atan2(player.y - this.y, player.x - this.x)
+			bullet.body.velocity.x = 500 * Math.cos(t)
+			bullet.body.velocity.y = 500 * Math.sin(t)
+		}else{
+			//let size = live ? 12 : 6 
+			bullet.setSize(6, 6)
+			bullet.setDepth(0)
+			let v = live ? 600 : 1000 
+			bullet.body.velocity.x = dx * v
+			bullet.body.velocity.y = dy * v 
+			
+		}
 		bullet.origin = this 
-		
 		this.cooldown = 0 
 		
 		if(!live){
@@ -59,7 +234,7 @@
 			})
 			
 			this.scene.physics.add.overlap(bullet, player, (bullet, player)=>{
-				console.log('aim!')
+				//console.log('aim!')
 				if(this.fired <= 0){
 					aim.call(this, player, dx, dy, true)
 					this.fired = 20 
@@ -145,30 +320,41 @@
 						return true 
 					})
 					
-					sprite.scene.physics.add.overlap(ball, interactable.sprites, function(b1, b2){
+					sprite.scene.physics.add.collider(ball, interactable.sprites, undefined, function(b1, b2){
 						//console.log(b1.t)
 						if(b1.t > 20 && b2.type === 'launcher'){
 							b1.body.reset()
+						}else if(b2.type === 'launcher'){
+							
+						}else if(b2.name === 'alien'){
+							console.log(b2)
+							b2.kill()
+						}else if(b2.name === 'paddle'){
+							return true
 						}
+						return false 
 					})
 					
 					return ball 
 				},
 				update: function(player, sprite){
-					sprite.ball = this.fire(player, sprite)
-					sprite.tag = tag 
-					sprite.type = 'launcher'
-					sprite.fire = function(player, sprite){
-						this.ball.x = this.x 
-						this.ball.y = this.y 
-						this.ball.body.velocity.set(100, 100)
-						this.ball.alpha = 1 
-						this.ball.t = 0 
-					}
-					sprite.setSize(2, 2)
-					this.update = function(player, sprite){
+					if(sprite.ball){
 						sprite.ball.t += 1 
+					}else{
+						
+						sprite.ball = this.fire(player, sprite)
+						sprite.tag = tag 
+						sprite.type = 'launcher'
+						sprite.fire = function(player, sprite){
+							this.ball.x = this.x 
+							this.ball.y = this.y 
+							this.ball.body.velocity.set(50, 50)
+							this.ball.alpha = 1 
+							this.ball.t = 0 
+						}
+						sprite.setSize(2, 2)
 					}
+				
 				}
 			}
 		},
@@ -238,6 +424,7 @@
 					this.v = 30
 					this.cooldown = 5 
 					this.fired = 0 
+					this.y -= 2 
 				}
 				if(Math.abs(this.body.velocity.x) < .75*Math.abs(this.v)){
 					this.v *= -1
@@ -734,7 +921,9 @@
 			
 		},
 		say: function(block, player, speaker){
+			
 			let m = dialog.say(block)
+
 			//console.log(block)
 			this.player = player || this.player 
 			this.speaker = speaker || this.speaker 
@@ -952,6 +1141,9 @@
 						next: 'Lvl 3'
 						
 						})
+				},
+				'finale': function(player, sprite){
+					sprite.scene.scene.start('finale')
 				}
 			},
 			'Lvl 11': {
@@ -959,11 +1151,24 @@
 					auto: true,
 					activate: function(){}
 				},
+				'pj': message.chat('hello pj'), 
 				'408,264': recurring.paddle_control('lower_paddle', 30),
 				'456,192': recurring.paddle_control('middle_paddle', 30),
 				'432,192': recurring.paddle_control('middle_paddle', -30),
+				'576,216': recurring.paddle_control('right_paddle', -90),
+				'600,216': recurring.paddle_control('right_paddle', 90),
+				'576,192': recurring.fire('right'),
 				'192,48': recurring.fire('left'),
 				'240,48': recurring.launcher('left'),
+				'648,144': recurring.launcher('right'),
+				'504,24': recurring.launcher('a'),
+				'528,24': recurring.launcher('b'),
+				'552,24': recurring.launcher('c'),
+				'576,24': recurring.launcher('d'),
+				'600,24': recurring.launcher('e'),
+				'624,24': recurring.launcher('f'),
+				'648,24': recurring.launcher('g'),
+				'672,24': recurring.launcher('h'),
 				'456,48': recurring.launcher('catcher left'),
 			},
 			
@@ -1630,8 +1835,23 @@
 				'432,48': recurring.up_alien,
 				'336,240': recurring.alien_paddle('lower_paddle'),
 				'504,192': recurring.alien_paddle('middle_paddle'),
+				'528,48': recurring.alien_paddle('right_paddle'),
 				//'264,168': recurring.stand_alien,
-				'288,168': recurring.right_alien
+				'288,168': recurring.right_alien,
+				'552,120': recurring.right_alien,
+				'480,288': {
+					name: 'pj',
+					move: function(){
+						this.body.velocity.x = -1 
+						this.x = this.x0 
+					},
+					init: function(){
+						this.y -= 3
+						this.x0 = this.x 
+						this.body.setImmovable(true)
+						
+					}
+				}
 				
 			},
 			'Lvl 10': {
@@ -1897,6 +2117,7 @@
 				payne: 3,
 				agent: 6,
 				alien: 9,
+				pj: 12,
 				paddle: 68,
 				dweeby: 72,
 				sally: 75,
@@ -1922,6 +2143,11 @@
 			anim(this.anims, who+'-stand-up', [f0+54])
 			
 			ch.setSize(12, 9).setOffset(6, 16)
+			
+			ch.kill = function(){
+				console.log('Ahh!')
+				this.dead = true 
+			}
 			
 			ch.anims.play(who+'-stand-down')
 			return ch 
@@ -2204,13 +2430,22 @@
 			this.player.shadow.y = this.player.y + 6
 			this.player.shadow.alpha = this.player.alpha 
 			
+			
+			
 			npc.npcs.forEach(c => {
 				c.setDepth(10000 + 100*(c.y/TW ) + 30)
 				c.shadow.x = c.x 
 				c.shadow.y = c.y + 6
 				c.shadow.setDepth(10000 + 100*(c.y/TW ) + 29)
 				c.shadow.alpha = c.alpha 
+				
+				if(c.dead){
+					c.shadow.destroy()
+					c.destroy()
+				}
 			})
+			
+			npc.npcs = npc.npcs.filter(x => !x.dead)
 		}
 	}
 })()

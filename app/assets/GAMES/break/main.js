@@ -28,6 +28,7 @@
 		game.scene.add('high_scores', breakout.high_scores)
 		game.scene.add('level_select', level_select)
 		game.scene.add('monolog', monolog)
+		game.scene.add('finale', finale)
 		
 		game.scene.start('setup') // Don't change this!
 	}
@@ -61,7 +62,8 @@
 			
 			let grounds =  ['fg_real', 'fg_game', 'bg_game', 'bg_bad', 'fg_bad',
 							'go_bad', 'yw_bad', 'go_game', 'pixc_boston', 
-							'bg_real', 'mission_pass', 'mission_fail', 'fg_dream'
+							'bg_real', 'mission_pass', 'mission_fail', 'fg_dream',
+							'bg_stars'
 							]
 		
 			sheets.forEach(s => 
