@@ -8,14 +8,15 @@
 		height: 10*TW,
 		backgroundColor: '#323c39',
 		pixelArt: true,
-		zoom: 3,
+		zoom: 2,
 		physics: {
 			default: 'arcade',
 			arcade: {
 				gravity: {x:0, y:0},
 				debug: !true
 			}
-		}
+		},
+		//canvas = document.getElementById('canvas')
 	};
 	
 	let menu = {
@@ -98,7 +99,23 @@
 	
 	let setup = {
 		preload: function(){
-			let v = Math.random()
+			
+			let text = this.add.text(config.width/2, config.height/2, 'Loading: 0%', {
+				fill : 'white'
+			})
+			text.setOrigin(.5, .5)
+			
+			this.load.on('progress', function(v){
+				
+				text.text = 'Loading: ' + Math.floor(100*v) + '%'
+			})
+			
+			this.load.on('complete', function(){
+				//this.scene.start('menu')
+			})
+			
+			
+			let v = 1//Math.random()
 			let sheets = [
 				{
 					name: 'numbers2',
@@ -147,13 +164,13 @@
 			
 			for(let i = 0; i < sounds.length; i++){
 				let s = sounds[i]
-				console.log('load:', s+'.wav')
+				//console.log('load:', s+'.wav')
 				this.load.audio(s, path + s+'.wav')
 				
 			}
 			
-			this.sound.volume = 0.2
-			console.log(this.sound.volume)
+			this.sound.volume = 0.25
+			//console.log(this.sound.volume)
 		
 		},
 		create:	function create(){
@@ -190,7 +207,7 @@
 			}				
 			//*/
 			
-			this.scene.start('menu')
+			//this.scene.start('menu')
 			/*
 			this.scene.start('world', {
 				style: 'dream',
@@ -198,6 +215,8 @@
 				name: 'Lvl 11'
 			})// Change this
 			//*/
+			
+			this.scene.start('menu')
 		},
 		update: function update(){
 		}

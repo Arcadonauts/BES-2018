@@ -1215,7 +1215,7 @@
 	:BLOCK{agent boys}{
 		:TITLE{Agent Arkanoid.}
 		:ICON{agent}
-		No can do. This is the door to the boy's dorm. You're not allowed there.
+		No can do. This is the door to the boys' dorm. You're not allowed there.
 	}
 
 	:BLOCK{agent hello}{
