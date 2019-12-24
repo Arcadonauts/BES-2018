@@ -17,6 +17,68 @@
 			}
 		}
 	};
+	
+	let menu = {
+		create: function(){
+			let bg = this.add.sprite(0, 0, 'menu')
+			bg.setOrigin(0, 0)
+			this.blocks = [] 
+			for(let i = 0; i < 12; i++){
+				for(let j = 0; j < 2; j++){
+					let s = this.add.sprite(48 + TW*i, 160 + TW*j/2, 'breakout', 15*2 + i + 15 * j)
+					s.t = (17*i + 13*j) % 24
+					this.blocks.push(s)
+				}
+			}
+			this.t = 0 
+			this.start = false 
+			
+			this.input.keyboard.on('keydown-E', ()=> {
+				this.start = true 
+			})
+		},
+		update: function(){
+			if(this.start){
+				let go = true 
+				this.blocks.forEach(b => {
+					b.t -= .25 
+					b.alpha = 1 
+					
+					if(b.t > -5){
+						go = false 
+					}
+					if(b.t < 0){
+						
+						let f = 214 - Math.max(Math.floor(b.t), -5)
+						//console.log(f) 
+						if(f === 218){
+							let bump = this.sound.add('bump' + Math.ceil(3*Math.random()))
+							//let bump = this.sound.add('bump1')
+							bump.play()
+						}
+						b.setFrame(f)
+					}
+				})
+				
+				if(go){
+					this.scene.start('world', {	name: 'Lvl 1'})
+				}
+			}else{
+				this.t += 1
+				let on = true 
+				if(this.t > 60){
+					on = false 
+				}
+				if(this.t > 75){
+					this.t = 0 
+				}
+				//console.log(this.t, on) 
+				
+				this.blocks.forEach(b => b.alpha = on ? 1 : 0)
+			}
+
+		}
+	}
 
 	function init(){
 		window.game = new Phaser.Game(config)
@@ -29,6 +91,7 @@
 		game.scene.add('level_select', level_select)
 		game.scene.add('monolog', monolog)
 		game.scene.add('finale', finale)
+		game.scene.add('menu', menu)
 		
 		game.scene.start('setup') // Don't change this!
 	}
@@ -63,7 +126,7 @@
 			let grounds =  ['fg_real', 'fg_game', 'bg_game', 'bg_bad', 'fg_bad',
 							'go_bad', 'yw_bad', 'go_game', 'pixc_boston', 
 							'bg_real', 'mission_pass', 'mission_fail', 'fg_dream',
-							'bg_stars'
+							'bg_stars', 'menu'
 							]
 		
 			sheets.forEach(s => 
@@ -76,6 +139,21 @@
 			)
 			
 			this.load.text('dialog', path+'dialog.txt?v='+v)
+			
+			let sounds = [
+				'activate', 'beep', 'boop', 'bump1', 'bump2', 'bump3', 'explode', 
+				'laser', 'stun', 'tink', 'hum'
+			]
+			
+			for(let i = 0; i < sounds.length; i++){
+				let s = sounds[i]
+				console.log('load:', s+'.wav')
+				this.load.audio(s, path + s+'.wav')
+				
+			}
+			
+			this.sound.volume = 0.2
+			console.log(this.sound.volume)
 		
 		},
 		create:	function create(){
@@ -96,7 +174,7 @@
 			//*/
 		
 			/*
-			let name = 'sydney'
+			let name = 'zhengzhou'
 			if(!true){
 				this.scene.start('breditor', {name: name}) // Change this
 			}else{
@@ -105,13 +183,15 @@
 					lvl: 0,
 					name: name,
 					lives: 3,
+					lasers: 6,
 					bomb: 4,
 					length: 3,
 				})// Change this
 			}				
 			//*/
 			
-			//*
+			this.scene.start('menu')
+			/*
 			this.scene.start('world', {
 				style: 'dream',
 				lvl: 'd',

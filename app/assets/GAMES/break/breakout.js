@@ -19,7 +19,8 @@
 	
 	function load(name){
 		let op = []
-		let ld = JSON.parse(localStorage.levels)[name]
+		//let ld = JSON.parse(localStorage.levels)[name]
+		let ld = JSON.parse(levels_data_string)[name]
 		ld.forEach((p, i) => {
 			op[i] = {}
 			for(let k in p){
@@ -335,7 +336,7 @@
 		},
 		create: function(){
 	
-			this.t = 500
+			this.t = 200
 			
 			if(this.score === 'win'){
 				let s = this.add.sprite(0, 0, 'mission_pass')
@@ -447,6 +448,7 @@
 					this.score.set(0)
 				}
 				inventory.add('gems')
+				this.sound.add('tink').play()
 			})
 			
 			return drop 
@@ -458,9 +460,12 @@
 			fire.setDepth(6)
 			fire.body.setSize(18, 4)
 			
+			this.sound.add('laser').play()
+			
 			this.physics.add.collider(this.paddle, fire, (paddle, fire) => {
 				fire.destroy()
 				paddle.stun = 100
+				this.sound.add('stun').play()
 			})
 		},
 		laser: function(){
@@ -468,6 +473,8 @@
 			laser.body.velocity.y = -300
 			laser.anims.play('laser')
 			laser.setSize(7,10)
+			
+			this.sound.add('laser').play()
 			
 			this.physics.add.collider(laser, this.blocks, function(laser, block){
 				block.hit()
@@ -636,6 +643,7 @@
 				if(this.balls.length === 0){
 					let ball = create.ball.call(this)
 					create.collide.call(this, ball, this.blocks)
+					this.sound.add('laser').play()
 					this.balls.push(ball)
 				}else{
 					if(this.lasers.get() > 0){
@@ -954,6 +962,7 @@
 				this.destroy()
 				this.dead = true 
 				this.that.score.inc(100)
+				this.that.sound.add('beep').play()
 			}
 			
 		},
@@ -989,7 +998,8 @@
 			next_level: function(){
 				//this.creator.game_over.call(this)
 				//return 
-				this.ball.dead = true 
+				//this.ball.dead = true 
+				this.balls.forEach(ball => ball.dead = true)
 				this.lvl += 1 
 				if(this.lvl > 9){
 					this.creator.game_over.call(this)
@@ -1013,6 +1023,7 @@
 				this.destroy()
 				this.dead = true 
 				this.that.score.inc(100)
+				this.that.sound.add('beep').play()
 			}
 		},
 		real: {
@@ -1076,10 +1087,17 @@
 					this.countdown = 200 
 					let fps = this.game.loop.actualFps
 					this.cameras.main.shake(1000*this.countdown/fps, .01, true)
+					
+					
+					
 				}else if(this.countdown > 0){
 					this.countdown -= 1 
+					if(this.countdown % 2 === 0){
+						this.sound.add('hum').play()
+					}
 					
 				}else{
+					this.sound.add('explode').play()
 					this.cameras.main.flash()
 					this.cameras.main.shake(0, 0, true)
 					this.countdown = undefined
@@ -1109,11 +1127,13 @@
 			},
 			next_level: function(){
 				this.creator.explode.call(this)
+				//this.sound.add('explode').play()
 				
 			},
 			q_press: function(){
-
+				
 				if(this.control){
+					this.sound.add('activate').play()
 					this.control.act()
 				}else{
 					//this.blocks.forEach(b => {b.destroy(); b.dead = true})
@@ -1122,6 +1142,7 @@
 			},
 			game_over: function(win){
 				console.log('game over')
+				this.control = undefined
 				this.scene.start('high_scores', {
 					next: this.next, 
 					score: win ? 'win' : 'lose'
@@ -1134,6 +1155,7 @@
 			},
 			shake: function(){
 				this.cameras.main.shake(50, .005)
+				this.sound.add('bump' + Math.ceil(3*Math.random())).play()
 			},
 			block_init: {
 				13: function(block){
@@ -1275,6 +1297,8 @@
 			block_hit: function(side){
 				let blocks = this.that.blocks 
 				
+				this.that.sound.add('bump' + Math.ceil(3*Math.random())).play()
+				
 				let is_left  = x => x > 3 && x < 12 && !(x%2)
 				let is_right = x => x > 3 && x < 12 && (x%2)
 				let is_brown = x => x === 2 || x === 6 || x === 7
@@ -1329,7 +1353,8 @@
 				
 				if(this.index === 22){ // extra ball 
 					//console.log(this)
-					let ball = create.ball.call(this.that)
+					let ball = create.ball.call(this.that) 
+					ball.that = this.that 
 					this.that.balls.push(ball)
 					create.collide.call(this.that, ball, this.that.blocks)
 					ball.x = this.x
@@ -1674,6 +1699,7 @@
 			this.balls.forEach(ball => {
 				//ball.body.setAcceleration(0, 0)
 				if(ball.y > 240){
+					this.sound.add('explode').play()
 					ball.dead = true 
 					if(this.balls.length === 1){
 						this.lives.inc(-1)

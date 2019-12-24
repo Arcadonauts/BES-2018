@@ -62,8 +62,16 @@
 			this.sprites = [] 
 			for(let i = 0; i < 16; i++){
 				for(let j = 0; j < 12; j++){
+					let floor = 15*13+1
+					let wall = 15*14+3
+					let s 
+					if(j > 3 && j < 6){
+						s = floor 
+					}else{
+						s = Math.random() < .5 ? floor : wall 
+					}
 					this.sprites.push(
-						this.add.sprite(TW*i, TW*j, 'tiles', j == 3 || j === 6 ? 15*14+3 : 15*13+1)
+						this.add.sprite(TW*i, TW*j, 'tiles', s)
 					)
 				}
 			}
@@ -87,12 +95,13 @@
 			
 			this.input.keyboard.on('keydown-E', ()=> {
 				message.enter()
+				this.sound.add('beep').play()
 			})
 			
 			this.phase = -1
 		},
 		update: function(){
-			console.log('phase:', this.phase)
+			//console.log('phase:', this.phase, 't:', this.t)
 			if(this.phase === -1){
 				message.update(this.cursors)
 				this.phase = 0 
@@ -100,13 +109,14 @@
 			}else if(this.phase === 0){
 				this.payne.x += 1 
 				//console.log(this.payne.x)
+				if(Math.random() < .1) this.sound.add('bump1').play()
 				this.pj.x = this.payne.x + 15
 				if(this.payne.x > 16*TW){
 					this.phase = 1 
 				}
 				
 			}else if(this.phase === 1){
-				this.sprites.forEach(s => s.destroy())
+				this.sprites.forEach(s => s.alpha = 0)
 				this.payne.destroy()
 				this.pj.destroy()
 				
@@ -130,17 +140,22 @@
 				
 			}else if(this.phase === 2){
 				this.escape_pod.x += .5 
+				if(Math.random() < .3) this.sound.add('hum').play()
 				
 				if(this.escape_pod.x > 5*TW){
 					this.blast = this.add.sprite(0, TW*4, 'breakout')
 					this.blast.anims.play('blast')
+					this.sound.add('laser').play()
 					this.phase = 3
 				}
 			}else if(this.phase === 3){
 				this.escape_pod.x += .5 
 				this.blast.x += 2 
 				
+				if(Math.random() < .3) this.sound.add('hum').play()
+				
 				if(Math.abs(this.blast.x - this.escape_pod.x) < 12){
+					this.sound.add('explode').play()
 					this.blast.destroy()
 					this.escape_pod.list[0].setFrame(17*15+4)
 					this.cameras.main.flash()
@@ -151,6 +166,7 @@
 			}else if(this.phase === 4){
 				this.escape_pod.x += .5
 				this.escape_pod.y += .75 
+				if(Math.random() < .3) this.sound.add('hum').play() 
 				
 				if(this.escape_pod.y > TW*11){
 					this.phase = 5
@@ -178,7 +194,9 @@
 			}else if(this.phase === 7){
 				this.escape_pod.y += 1.5 
 				this.paddle.x -= 3.4
+				if(Math.random() < .3) this.sound.add('hum').play() 
 				if(this.paddle.x < this.escape_pod.x - 8){
+					this.sound.add('bump1').play() 
 					this.phase = 8
 					this.t = 30 
 				}
@@ -194,8 +212,42 @@
 					this.phase = 10 
 				}
 			}else if(this.phase === 10){
+				if(Math.random() < .3) this.sound.add('hum').play() 
 				this.escape_pod.x += 3 
 				this.paddle.x += 3 
+				if(this.paddle.x > 16*TW){
+					this.phase = 11
+					this.sound.add('explode').play() 
+				}
+			}else if(this.phase === 11){
+				this.sprites.forEach(s => s.alpha = 1)
+				this.bg.alpha = 0 
+				this.phase = 12 
+				this.cameras.main.shake(100000, .005, true)
+				this.alien = this.add.sprite(8*TW, 4.5*TW, 'roxy', 11)
+				this.t = 0 
+			}else if(this.phase === 12){
+				this.t += 1
+				if(this.t > 90){
+					this.cameras.main.shake(1, .005, true)
+					this.phase = 13
+					message.say('finale 200')
+					this.sound.add('explode').play()
+				
+				}
+			}else if(this.phase === 13){
+				message.update(this.cursors)
+				if(!message.open){
+					this.phase = 14
+					this.cameras.main.flash()
+					this.bg.alpha = 1
+					this.alien.alpha = 0 
+					let t = this.add.text(7.5*TW, 4.5*TW, 'The End')
+					t.setOrigin(.5,.5)
+					this.sound.add('explode').play()
+				}
+			}else if(this.phase = 14){
+				
 			}
 		}
 	}
@@ -203,6 +255,8 @@
 	function aim(player, dx, dy, live){
 		let bullet = this.scene.physics.add.sprite(this.x, this.y, 'roxy', live ? 33 : 35)
 		if(live){
+			this.scene.sound.add('laser').play()
+			this.scene.sound.add('explode').play()
 			bullet.setSize(12, 12)
 			bullet.setDepth(10000000)
 			let t = Math.atan2(player.y - this.y, player.x - this.x)
@@ -286,6 +340,8 @@
 						}else{
 							console.log('Unfound tag:', tag)
 						}
+						sprite.scene.sound.add('boop').play()
+						sprite.scene.sound.add('laser').play()
 					}
 					this.on = 3 
 					sprite.setFrame(215)
@@ -306,6 +362,7 @@
 				},
 				fire: function(player, sprite){
 					console.log('fire!')
+					
 					let ball = sprite.scene.physics.add.sprite(sprite.x, sprite.y, 'roxy', 33)
 					ball.setDepth(10000)
 					//let v = 100
@@ -324,12 +381,15 @@
 						//console.log(b1.t)
 						if(b1.t > 20 && b2.type === 'launcher'){
 							b1.body.reset()
+							sprite.scene.sound.add('hum').play()
 						}else if(b2.type === 'launcher'){
 							
 						}else if(b2.name === 'alien'){
 							console.log(b2)
 							b2.kill()
+							sprite.scene.sound.add('explode').play()
 						}else if(b2.name === 'paddle'){
+							sprite.scene.sound.add('bump1').play()
 							return true
 						}
 						return false 
@@ -363,6 +423,7 @@
 				auto: true,
 				activate: function(player, sprite){
 					sprite.setFrame(215)
+					sprite.scene.sound.add('hum').play()
 					let paddle
 					interactable.sprites.forEach(s => {
 					//	console.log(s.tag)
@@ -728,7 +789,6 @@
 		
 	}
 	
-	
 	let message = {
 		open: false,
 		selected: 0,
@@ -756,6 +816,7 @@
 			gloves: 22,
 			quarterstring: 23,
 			notes: 24,
+			tutorial: 26,
 			tv: 27,
 			couch: 28,
 			arcade: 29,
@@ -877,11 +938,22 @@
 				this.box.push(o)
 			}
 			
+			this.hint = add.text(xf, yf, 'Press E to continue.', {
+				fontSize: '12px',
+				fontStile: 'strong',
+				align: 'right',
+				fill: '#595652'
+				
+			})
+			this.box.push(this.hint)
+			this.hint.setOrigin(1,1)
+			
 			
 			this.box.forEach(s => s.setDepth(30000))
 			this.box.forEach(s => s.setScrollFactor(0))
 			
 			this.text.setDepth(300001)
+			this.hint.setDepth(300001)
 			this.icon.setDepth(300001)
 			this.title.setDepth(300001)
 			this.pointer.setDepth(300001)
@@ -904,11 +976,15 @@
 					this.selected + 1 < this.options.length &&
 					this.options[this.selected + 1].text){
 						this.selected += 1 
-					
+						
+						//this.sound.add('boop').play()
+						
 					}
 					
 					if(cursors.up.isDown && this.selected > 0){
 						this.selected -= 1
+						
+						//this.sound.add('boop').play()
 					}
 				}
 				
@@ -968,6 +1044,7 @@
 		},
 		enter: function(){
 			let go = (this.options[this.selected].go)
+			
 			if(go === 'nothing'){
 				this.open = false 
 				return
@@ -976,8 +1053,7 @@
 			}
 		}
 	}
-	
-	
+		
 	let interactable = {
 		sprites: [],
 		threshold: 24,
@@ -1110,7 +1186,7 @@
 					inventory.add('upgrade')
 				},
 				'trade upgrade': function(player, sprite){
-					inventory.add('upgade')
+					inventory.add('upgrade')
 					for(let i = 0; i < inventory.gem_max; i++){
 						inventory.del('gems')
 					}
@@ -1141,6 +1217,11 @@
 						next: 'Lvl 3'
 						
 						})
+				},
+				'activate artifact': function(player, sprite){
+					sprite.scene.scene.start('world', {
+						name: 'Lvl 11'
+					})
 				},
 				'finale': function(player, sprite){
 					sprite.scene.scene.start('finale')
@@ -1174,11 +1255,7 @@
 			
 			'Lvl 10': {
 				'roxy': message.chat('roxy god speed'),
-				'312,264': function(player, sprite){
-					sprite.scene.scene.start('world', {
-						name: 'Lvl 11'
-					})
-				}
+				'312,264': message.chat('artifact')
 			},
 			'Lvl 9': {
 				'payne': message.chat('payne lost')
@@ -1644,27 +1721,27 @@
 			{
 				id: 'lives',
 				name: 'Extra Orbs',
-				value: 0,
+				value: 2,
 				description: 'How many extra orbs you have. When you run out, you lose.',
 				max: 4
 			},{
 				id: 'lasers',
 				name: 'Lasers',
-				value: 6,
-				description: 'Fire lasers with the W key.',
+				value: 0,
+				description: 'Fire lasers with the E key.',
 				max: 6
 			},{
 				id: 'length',
 				name: 'Length',
 				value: 0,
 				description: 'Upgrade to make your P.A.D.D.L.E longer.',
-				max: 5
+				max: 6
 			},{
 				id: 'bomb',
 				name: 'Super Bomb',
-				value: 3,
+				value: 0,
 				description: 'Destroy the last few blocks in a powerful explosion. Upgrade to destroy more blocks.',
-				max: 3
+				max: 4
 			}
 		],
 		index: 0,
@@ -2338,11 +2415,13 @@
 	
 	window.world = {
 		init: function(data){
-			
+			/*
 			if(localStorage.levels === undefined){
 				localStorage.levels = JSON.stringify({})
 			}
 			let levels = JSON.parse(localStorage.levels)
+			*/
+			let levels = JSON.parse(levels_data_string)
 			this.name = data.name  
 			if(levels[data.name]){
 				this.level = levels[data.name]
@@ -2379,23 +2458,36 @@
 			
 			
 			this.cameras.main.startFollow(this.player)
-			this.cameras.main.setDeadzone(this.game.canvas.width/2, this.game.canvas.height/2)
-			this.cameras.main.setBounds(0, 0, this.game.canvas.width*2, this.game.canvas.height*2)
+			this.cameras.main.setDeadzone(this.game.canvas.width/4, this.game.canvas.height/2)
+			
+			let maxx = 0
+			let maxy = 0 
+			for(let key in this.level){
+				let xyz = key.split(',')
+				maxx = Math.max(maxx, +xyz[0])
+				maxy = Math.max(maxy, +xyz[1])
+				//console.log(key)
+			}
+			
+			
+			this.cameras.main.setBounds(0, 0, TW*(maxx), TW*(maxy+.5))
 			//this.physics.world.setBounds(0, 0, this.game.canvas.width*2, this.game.canvas.height*2)
 			this.physics.world.bounds = this.cameras.main.getBounds()
 			
 			this.input.keyboard.on('keydown-P', ()=> this.scene.start('editor', {
-				name: this.name 
+				//name: this.name 
 			}))
 			
 			this.input.keyboard.on('keydown-E', ()=> {
 
 				if(message.open){
 					message.enter(this.player)
+					this.sound.add('beep').play()
 				}else if(upgrades.open){
 					upgrades.enter(this.player)
 				}else if(!inventory.open){
 					interactable.activate(this.name, this.player)
+					this.sound.add('boop').play()
 				}
 			})
 			
@@ -2406,6 +2498,10 @@
 					inventory.open = !inventory.open 
 				}
 			})
+			
+			if(this.name === 'Lvl 1'){
+				message.say('tutorial', this.player, this.player)
+			}
 			
 		},
 		update: function(){

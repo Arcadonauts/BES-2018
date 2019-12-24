@@ -31,7 +31,7 @@
 		:ICON{wesley}
 		:TITLE{Wesley}
 		Me too. I'm pinned down, I'm sorry.
-		:OPT{Continue}{finale 5}
+		:OPT{Continue}{finale 7}
 	}
 	
 	:BLOCK{finale 5}{
@@ -45,14 +45,14 @@
 		:ICON{kathrine}
 		:TITLE{Kathrine}
 		Oh my God.
-		:OPT{Continue}{finale 7}
+		:OPT{Continue}{finale 8}
 	}
 	
 	:BLOCK{finale 7}{
 		:ICON{payne}
 		:TITLE{Major Payne}
 		Then I guess this is the end. It was nice serving with you all.
-		:OPT{Continue}{finale 8}
+		:OPT{Continue}{finale 5}
 	}
 	
 	:BLOCK{finale 8}{
@@ -116,6 +116,13 @@
 		:TITLE{Dweeby Kid}
 		You don't have to tell me twice!
 		:OPT{Continue}{finale 108}
+	}
+	
+	:BLOCK{finale 200}{
+		:ICON{alien}
+		:TITLE{Blockoid Commander}
+		Nooooooooooooooo!
+		:OPT{Destroy Mother Ship}{nothing}
 	}
 }
 
@@ -193,7 +200,7 @@
 	:BLOCK{pj 11}{
 		:ICON{alien}
 		:TITLE{Blockoid Commander}
-		He's completly consumed by the game now, Major. His life is Breakout, and he's our greatest weapon.
+		He's completely consumed by the game now, Major. His life is Breakout, and he's our greatest weapon.
 		:OPT{Continue}{pj 12}
 	}
 	
@@ -284,14 +291,14 @@
 	:BLOCK{pj 24}{
 		:ICON{alien}
 		:TITLE{Blockoid Commander}
-		It's too late, Payne, you can't stop me. The mother ship's hull is completly shielded. Your anti-matter orbs are useless against us!
+		It's too late, Payne, you can't stop me. The mother ship's hull is completely shielded. Your anti-matter orbs are useless against us!
 		:OPT{Continue}{pj 25}
 	}
 	
 	:BLOCK{pj 25}{
 		:ICON{payne}
 		:TITLE{Major Payne}
-		Are you refering to the mother ship we're currently standing in?
+		Are you referring to the mother ship we're currently standing in?
 		:OPT{Continue}{pj 24b}
 	}
 	
@@ -402,6 +409,20 @@
 	}
 }
 
+:BLOCK{artifact family}{
+	:BLOCK{artifact}{
+		:ICON{artifact}
+		:TITLE{Alien Artifact}
+		Activate Alien Artifact?
+		:OPT{Yes}{activate artifact}
+		:OPT{No}{nothing}
+	}
+	
+	:BLOCK{activate artifact}{
+		:ACT{activate artifact}
+	}
+}
+
 :BLOCK{roxy family}{
 	:BLOCK{roxy god speed}{
 		:ICON{roxy}
@@ -430,7 +451,7 @@
 	:BLOCK{papers 2}{
 		:ICON{notes}
 		:TITLE{Major Payne's Notes}
-		Roxy is the best, but she's also arogant, and has a hard time socializing with the others. She reminds me of my son.
+		Roxy is the best, but she's also arrogant, and has a hard time socializing with the others. She reminds me of my son.
 		:OPT{Continue}{papers 3}
 		:OPT{Leave}{nothing}
 	}
@@ -462,7 +483,7 @@
 	:BLOCK{papers 6}{
 		:ICON{notes}
 		:TITLE{Major Payne's Notes}
-		Donald, or as the kids call him, Dweeby Kid, has the least amount of talent, but he more than makes up for it with his obsesive studying. I wonder what he's doing with all those blue gems he's collecting.
+		Donald, or as the kids call him, Dweeby Kid, has the least amount of talent, but he more than makes up for it with his obsessive studying. I wonder what he's doing with all those blue gems he's collecting.
 		:OPT{Leave}{nothing}
 	}
 }
@@ -619,7 +640,7 @@
 	:BLOCK{payne acid 3}{
 		:TITLE{Major Payne}
 		:ICON{payne}
-		I need you to get back out there! We've increased the power of your anti-matter orb. If you press Q, it should tear right through their blocks. Be aware that it has a cooloff period though.
+		I need you to get back out there! We've increased the power of your anti-matter orb. If you press Q, it should tear right through their blocks. Be aware that it has a cool-off period though.
 		:OPT{Ok, I'll do my best.}{payne nightmare 3}
 	}
 	
@@ -646,6 +667,9 @@
 		:OPT{Good to know.}{nothing}
 	}
 
+	:BLOCK{hello payne}{
+		:GOTO{:GET{hello payne}}
+	}
 
 	:BLOCK{payne intro}{
 		:TITLE{Major Payne}
@@ -660,7 +684,7 @@
 	:BLOCK{payne hello again}{
 		:TITLE{Major Payne}
 		:ICON{payne}
-		I watched your first battle with great interest. You show a lot of promise. But things are only going to get harder from here. The Blockoids are devloping a new block.
+		I watched your first battle with great interest. You show a lot of promise. But things are only going to get harder from here. The Blockoids are developing a new block.
 		:OPT{Oh yeah?}{payne toggle}
 		:OPT{I don't care.}{payne toggle}
 	}
@@ -668,7 +692,7 @@
 	:BLOCK{payne toggle}{
 		:TITLE{Major Payne}
 		:ICON{payne}
-		The new blocks are indestructable. The orb won't hurt them. Fortunately we've equipted your P.A.D.D.L.E with a positron poloarizer that can deactivate them with the Q key.
+		The new blocks are indestructible. The orb won't hurt them. Fortunately we've equipped your P.A.D.D.L.E with a positron poloarizer that can deactivate them with the Q key.
 		:OPT{So then what's the problem?}{payne toggle 2}
 	}
 	
@@ -691,7 +715,7 @@
 	:BLOCK{I'm payne}{
 		:TITLE{Major Payne}
 		:ICON{payne}
-		I'm Major Payne, and this is a top secret miltiary base dedicated to humanity's survival in the upcoming war with the Blockoids.
+		I'm Major Payne, and this is a top-secret military  base dedicated to humanity's survival in the upcoming war with the Blockoids.
 		:OPT{But why am I here?}{payne cont}
 		
 	}
@@ -699,7 +723,7 @@
 	:BLOCK{payne cont}{
 		:TITLE{Major Payne}
 		:ICON{payne}
-		The Blockoids have nearly indestructable ships. Traditional weapons are useless against them. After extensive research our scientists developed the anti-matter orb.
+		The Blockoids have nearly indestructible ships. Traditional weapons are useless against them. After extensive research our scientists developed the anti-matter orb.
 		:OPT{So what?}{payne cont2}
 		
 	}
@@ -714,7 +738,7 @@
 	:BLOCK{payne cont3}{
 		:TITLE{Major Payne}
 		:ICON{payne}
-		Our pilots can't handle the rebounding orbs. So we recurited you and the other kids to pilot the P.A.D.D.L.E.s.
+		Our pilots can't handle the rebounding orbs. So we recruited you and the other kids to pilot the P.A.D.D.L.E.s.
 		:OPT{Lame.}{payne more}
 	}
 	
@@ -731,14 +755,14 @@
 	:BLOCK{payne blockoids}{
 		:TITLE{Major Payne}
 		:ICON{payne}
-		The Blockoids are an alien race bent on world domination. They're also really ugly. If we don't stop them, eveyone you know and love will be lost.
+		The Blockoids are an alien race bent on world domination. They're also really ugly. If we don't stop them, everyone you know and love will be lost.
 		:OPT{Whatever. Everyone leaves eventually anyways.}{payne more}
 	}
 	
 	:BLOCK{payne paddle}{
 		:TITLE{Major Payne}
 		:ICON{payne}
-		The Piloted Antimatter Deflection Dish & Laser Engine (or P.A.D.D.L.E for short) is the ship you and the other kids will be piloting. It can be updgaded to meet your needs.
+		The Piloted Antimatter Deflection Dish & Laser Engine (or P.A.D.D.L.E for short) is the ship you and the other kids will be piloting. It can be upgraded to meet your needs.
 		:OPT{Ok.}{payne more}
 	}
 	
@@ -763,7 +787,7 @@
 		:TITLE{Upgrade Chip}
 		:ICON{upgrade}
 		:ACT{get upgrade}
-		You received an upgade chip! Use it to upgrade your P.A.D.D.L.E.
+		You received an upgrade chip! Use it to upgrade your P.A.D.D.L.E.
 		:OPT{ok}{nothing}
 	}
 }
@@ -836,7 +860,7 @@
 		:TITLE{Upgrade Chip}
 		:ICON{upgrade}
 		:ACT{trade upgrade}
-		You received an upgade chip! Use it to upgrade your P.A.D.D.L.E.
+		You received an upgrade chip! Use it to upgrade your P.A.D.D.L.E.
 		:OPT{ok}{nothing}
 	}
 
@@ -1478,6 +1502,14 @@
 		:OPT{Ignore}{nothing}
 	}
 
+}
+
+:BLOCK{tutorial block}{
+	:BLOCK{tutorial}{
+		:ICON{tutorial}
+		:TITLE{Controls}
+		Use WASD to move around! Interact with objects using E! Open your inventory with Q!
+	}
 }
 
 :SET{found_string}{string}
