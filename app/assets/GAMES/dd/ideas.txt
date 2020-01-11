@@ -1,0 +1,96 @@
+To Do:
+	Battle:
+		Death
+		Pretty Description
+		Cancel
+		Discard
+		
+		Conditions
+		HUD
+	World
+	Menu
+	Map
+	Dialog
+	Shoppe
+	
+	
+	
+
+Customization
+	Gold:
+		Spend gold to upgrade cards at upgrade shop
+		Spend gold to buy cards at card shop
+		Spend gold to buy dice at some special shops 
+	XP:
+		Gain +1 Ability (ATK, INT, DEF...)
+		Gain +2 HP
+		Lvl 1-6: Gain +1 deck slot
+		Lvl 7: Starting Hand (character always draws chosen card first turn)
+	Battle Win:
+		Gain Gold or Special Card
+	Damage from Battles is permanant and lasts until rest at the inn.
+	Dice:
+		4, 4, 4, 4, 4, 4
+		2, 3, 4, 5, 6, 7
+		Collatz: Apply x => x%2?3*x+1:x/2 to die each time it's rolled
+		Advantaged: Roll two dice and take the max of their values 
+		Meditation: Gain +1 XP from doing nothing
+		Even Stevens: 2, 2, 4, 4, 6, 6
+		Devil's Die: 1 Self Damage (x5), 50 (x1)
+		Lucky Number n: Each time you roll n gain:
+			1: 1 XP
+			2: 1 HP
+			3: 1 STA 
+			4: 1 ATK 
+			5: 1 DEF 
+			6: 10 Gold 
+	Deck of Many Things:
+		Perm lose one Dad 
+		Lose half of your cards 
+		Replace all characters with Black dots 
+		Always roll 1s
+		End game and delete all saves
+		The entire game is upsidedown
+		
+		All enemies have 1 HP 
+		All passive perks all the time 
+		Full XP 
+		100000 Gold 
+		Always roll 6s 
+
+			
+
+Puzzles 
+
+	Welcome to my puzzles three!
+	Each of them was made by me!
+	If you win, I'll set you free,
+	but if you lose... Well, you'll see...
+
+	Mare-Care (Easy)
+		Move the sheep, if you dare
+		the numbers on the row tell how many are there 
+		The columns tell the same just to keep it fair
+		You only get one turn, so best take care!
+		
+	Light Battle (Med)
+		Puzzle two takes place at night
+		you must move each shining light
+		if there's darkness, then you're not right!
+		So take care to make each square real bright.
+
+	Star Battle (Difficult)
+		Into each room one sheep must go
+		and also one sheep in each column and row
+		But if two sheep are adjacent, then Oh No!
+		You'll be defeated by your foe.
+		
+	Disco Colors (Bonus)
+		It's getting late, you should be in bed,
+		but I'll make you move more sheep instead
+		They'll turn adjacent red blue and adjacent blue red 
+		Be sure there's no blue, or you'll be dead!
+
+		
+	
+	
