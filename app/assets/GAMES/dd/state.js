@@ -4,6 +4,7 @@
 	const IN_DECK 	= 'in deck',
 		  DRAWN		= 'drawn',
 		  READY		= 'ready',
+		  HIDDEN 	= 'hidden',
 		  ACTIVE	= 'active',
 		  INACTIVE  = 'inactive',
 		  DISCARDED = 'discarded',
@@ -154,6 +155,22 @@
 			repeat: -1
 		})
 	}
+	
+	function create_walking_animations(scene, name, f0){
+		['down', 'right', 'left', 'up'].forEach((dir, i) => {
+			state.anim(scene, 
+					   name+'-walk-'+dir, 
+					   [f0 + 3*i, f0 + 3*i + 1, f0 + 3*i + 2], 
+					   'characters'
+			);
+			
+			state.anim(scene, 
+					   name+'-stand-'+dir, 
+					   [f0 + 3*i], 
+					   'characters'
+			);
+        })  
+	}
 
 	function animate(who, what, where){
 		let dr = where.row - who.cell.row 
@@ -209,6 +226,7 @@
 						c.draw()
 					}
 				})
+				this.scene.buttons.end_turn.enable()
 			}else{
 				this.scene.baddies.forEach(b => b.rest())
 				state.phase = ENEMY_ACT
@@ -272,6 +290,109 @@
 				}
 			})
 		}
+	}
+	
+	let dice = {
+		forEach: function(f){
+			this.dice.forEach(f)
+		},
+		get: function(id){
+			return this.dice[id]
+		},
+		init: function(){
+			let r = ()=>[1,2,3,4,5,6]
+			let func = function(who){return Phaser.Math.RND.pick(this.vals)}
+			
+			this.dice.forEach((die, id) => {
+				if(!die.vals){
+					die.vals = r()
+				}
+				if(!die.func){
+					die.func = func 
+				}
+				die.id = id 
+			})
+		},
+		dice: [
+			{
+				name: 'Vanilla Die',
+				desc: "Just a six-sided die",
+				icon: 0,
+			},{
+				name: 'One Four All',
+				vals: [4, 4, 4, 4, 4, 4],
+				desc: "Alway roll a four",
+				icon: 13,
+			},{
+				name: 'Plus One',
+				vals: [2, 3, 4, 5, 6, 7],
+				desc: "Roll a Vanilla Die, and then add 1",
+				icon: 12,
+			},{
+				name: 'All or Nothing',
+				vals: [1, 1, 1, 6, 6, 6],
+				desc: '50% chance of rolling a 6, 50% chance of rolling a 1',
+				icon: 8,
+			},{
+				name: 'Collatz Die',
+				func: function(who){
+					let val = Phaser.Math.RND.pick(this.vals)
+					this.vals = this.vals.map(x => x%2 ? 3*x+1 : x/2)
+					return val 
+				},
+				desc: "A Die cursed by a wizard named Collatz. Each time it's rolled, its values change. It looses power over time.",
+				icon: 10,
+			},{
+				name: 'With Advantage',
+				func: function(who){
+					let val1 = Phaser.Math.RND.pick(this.vals)
+					let val2 = Phaser.Math.RND.pick(this.vals)
+					return Math.max(val1, val2)
+				},
+				desc: "Roll two dice and take the higher value",
+				icon: 11
+			},{
+				name: 'Even Stevens',
+				vals: [2, 2, 4, 4, 6, 6],
+				desc: "Always roll an even number",
+				icon: 16,
+			},{
+				name: "Devil's Die",
+				vals: ['.', '.', '.', '.', '.', '!'],
+				desc: "5/6 chance of doing 1HP of self damage, 1/6 chance of rolling a 50",
+				icon: 9,
+			},{
+				name: "Lucky Number 1",
+				desc: "+1 Stamina each time you roll a 1",
+				icon: 1,
+			},{
+				name: "Lucky Number 2",
+				desc: "+2 Attack each time you roll a 2",
+				icon: 2,
+			},{
+				name: "Lucky Number 3",
+				desc: "+3 HP each time you roll a 3",
+				icon: 3,
+			},{
+				name: "Lucky Number 4",
+				desc: "+4 Defense each time you roll a 4",
+				icon: 4,
+			},{
+				name: "Lucky Number 5",
+				desc: "+5 XP each time you roll a 5",
+				icon: 5,
+			},{
+				name: "Lucky Number 6",
+				desc: "+6 Gold each time you roll a 6",
+				icon: 6,
+				
+			},{
+				name: "Lucky Number Everything",
+				desc: "All the lucky dice fused into one very lucky die",
+				icon: 7,
+			}
+			
+		]
 	}
 	
 	let actions = {
@@ -489,39 +610,70 @@
 		}
 	}
 
+	let butt_manager = {
+		init: function(){
+			this.butts = []
+		},
+		register: function(butt){
+			this.butts.push(butt)
+			butt.manager = this 
+		}
+	}
+
 	let make = {
 		button: function(scene, x, y, f, callback){
-			let butt = scene.add.sprite(x, y, 'buttons', f)
-			butt.parent = {
+			let sprite = scene.add.sprite(x, y, 'buttons', f)
+			//butt_manager.register(sprite)
+			sprite.parent = {
 				on_over: function(){
-					butt.setFrame(f+1)
+					sprite.setFrame(f+1)
 				},
 				on_out: function(){
-					butt.setFrame(f)
+					if(this.enabled) sprite.setFrame(f)
 				},
 				on_up: function(args){
-					butt.setFrame(f)
+					sprite.setFrame(f)
 					callback(args)
 				},
 				on_down: function(){
-					butt.setFrame(f+2)
-				}
+					sprite.setFrame(f+2)
+				},
+				disable: function(){
+					sprite.disableInteractive()
+					sprite.setFrame(f+3)
+					this.enabled = false 
+				},
+				enable: function(){
+					sprite.setInteractive()
+					sprite.setFrame(f)
+					this.enabled = true 
+				},
+				enabled: true,
+				sprite: sprite 
 			}
-			butt.setInteractive({
+			sprite.setInteractive({
 				useHandCursor: true,
 			})
+			
+			return sprite.parent
 		},
-		cardtainer: function(scene, n){
+		cardtainer: function(scene, x, y){
 			const w = 64*ZOOM
 			const h = 90*ZOOM
-			const i = Math.floor(n / 2)
-			const j = n % 2
 			
-			const x = Math.floor(scene.game.canvas.width / 2 - 1.1*i*w - .25*w)
-			const y = Math.floor(0.65*h + 1.1*h*j)
+			if(y){
+				
+			}else{
+				const n = x 
+				const i = Math.floor(n / 2)
+				const j = n % 2
+				
+				x = Math.floor(scene.game.canvas.width / 2 - 1.1*i*w - .25*w)
+				y = Math.floor(0.65*h + 1.1*h*j)
+			}
 			
 			let card = {
-				n: n,
+				//n: n,
 				sprite: scene.add.sprite(x, y, 'cards', 4),
 				draw: function(deck){
 					deck = this.deck || deck
@@ -530,6 +682,11 @@
 						deck.filter(c => c.status === IN_DECK)[0].draw(this)
 					}
 				},
+				deselect: function(){
+					if(this.card){
+						this.card.deselect()
+					}
+				}
 			}
 			
 			return card 
@@ -551,7 +708,7 @@
 					fontStyle: 'bold'
 				}
 				
-				let container = scene.add.container(-150, -150)
+				let container = scene.add.container(-150, scene.game.canvas.height/2)
 				let bg = scene.add.sprite(0, 0, 'cards', 8)
 				let sprite = scene.add.sprite(0, 0, 'cards', color)
 				let img = scene.add.sprite(0, -22*ZOOM, 'card_art', data.ART)
@@ -599,6 +756,7 @@
 				status: IN_DECK,
 				effect1: actions.parse(data.EFF1),
 				effect2: actions.parse(data.EFF2),
+				scene: scene,
 				draw: function(loc){
 					this.container = create_container(data, scene, who.data.IMG)
 					this.container.parent = this 
@@ -633,10 +791,13 @@
 						let player = search(args.players, p => p.selected)
 						if(player){
 							player.act(this, args)
+						}else{
+							this.scene.buttons.discard.enable()
 						}
 					}
 				},
 				deselect: function(args){
+					this.scene.buttons.discard.disable()
 					args.hand.filter(c => c).forEach(c => {
 						c.status = READY
 						let ct = c.cardtainer.sprite
@@ -653,6 +814,16 @@
 						this.deselect(args)
 					}
 					
+				},
+				hide: function(){
+					this.status = HIDDEN 
+					this.container.alpha = 0
+					this.cardtainer.card = undefined
+				},
+				unhide: function(){
+					this.status = READY 
+					this.container.alpha = 1
+					this.cardtainer.card = this 
 				}
 			}
 		}
@@ -667,10 +838,36 @@
 		anim: anim,
 		copy: copy,
 		ZOOM: ZOOM,
+		dice: dice, 
+		create_walking_animations: create_walking_animations,
+		players: [ // Don't Change The Order So Help Me God!
+			'Henry',
+			'Darryl',
+			'Glenn',
+			'Ron',
+			
+			//'Payton'
+		],
 		
 		init: function(scene){
 			this.data = scene.cache.json.get('data')
+			dice.init()
 	
+		},
+		init_interactives: function(scene){
+			;['up', 'over', 'out', 'down', 'drag'].forEach( x => {
+				scene.input.on('gameobject'+x, (pointer, obj) => {
+					if(obj.parent['on_'+x]){
+						obj.parent['on_'+x]({
+							hand: scene.cardtainers.map(x => x.card),
+							players: scene.players,
+							baddies: scene.baddies,
+							grid: scene.grid,
+							scene: scene
+						})
+					}
+				})
+			})
 		}
 	}
 

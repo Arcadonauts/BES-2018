@@ -3,12 +3,9 @@ To Do:
 		Death
 		Pretty Description
 		Cancel
-		Discard
-		
 		Conditions
 		HUD
 	World
-	Menu
 	Map
 	Dialog
 	Shoppe
@@ -22,16 +19,26 @@ Customization
 		Spend gold to buy cards at card shop
 		Spend gold to buy dice at some special shops 
 	XP:
-		Gain +1 Ability (ATK, INT, DEF...)
+		Gain +1 Ability (ATK, DEF, DAD)
 		Gain +2 HP
 		Lvl 1-6: Gain +1 deck slot
 		Lvl 7: Starting Hand (character always draws chosen card first turn)
+		LVL 8: Undiscardable (card returns to deck when discarded)
+	Effects:
+		TOX: Toxic: -1 HP Each turn
+		Unlucky: Always roll lowest number 
+		Enraged: Double Damage
+		Invisible: Cannot be targeted 
+		
+		Lucky: Always roll highest number 
+		Energetic: +1 STA each turn 
 	Battle Win:
-		Gain Gold or Special Card
+		Gain Gold or Special Card or Special Die 
 	Damage from Battles is permanant and lasts until rest at the inn.
 	Dice:
 		4, 4, 4, 4, 4, 4
 		2, 3, 4, 5, 6, 7
+		1, 1, 1, 6, 6, 6
 		Collatz: Apply x => x%2?3*x+1:x/2 to die each time it's rolled
 		Advantaged: Roll two dice and take the max of their values 
 		Meditation: Gain +1 XP from doing nothing
@@ -93,4 +100,127 @@ Puzzles
 
 		
 	
-	
+Ep.1 A Man and His Handshake
+	Henry:
+		Condoms
+		Iodine 
+		Iodine Spray
+		Entangle 
+	Daryll:
+		Rage 
+		Hatchet 
+		Pale Ale
+	Glenn:
+		Kershaw Brand Everyday Carry Pocket Knife
+	Ron:
+		Never took a sex ed class
+		
+	Van Picks up:
+		Glenn & Nick
+			Nick smoking pot 
+		Henry & Lark & Sparrow 
+			Power, power, power 
+		Ron & Terry
+			Terry outside
+			Ron making oatmeal
+			"Listen pal, I know I haven't always been there for you because I wasn't marries to your mother.
+			I've written several letters trying to emote on paper what I can't always do on paper. And I'm working on that."
+			Terry is a hell of center field.
+			"Where's your pa?"
+			"He's not coming."
+		Van plays Ramble On on the way there
+		Two hours later
+			Graceland PAul Simon
+			Road is rocky
+			Up a hill 
+			Grany playing Fortnite
+			Ron is carsick
+			Grant gives Henry bandaids for LArk and Sparrow 
+			Henry spills Iodine everywhere 
+			Henry notices the rocks are wrong 
+			They fall into a purple portal 
+		They wake up
+			Kids are missing 
+			Sunset
+			Trees are unfamiliar
+			Fewer mountains
+			Daryll eats secret item 
+			North: River
+			Behind: Plain
+			Left: Forest
+			Right: River 
+		Glenn calls AAA
+			GPS is frozen 
+		Three Men attack
+			Arrow lands at Henry's feet
+			Red Cloaks
+				Net
+				Bow & Arrow
+				Two Axes
+				(Have scarves)
+		After fight:
+			H: Who are you, where are we, where are our children?
+			T: I work for the Lance, I'm not going to bring you in anymore
+			R: Who's LAnce?
+			T: THE Lance, he's called The Lance
+			H: We're not from around here we don't think
+			T: What?
+			H: We've already said too much. Tell us where our children are you son of a bitch
+			T: They got auctioned off a week ago
+			H: Auctioned? A week?!?!
+			R: How much?
+			T: We came by when we were going to the auction in Fandelin(?)
+				We saw the kids, we took the kids, we didn't have enough room for you
+				we came and you were here. Don't kill me. JHust doing my job. 
+			D: Say that again young gentlemen (holds hand out) My name's Daryll Wilson.
+				Now tell us again without stuttering what happend to our children
+			T: Your children were taken by his eminance, The Lance to Fandelin at which point they were put on auction, they were sold, I know not where, the end
+			H: What'w your nemae, son?
+			T: MY name is Three
+			H: Three?
+			T: I'm the third of The Lance's hunters 
+			R: Is that like a son?
+			T: I consider myself to be his son in many ways, yeah. He dotes on my more than anyone else in the organization except for One and Two
+			R: Sounds like a good guy.
+			G: Give me one good reason not to gut you like a pig right here.
+			T: I know where your kids might be
+			H: That would be great!
+			T: There's always a registry of whoever the Lance sold anybody to the LAnce keeps in his home in Fandelin.
+				You coud get that, you could let me go, and then you would know where your kids are.
+			G: We gotta keep this guy in the back of our van. Either we kill him now or we bring him with us. 
+			H: I'm against killing him because I think he could  be useful. I do worry he seems to habe a pretty tight bond witht his lance fellow and I'm worried
+				he'llbetray us 
+			R: He talks like an auctioneer. I think he'd be useful even if he doesn't know wherer our kids are. At least we coujld use for negotionan 
+			G: We could use him to barter
+			D: This is toughh. I feel like wer'e a tema. (Group Hug)
+			T: I'm going to die.
+		The Lance
+			Tall, Gaunt
+			Cross Bow
+		L: What the hell do you want
+		D: Hi, I'm Daryll Wilson 
+		L: You have fice seconds to step back and let my son go
+		D: Three is not under and distress here. He actually led us over here he said tha tyou could help us here with a little businees arangment
+			You have our children (pulls axe out)
+		R: Thrre didnt tell me you look so much like Clint Eastwood. I've seen all of his movies. Grand Terino is excellent and not racisst at all
+		T: They killed two and four. They want their kids that we sold. I told them that we would show them their ledger, maybe. Is that a thing that makes sense?
+		L: I guess that makes you the new 2. No, no, Zero.
+			(Three dies.)
+		D: That's nothign compared to what we did to the other two kids.
+		L: Just so you know, that is how I handle people that do work for me. So if you've come to barter, that is the extent of my patience. 
+		R: You REALLY remind me of Clint Eastwood 
+		L: Here is the situation you currently find yourselves in. One of three tings is about to happen.
+			1. I'm going to call the rest of my family in here to kill you.
+			2. We are going to come to some sort of agreement that is more beneficial to me than it is to you because you've wasted my time and killed several of my children and interrupted my dinner
+			3. You are going to leave. I'm going to wait an hour, and then call the city watch to come and kill you. 
+		H: Can you repeat the chocies? I'm very distracted that you just killed your son. 
+		H: Is there a chance I can look at the ledger?
+		L: IF you would like to look at the ledger, I can grant you a look at that ledger.
+		D: What would that deal look like, Sir Lance?
+		L: You are going to have to offer me something that I would find impressive enought to put my business relationships in jeapordy because one does not 
+			usually state the outvcome of a business relationship after a deal has been made.
+		H: They don't know where we're from. You don't know where we're from. We're emassaries from Westrock 
+		
+			
+			
+			

@@ -35,6 +35,7 @@
 		container.hp = hp 
 		container.sta = sta 
 		
+		/*
 		;['down', 'right', 'left', 'up'].forEach((dir, i) => {
 			state.anim(this, 
 					   name+'-walk-'+dir, 
@@ -47,7 +48,9 @@
 					   [f0 + 3*i], 
 					   'characters'
 			);
-        })       
+        })
+		*/
+		state.create_walking_animations(this, name, f0)
 		
 		let player = {
 			data: data,
@@ -288,13 +291,7 @@
 				
 			}else{
 				this.battle = {
-					players : [
-						'Henry',
-						'Glenn',
-						'Ron',
-						'Daryll',
-						//'Payton'
-					],
+					players : state.players,
 					match : 'test'
 				}
 			}
@@ -360,28 +357,41 @@
 			
 			this.grid[0][0].refresh_grid()
 			
-			state.make.button(this, 240*state.ZOOM, 182*state.ZOOM, 0, function(){
-				if(state.turn.player){
-					state.turn.end()
-				}
-			})
+			this.buttons = {
+				end_turn: state.make.button(this, 240*state.ZOOM, 182*state.ZOOM, 0, ()=>{
+					if(state.turn.player){
+						this.buttons.end_turn.disable()
+						console.log(this.players, this.baddies, this.cardtainers)
+						this.players.concat(this.baddies).forEach(c => c.deselect())
+						this.cardtainers.forEach(c => {
+							c.card && c.card.deselect({
+								hand: this.cardtainers.map(x => x.card)
+							})
+						})
+						state.turn.end()
+					}
+				}),
+				
+				discard: state.make.button(this, 342*state.ZOOM, 182*state.ZOOM, 20, ()=>{
+					(this.cardtainers.map(x => x.card)
+									 .filter(c => c && c.status === 'selected')
+									 .forEach(c => c.discard({
+										hand: this.cardtainers.map(x => x.card)
+									 })))
+												   
+				})
+				
+			}
+			
+			this.buttons.discard.disable()
+			
+			
+			
 			
 			state.turn.init(this)
 			ai.init(this)
 			
-			;['up', 'over', 'out', 'down'].forEach( x => {
-				this.input.on('gameobject'+x, (pointer, obj) => {
-					if(obj.parent['on_'+x]){
-						obj.parent['on_'+x]({
-							hand: this.cardtainers.map(x => x.card),
-							players: this.players,
-							baddies: this.baddies,
-							grid: this.grid,
-							scene: this
-						})
-					}
-				})
-			})
+			state.init_interactives(this)
 			
 		}
 	}

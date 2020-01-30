@@ -10,6 +10,7 @@
 		backgroundColor: '#323c39',
 		pixelArt: false,
 		zoom: .5,
+		/*
 		physics: {
 			default: 'arcade',
 			arcade: {
@@ -17,13 +18,14 @@
 				debug: !true
 			}
 		},
+		*/
 		//canvas = document.getElementById('canvas')
 	};
 	
 
-	let menu = {
+	let main_menu = {
 		create: function(){
-			console.log('menu')
+			console.log('main menu')
 			
 		},
 		update: function(){
@@ -35,7 +37,9 @@
 		window.game = new Phaser.Game(config)
 		game.scene.add('setup', setup)
 		game.scene.add('menu', menu)
+		game.scene.add('main menu', main_menu)
 		game.scene.add('battle', battle)
+		game.scene.add('world', world)
 		
 		game.scene.start('setup') // Don't change this!
 	}
@@ -59,28 +63,6 @@
 			
 			
 			let v = Math.random()
-			let sheets_old = [
-				{
-					name: 'squares',
-					width: 60,
-					height: 60
-				},{
-					name: 'characters',
-					width: 60,
-					height: 60
-				},
-				{
-					name: 'cards',
-					width: 125,
-					height: 175
-				},
-				{
-					name: 'card_art',
-					width: 119,
-					height: 56
-				}
-				
-			]
 			
 			let sheets = [
 				{
@@ -103,10 +85,12 @@
 					name: ZOOM+'x_buttons',
 					width: 48,
 					height: 24
+				}, {
+					name: ZOOM+'x_headshots',
+					width: 64,
+					height: 45
 				}
 			]
-			
-			let grounds =  []
 		
 			sheets.forEach(s => {
 				let name
@@ -126,11 +110,6 @@
 				)
 			})
 			
-			grounds.forEach(s =>
-				this.load.image(s, path+s+'.png?v='+v)
-			)
-			
-			//this.load.text('dialog', path+'dialog.txt?v='+v)
 			this.load.json('data', path+'data.json?v='+v)
 			
 			let sounds = [
@@ -145,12 +124,18 @@
 			}
 			
 			this.sound.volume = 0.25
-			//console.log(this.sound.volume)
+			
+			let maps = ['phandalin']
+			maps.forEach(m => {
+				this.load.tilemapTiledJSON(m, path + 'maps/' + m + '.json?v='+v)
+				console.log(m, path + 'maps/' + m + '.json?v='+v)
+			})
 		
 		},
 		create:	function create(){
 			state.init(this)
-			this.scene.start('battle')
+			console.log('setup')
+			this.scene.start('world', 'phandalin')
 		},
 		update: function update(){
 		}
