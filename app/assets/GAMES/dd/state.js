@@ -855,6 +855,9 @@
 	
 		},
 		init_interactives: function(scene){
+			if(!scene.cardtainers){
+				scene.cardtainers = []
+			}
 			;['up', 'over', 'out', 'down', 'drag'].forEach( x => {
 				scene.input.on('gameobject'+x, (pointer, obj) => {
 					if(obj.parent['on_'+x]){
