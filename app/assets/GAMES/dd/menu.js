@@ -215,6 +215,80 @@
 		return text 
 	}
 	
+	let roof = {
+		init: function (scene){
+			this.scene = scene 
+			let roof = scene.roof 
+			roof.setDepth(1)
+			let side = {}
+			roof.layer.properties.forEach(p => side[p.name] = p.value.split(' ').map(x => +x))
+			console.log(side)
+			let c = 1
+			function color(tile, c){
+				if(tile.color === undefined){
+				
+					tile.color = c 
+					let roof_neighs = [
+						path.get_rel_tiles(tile,  0,-1).roof,
+						path.get_rel_tiles(tile,  0, 1).roof
+					]
+					
+					let index = tile.index - 1 
+					if(side.left.indexOf(index) === -1){
+						roof_neighs.push(path.get_rel_tiles(tile, -1, 0).roof)
+						
+					}
+					if(side.right.indexOf(index) === -1){
+						roof_neighs.push(path.get_rel_tiles(tile,  1, 0).roof)
+					}
+					
+					roof_neighs.filter(t=>t).forEach(t => color(t, c))
+					return c+1
+				}else{
+					//console.log('Already Colored')
+					return c 
+				}
+									
+			}
+			let count = 0 
+			roof.forEachTile(tile => {
+				if(tile.index > -1){
+					count += 1
+					c = color(tile, c)
+				}
+			})
+			console.log(c, count)
+		},
+		refresh: function(tile){
+			let dt = 300 
+			
+			this.scene.roof.forEachTile(t => {
+				if(t.alpha === 0){
+					this.scene.tweens.add({
+						targets: t,
+						duration: dt,
+						alpha: 1
+					})
+				}
+			})
+			
+			let roof = path.get_tiles_from_tile(tile).roof 
+			if(!roof) return 
+			
+			this.scene.roof.forEachTile(t => {
+				if(t.color === roof.color && t.alpha === 1){
+					this.scene.tweens.add({
+						targets: t,
+						duration: dt,
+						alpha: 0
+					})
+					
+				}
+			})
+			
+		}
+	}
+	
 	let dice_manager = {
 		init: function(scene){
 			this.dice = []

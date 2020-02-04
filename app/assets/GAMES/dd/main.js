@@ -7,7 +7,7 @@
 	let config = {
 		width: 16*TW,
 		height: 9*TW,
-		backgroundColor: '#323c39',
+		backgroundColor: '#45283c',
 		pixelArt: false,
 		zoom: .5,
 		/*

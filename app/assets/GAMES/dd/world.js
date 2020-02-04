@@ -1,266 +1,17 @@
 (function(){
 	const ZOOM = state.ZOOM
-	const layers = ['ground', 'walls', 'exterior', 'roof']
+	const layers = state.layers
 	
-	let roof = {
-		init: function (scene){
-			this.scene = scene 
-			let roof = scene.roof 
-			roof.setDepth(1)
-			let side = {}
-			roof.layer.properties.forEach(p => side[p.name] = p.value.split(' ').map(x => +x))
-			console.log(side)
-			let c = 1
-			function color(tile, c){
-				if(tile.color === undefined){
-				
-					tile.color = c 
-					let roof_neighs = [
-						path.get_rel_tiles(tile,  0,-1).roof,
-						path.get_rel_tiles(tile,  0, 1).roof
-					]
-					
-					let index = tile.index - 1 
-					if(side.left.indexOf(index) === -1){
-						roof_neighs.push(path.get_rel_tiles(tile, -1, 0).roof)
-						
-					}
-					if(side.right.indexOf(index) === -1){
-						roof_neighs.push(path.get_rel_tiles(tile,  1, 0).roof)
-					}
-					
-					roof_neighs.filter(t=>t).forEach(t => color(t, c))
-					return c+1
-				}else{
-					//console.log('Already Colored')
-					return c 
-				}
-									
-			}
-			let count = 0 
-			roof.forEachTile(tile => {
-				if(tile.index > -1){
-					count += 1
-					c = color(tile, c)
-				}
-			})
-			console.log(c, count)
-		},
-		refresh: function(tile){
-			let dt = 300 
-			
-			this.scene.roof.forEachTile(t => {
-				if(t.alpha === 0){
-					this.scene.tweens.add({
-						targets: t,
-						duration: dt,
-						alpha: 1
-					})
-				}
-			})
-			
-			let roof = path.get_tiles_from_tile(tile).roof 
-			if(!roof) return 
-			
-			this.scene.roof.forEachTile(t => {
-				if(t.color === roof.color && t.alpha === 1){
-					this.scene.tweens.add({
-						targets: t,
-						duration: dt,
-						alpha: 0
-					})
-					
-				}
-			})
-			
-		}
-	}
-	
-	let path = {
-		init: function(scene){
-			this.scene = scene 
-			//this.layers = ['ground', 'walls']
-			this.limit = 12 
-		},
-		get_path: function(t0, tf){
-			//console.log(t0)
-			//console.log(tf)
-			let que = [t0]
-			let paths = {
-				paths: [],
-				limit: this.limit,
-				push: function(x, y, tile){
-					if(!this.paths[x]){
-						this.paths[x] = []
-					}
-					if(!this.paths[x][y]){
-						this.paths[x][y] = []
-					}
-					if(this.paths[x][y] !== 'TOO LONG'){
-						this.paths[x][y].push(tile)
-					}
-					if(this.paths[x][y].length > this.limit){
-						this.paths[x][y] = 'TOO LONG'
-					}
-				},
-				get: function(x, y){
-					if(this.paths[x] && this.paths[x][y]){
-						if(this.paths[x][y] === 'TOO LONG'){
-							return 'TOO LONG'
-						}else{
-							return this.paths[x][y].slice()
-						}
-					}else{
-						return undefined 
-					}
-				},
-				set: function(x, y, list){
-					if(!this.paths[x]){
-						this.paths[x] = []
-					}
-					this.paths[x][y] = list 
-				},
-				log: function(){
-					let op = {too_long: 0, length: 0}
-					this.paths.forEach( (row, x) => {
-						if(row){
-							row.forEach( (t, y) => {
-								if(t === 'TOO LONG'){
-									op.too_long += 1 
-								}else{
-									op[x + ', ' + y] = t
-									op.length += 1
-								}
-							})
-						}
-					})
-					//console.log(op)
-				}
-			}
-			paths.push(t0.x, t0.y, t0)
-			paths.log()
-			while(que.length){
-				let current = que.shift()
-				let neighs = this.get_neighbors(current)
-				//let cur_path = paths.get(current.x, current.y)
-				for(let i = 0; i < neighs.length; i++){
-					neigh = neighs[i]
-					//console.log(neigh.x, tf.x, neigh.y, tf.y)
-					if(neigh.x === tf.x && neigh.y === tf.y){
-						paths.push(current.x, current.y, neigh)
-						if(paths.get(current.x, current.y) !== 'TOO LONG'){
-							return paths.get(current.x, current.y)
-						}
-					}else if(!paths.get(neigh.x, neigh.y)){
-						paths.set(neigh.x, neigh.y, paths.get(current.x, current.y))
-						paths.push(neigh.x, neigh.y, neigh)
-						que.push(neigh)
-					}
-				}
-			}
-			paths.log()
-			return false 
-		},
-		get_neighbors: function(tile){
-			let neighbors = []
-			let dirs = [
-				{dir: 'W', dx: -1, dy:  0},
-				{dir: 'E', dx:  1, dy:  0},
-				{dir: 'N', dx:  0, dy: -1},
-				{dir: 'S', dx:  0, dy:  1}
-			]
-			//*
-			let lefts = (state.search(this.scene.exterior.layer.properties, x=>x.name==='left')
-				.value 
-				.split(' ')
-				.map(x => +x)
-			)
-						
-			let rights = (state.search(this.scene.exterior.layer.properties, x=>x.name==='right')
-				.value 
-				.split(' ')
-				.map(x => +x)
-			)
-
-			
-			//console.log(lefts, rights)
-			//*/
-			let tiles = []
-			dirs.forEach(dir => {
-				let t = this.get_rel_tiles(tile, dir.dx, dir.dy)
-				if(t.ground && !t.walls){
-					if(t.exterior){
-						let id = t.exterior.index - 1 //What?!?!
-						if(dir.dir === 'W'){
-							//console.log(t.ground)
-							if(rights.indexOf(id) === -1){
-								tiles.push(t.ground)
-							}
-						}else if(dir.dir === 'E'){
-							if(lefts.indexOf(id) === -1){
-								tiles.push(t.ground)
-							}
-						}else{
-							tiles.push(t.ground)
-						}
-						
-					}else{
-						tiles.push(t.ground)
-					}
-				}
-			})
-			return tiles 
-		},
-		get_rel_tiles: function(tile, dx, dy){
-			return this.get_tiles(layer => layer.getTileAt(tile.x + dx, tile.y + dy))
-		},
-		get_tiles_from_tile: function(tile){
-			return this.get_tiles(layer => layer.getTileAt(tile.x, tile.y))
-		},
-		get_tiles_at_world: function(x, y){
-			return this.get_tiles(layer => layer.getTileAtWorldXY(x, y))
-		},
-		get_tiles: function(func){
-			//let layers = this.layers
-			let tiles = {}
-			layers.forEach(lay => {
-				tiles[lay] = func(this.scene[lay])
-			})
-			
-			return tiles 
-		},
-		drop: function(tile){
-			let neighs = this.get_neighbors(tile)
-			let left = this.get_rel_tiles(tile, -1, 0).ground 
-			let right = this.get_rel_tiles(tile, 1, 0).ground 
-			
-			neighs.unshift(tile)
-			neighs = neighs.concat(this.get_neighbors(left))
-			neighs = neighs.concat(this.get_neighbors(right))
-		
-			neighs = neighs.filter((x,i)=>neighs.indexOf(x)===i)
-			//console.log(neighs)
-			this.scene.players.forEach((p,i)=>{
-				//p.go(tile, 0)
-				p.sprite.x = tile.pixelX + tile.width/2 
-				p.sprite.y = tile.pixelY + tile.height/2
-				p.go(neighs[i], undefined, true)
-				roof.refresh(neighs[i])
-			})
-				
-			
-		}
-	}
-
 	function make_player(scene, who, following){
 		let data = state.copy(state.search(state.data.characters, c => c.NAME === who))
 		let f0 = 20*data.IMG
 		
 		let sprite = scene.add.sprite(following.sprite.x + 90, following.sprite.y, 'characters', f0)
-		
+	
 		state.create_walking_animations(scene, who, f0)
 		
 		let op = {
+			name: who,
 			sprite: sprite,
 			following: following,
 			go: function(to, time, ignore_follow){ 
@@ -304,7 +55,7 @@
 				})
 				if(!ignore_follow && this.follower){
 					this.follower.go(
-						path.get_tiles_at_world(
+						scene.grid.get_tiles_at_world(
 							this.sprite.x,
 							this.sprite.y
 						).ground
@@ -325,7 +76,7 @@
 			path: undefined,
 			go: function(){
 				if(this.paused) return 
-				let at = path.get_tiles_at_world(
+				let at = scene.grid.get_tiles_at_world(
 					this.follower.sprite.x,
 					this.follower.sprite.y
 				).ground
@@ -359,7 +110,7 @@
 		op.sprite.setDepth(9)
 		
 		scene.input.on('pointermove', (a, b, c) => {
-			let tiles = path.get_tiles_at_world(a.worldX, a.worldY)
+			let tiles = scene.grid.get_tiles_at_world(a.worldX, a.worldY)
 			if(tiles.ground === this.target){
 				return 
 			}
@@ -367,9 +118,9 @@
 			if(tiles.walls){
 				op.sprite.setFrame(12)
 			}else{
-				let p = path.get_path(
+				let p = scene.grid.get_path(
 					tiles.ground, 
-					path.get_tiles_at_world(
+					scene.grid.get_tiles_at_world(
 						scene.players[0].sprite.x, 
 						scene.players[0].sprite.y
 					).ground
@@ -393,11 +144,11 @@
 				//console.log('nope')
 				return 
 			}
-			let tiles = path.get_tiles_at_world(a.worldX, a.worldY)
+			let tiles = scene.grid.get_tiles_at_world(a.worldX, a.worldY)
 			
-			let p = path.get_path(
+			let p = scene.grid.get_path(
 				tiles.ground, 
-				path.get_tiles_at_world(
+				scene.grid.get_tiles_at_world(
 					op.follower.sprite.x, 
 					op.follower.sprite.y
 				).ground
@@ -473,7 +224,8 @@
 
 	let triggers = {
 		flavors: ['door', 'battle'],
-		init: function(objects){
+		init: function(scene, objects){
+			this.scene = scene 
 			this.flavors.forEach(flav => {
 				this[flav] = [] 
 			})
@@ -510,7 +262,7 @@
 			})
 			
 			hits.forEach(obj => {
-				this.activate[obj.name](tile, obj, to)
+				this.activate[obj.name].call(this, tile, obj, to)
 			})
 			
 		},
@@ -526,13 +278,13 @@
 							console.warn("Door trigger is the wrong size!")
 							console.log(tile, obj)
 						}
-						let top = path.get_tiles_at_world(obj.x + w/2, obj.y + w/2).ground 
-						let bot = path.get_tiles_at_world(obj.x + w/2, obj.y + h - w/2).ground 
+						let top = this.scene.grid.get_tiles_at_world(obj.x + w/2, obj.y + w/2).ground 
+						let bot = this.scene.grid.get_tiles_at_world(obj.x + w/2, obj.y + h - w/2).ground 
 						
 						if(tile === top){
-							path.drop(bot)
+							this.scene.grid.drop(bot)
 						}else if(tile === bot){
-							path.drop(top)
+							this.scene.grid.drop(top)
 						}else{
 							console.warn("Door is wrong.")
 						}
@@ -541,7 +293,11 @@
 				}, {})
 			},
 			battle: function(tile, obj){
-				console.log('battle start!')
+				this.scene.scene.sleep()
+				this.scene.scene.launch('battle', {
+					trigger: obj, 
+					scene: this.scene
+				})
 			}
 		}
 	}
@@ -549,34 +305,25 @@
 	window.world = {
 		init: function(where){
 			console.log(where)
-			this.map = this.make.tilemap({
-				key: where,
-			})
-			this.map.setBaseTileSize(this.map.tileWidth*ZOOM, this.map.tileHeight*ZOOM);
-			
-			this.tileset = this.map.addTilesetImage('pix_squares', 'squares', this.map.tileWidth, this.map.tileHeight)
-			
+			this.where = where 
 			
 			
 		},
 		create: function(){
 			
-			path.init(this)
+			//path.init(this)
+			this.grid = state.make.grid(this)
+			this.grid.init(this.where)
+			this.grid.check()
 			message.init(this)
 			
-			layers.forEach(layer => {
-				this[layer] = this.map.createDynamicLayer(layer, this.tileset, 0, 0)
-				this[layer].forEachTile(t => {
-					t.width *= ZOOM,
-					t.height *= ZOOM 
-				})
-			})
 			
-			roof.init(this)
+			
+			//roof.init(this)
 			
 			
 			
-			this.triggers = triggers.init(this.map.getObjectLayer('triggers').objects)
+			this.triggers = triggers.init(this, this.map.getObjectLayer('triggers').objects)
 			let start = this.triggers.start //state.search(this.triggers, x => x.name === 'start')
 			let x0 = start.x//*ZOOM 
 			let y0 = start.y//*ZOOM 
@@ -590,7 +337,7 @@
 			})
 			this.players = players.slice(1)
 			
-			path.drop(path.get_tiles_at_world(x0, y0).ground)
+			this.grid.drop(this.grid.get_tiles_at_world(x0, y0).ground)
 			
 			let cam = this.cameras.main 
 			cam.setBounds(0, 0, this.ground.width, this.ground.height)

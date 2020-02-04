@@ -3,40 +3,9 @@
 	const COLS = 5;
 	const MAX_CARDS = 12;
 	
-	function init_buttons(){
-		
-			this.buttons = {
-				end_turn: state.make.button(this, 240*state.ZOOM, 182*state.ZOOM, 0, ()=>{
-					if(state.turn.player){
-						this.buttons.end_turn.disable()
-						console.log(this.players, this.baddies, this.cardtainers)
-						this.players.concat(this.baddies).forEach(c => c.deselect())
-						this.cardtainers.forEach(c => {
-							c.card && c.card.deselect({
-								hand: this.cardtainers.map(x => x.card)
-							})
-						})
-						state.turn.end()
-					}
-				}),
-				
-				discard: state.make.button(this, 342*state.ZOOM, 182*state.ZOOM, 20, ()=>{
-					(this.cardtainers.map(x => x.card)
-									 .filter(c => c && c.status === 'selected')
-									 .forEach(c => c.discard({
-										hand: this.cardtainers.map(x => x.card)
-									 })))
-												   
-				})
-				
-			}
-			
-			this.buttons.discard.disable()
-	}
+	
 	
 	function make_player(name){
-		
-		let scene = this 
 		
 		let data = state.copy(state.search(state.data.characters, c => c.NAME === name))
 		let f0 = 20*data.IMG
@@ -69,16 +38,21 @@
 		state.create_walking_animations(this, name, f0)
 		
 		let player = {
-			
 			data: data,
 			name: data.NAME,
 			selected: false,
 			cooldown: 0,
 			container: container,  
 			anims: sprite.anims,
-			init: function(decks, start, evil){
-				
+			init: function(cell, decks, evil, initiative){
+				//console.log(decks)
+				if(initiative !== undefined){
+					this.data.STA = Math.max(this.data.STA - initiative, 0)
+				}
+				this.cell = cell 
 				this.evil = evil  
+				this.container.x = cell.sprite.x
+				this.container.y = cell.sprite.y 
 				this.deck = []
 				let cards = state.search(decks, d => d.NAME === this.name)
 				for(let i = 1; i <= MAX_CARDS; i++){
@@ -86,23 +60,7 @@
 						this.deck.push(cards['C'+i])
 					}
 				}
-				
-				this.container.x = start.x0 
-				this.container.y = start.y0 
-				
-				container.scene.tweens.add({
-					targets: container,
-					duration: 300,
-					x: start.xf,
-					y: start.yf,
-					onComplete: (()=> {
-						scene.grid.occupy_at_world(start.xf, start.yf)
-					})
-				})
-				
 				this.refresh()
-				
-				
 				
 			},
 			rest: function(){
@@ -199,6 +157,10 @@
 		container.parent = player 
 		
 		return player 
+	}
+	
+	function make_grid(trigger, map){
+		
 	}
 	
 	/*
@@ -314,55 +276,30 @@
 	window.battle = {
 		init: function(data){
 			
-			console.log(data)
+			
 			this.battle = {
 				players: data.scene.players.map(x => x.name),
-				where: data.scene.where,
+				grid: make_grid(data.trigger, data.scene.map)
 			}
-			
-			this.data = data 
 		},
 		create: function(){
-			this.grid = state.make.grid(this)
-			this.grid.get_area(this.data.trigger, this.data.scene)
-			this.grid.check()
 			
-			
-			
-			
+		
 			this.cardtainers = []
 			for(let i = 0; i < this.battle.players.length; i++){
 				this.cardtainers.push(
 					state.make.cardtainer(this, i)
 				)
 			}
-			
+	
 			this.deck = []
 			this.players = this.battle.players.map(make_player, this)
-			
-			let direction = undefined
-			this.data.trigger.properties.forEach(p => {
-				if(p.name === 'start'){
-					direction = p.value 
-				}
-			})
-			if(!direction){
-				direction = 'E'
-			}
-			let starting_tiles = (this.grid.get_tiles_from(direction)
-									.filter(t => t.walls.index < 0)
-									.map(t => t.ground)
-								)
-			
-			
-			this.players.forEach((p, i) => {
-				//console.log(p.name, this.data.scene.players[i].name)
-				let x0 = this.data.scene.players[i].sprite.x - this.data.trigger.x + this.ground.x
-				let y0 = this.data.scene.players[i].sprite.y - this.data.trigger.y + this.ground.y
-				let xf = starting_tiles[i].pixelX + this.ground.x + starting_tiles[i].width/2
-				let yf = starting_tiles[i].pixelY + this.ground.y + starting_tiles[i].height/2
-				p.init(state.data.decks, {x0:x0, y0:y0, xf:xf, yf:yf}, false)
-			})
+			let order = Math.ceil(4*Math.random())
+			this.players.forEach((p, i) => p.init(
+				this.grid[ROWS-1][order*i % 5], 
+				state.data.decks, // Change this	
+				false
+			))
 			
 			this.players.forEach(player => {
 				for(let i = 0; i < player.deck.length; i++){
@@ -379,17 +316,57 @@
 			this.cardtainers.forEach(c => c.draw(this.deck))
 			
 			
+			let match = state.search(state.data.match, x => x.NAME === this.battle.match)
 			let baddie_names = []
 			
+			for(let i = 1; i <= COLS; i++){
+				if(match['B'+i]){
+					baddie_names.push(match['B'+i])
+				}
+			}
+			
 			this.baddies = baddie_names.map(make_player, this)
+			order = Math.ceil(4*Math.random())
 			this.baddies.forEach((b, i) => b.init(
+				this.grid[0][order*i % 5], 
 				state.data.decks, // Change this	
 				true,
 				i
 			))
-		
-			init_buttons.call(this)
-						
+			
+			this.grid[0][0].refresh_grid()
+			
+			this.buttons = {
+				end_turn: state.make.button(this, 240*state.ZOOM, 182*state.ZOOM, 0, ()=>{
+					if(state.turn.player){
+						this.buttons.end_turn.disable()
+						console.log(this.players, this.baddies, this.cardtainers)
+						this.players.concat(this.baddies).forEach(c => c.deselect())
+						this.cardtainers.forEach(c => {
+							c.card && c.card.deselect({
+								hand: this.cardtainers.map(x => x.card)
+							})
+						})
+						state.turn.end()
+					}
+				}),
+				
+				discard: state.make.button(this, 342*state.ZOOM, 182*state.ZOOM, 20, ()=>{
+					(this.cardtainers.map(x => x.card)
+									 .filter(c => c && c.status === 'selected')
+									 .forEach(c => c.discard({
+										hand: this.cardtainers.map(x => x.card)
+									 })))
+												   
+				})
+				
+			}
+			
+			this.buttons.discard.disable()
+			
+			
+			
+			
 			state.turn.init(this)
 			ai.init(this)
 			
