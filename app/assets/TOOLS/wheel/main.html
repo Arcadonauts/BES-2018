@@ -1,0 +1,354 @@
+<canvas id="canvas" style="width:100%;" ></canvas>
+<script>
+
+let canvas;
+let  context;
+canvas = document.getElementById('canvas');
+context = canvas.getContext('2d');
+canvas.width = 100;
+canvas.height = 100;
+
+let r = 200;
+let x0 = 200;
+let y0 = 200;
+
+
+let p8 = {
+	black: "#000000",
+	dark_blue: "#1D2B53",
+	dark_purple: "#7E2553",
+	dark_green: "#008751",
+	brown: "#AB5236",
+	dark_gray: "#5F574F",
+	light_gray: "#C2C3C7",
+	white: "#FFF1E8",
+	red: "#FF004D",
+	orange: "#FFA300",
+	yellow: "#FFEC27",
+	green: "#00E436",
+	blue: "#29ADFF",
+	indigo: "#83769C",
+	pink: "#FF77A8",
+	peach: "#FFCCAA"
+};
+
+const TWOPI = Math.PI * 2 ;
+
+
+let strokeColor = p8.black ;
+let wheelRot = 0;
+let wheelSpeed;
+let wheelFr;
+let winner;
+let menuButtons;
+let roster;
+let current_class;
+
+function choose(list){
+	return list[Math.floor(list.length * Math.random())];
+}
+
+let mouse = {
+	down: false,
+	x: 0,
+	y: 0
+};
+
+// https://stackoverflow.com/questions/7790725/javascript-track-mouse-position
+document.onmousemove = handleMouseMove;
+function handleMouseMove(event) {
+
+	let rect = canvas.getBoundingClientRect(); // abs. size of element
+	let scaleX = canvas.width / rect.width;    // relationship bitmap vs. element for X
+	let scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
+
+
+	mouse.x = (event.clientX - rect.left) * scaleX; // scale mouse coordinates after they have
+	mouse.y =  (event.clientY - rect.top) * scaleY;     // been adjusted to be relative to element
+	  
+
+}
+	
+/*	
+function  getMousePos(canvas, evt) {
+  var rect = canvas.getBoundingClientRect(), // abs. size of element
+      scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for X
+      scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
+
+  return {
+    x: (evt.clientX - rect.left) * scaleX,   // scale mouse coordinates after they have
+    y: (evt.clientY - rect.top) * scaleY     // been adjusted to be relative to element
+  }
+}	
+*/
+
+canvas.addEventListener('touchend', function(){
+	mouse.down = false;
+});
+canvas.addEventListener('touchstart', function(event){
+	mouse.down = true;
+});
+
+canvas.addEventListener('mousedown', function(){
+	mouse.down = true ;
+});
+
+canvas.addEventListener('mouseup', function(){
+	mouse.down = false ;
+});
+
+function Button(label, x, y, callback){
+	this.label = label ;
+	this.x = x ;
+	this.y = y ;
+	this.w = 120;
+	this.h = 40;
+	this.callback = callback;
+	
+	this.draw = function(){
+		context.fillStyle = p8.blue ;
+		context.fillRect(this.x, this.y, this.w, this.h);
+		context.fillStyle = p8.black ;
+		context.textAlign = 'center';
+		context.textBaseline = 'middle';
+		context.font = '24pt Arial';
+		context.fillText(this.label, this.x + this.w/2, this.y + this.h/2);
+	};
+
+	this.update = function(){
+		if(mouse.down && this.callback){
+			if(mouse.x > this.x && mouse.x < this.x + this.w){
+				if(mouse.y > this.y && mouse.y < this.y + this.h){
+					this.callback();
+				}
+			}
+		}
+	};
+
+}
+
+let classes = {
+	/*
+	10.1:['Alex', 'Amy', 'Avery', 'Barry', 'Cathy', 'Ethan', 'Harris', 'Jasper', 'Jeff', 'Jennifer', 'Jessie', 'Jim', 'Leo', 'Lucy', 'Michael', 'Peki', 'Reina', 'Roy', 'Tim', 'Tony', 'Vicky', 'William'],
+	10.2:['Alan', 'Annie', 'Bill', 'Bob', 'Casey', 'Cecilia', 'Dale', 'Frank', 'George', 'Helen', 'Irene', 'Jenny', 'Johnathan', 'Lydia', 'Nina', 'Rebecca', 'Steven', 'Tommy', 'Tony'],
+	10.3: ['Aaron', 'Allen', 'Arie', 'Bob', 'George', 'James Hu', 'James Wang', 'Lori', 'Mike', 'Susan', 'Timmy', 'Zack'],
+	*/
+	10.1: ['Alex', 'Avery', 'Barry', 'Cathy', 'Ethan', 'Harris', 'Jasper', 'Jeff', 'Jennifer', 'Jessie', 'Leo', 'Lucy', 'Michael', 'Nina', 'Peki', 'Reina', 'Roy', 'Tim', 'Tony Hu', 'Vicky', 'William'],
+	10.2: ['Alan', 'Amy', 'Annie', 'Bill', 'Bob Hou', 'Casey', 'Cecilia', 'Frank', 'George Zhang', 'Helen', 'Irene', 'James Wang', 'Jenny', 'Jim', 'Jonathan', 'Lydia', 'Mike', 'Steven', 'Timmy', 'Tommy'],
+	10.3: ['Aaron', 'Allen', 'Arie', 'Bob Wang', 'Dale', 'George Zhang', 'James Hu', 'Lori', 'Rebecca', 'Susan', 'Tony Wang', 'Zack'],
+
+	11.1: ['Lucas', 'Abel', 'Albert', 'Angel', 'Ann', 'Benedict', 'Bob', 'Carleton', 'Charles', 'Elias', 'George', 'Harvey', 'Howard', 'Iris', 'Isabella', 'Ivy', 'Jack', 'Jennifer', 'Katherine', 'Kenney', 'Leila', 'Loki', 'Miles', 'Paul', 'Ray', 'Ruby', 'Sally', 'Sherry', 'Tom', 'Vicky'],
+	11.2: ['Annie', 'Blake', 'Claire', 'Claudia', 'Evan', 'Grace', 'Johnny', 'Joyce', 'Kevin', 'Maxwell', 'Morris', 'Nina', 'Rebecca', 'Rexa', 'Rita', 'Solomon', 'Toim', 'Winnie'],
+	
+	12.1: ['Alan', 'Amanda', 'Ares', 'Bary', 'Buford', 'David', 'Kevin', 'Lynn', 'Michael', 'Nancy', 'Robert', 'Scott', 'Yvette', 'Zed', 'Barry Allen', 'Mark', 'Tony'],
+	//classes : ['10.1', '10.2', '10.3', '11.1', '11.2', '12']
+};
+
+let ten23 = '10.2/3'
+
+classes[ten23] = classes[10.2].concat(classes[10.3])
+classes[11] = classes[11.1].concat(classes[11.2])
+
+let scene = 'MENU';
+
+function draw_pointer(){
+		let a = 10
+		context.beginPath();
+		context.moveTo(x0 + r - a, y0);
+		context.lineTo(x0 + r + 3*a, y0 - a);
+		context.lineTo(x0 + r + 3*a, y0 + a);
+		context.lineTo(x0 + r - a, y0);
+		context.fillStyle = p8.red;
+		context.strokeStyle = p8.black ;
+		context.fill();
+		context.stroke();
+		
+}
+
+function draw_hub(){
+	context.beginPath();
+	context.fillStyle = p8.red ;
+	context.strokeStyle = p8.black ;
+	context.arc(x0, y0, 0.1*r, 0, TWOPI);
+	context.fill();
+	context.stroke();
+}
+
+function go_to_scene(s){
+	canvas.width = canvas.width ;
+	console.log('scene = ', s);
+	scene = s;
+	setup();
+}
+
+function button_call_back(){
+	current_class = this.label;
+	roster = build_roster();
+	go_to_scene('WHEEL');
+}
+
+function build_roster(){
+	roster = [];
+	for(let i = 0; i < classes[current_class].length; i++){
+		roster.push(
+			classes[current_class][i]
+		);
+	}
+	return roster ;
+}
+
+let color = {
+	i: 0,
+	mod: 5,
+	next: function(tot){
+		let mods = [5, 4, 3, 2]
+		for(let i = 0; i < mods.length; i++){
+			if(tot % mods[i] !== 1){
+				this.mod = mods[i]
+				break
+			}
+		}
+		this.i += 1 
+		return this.colors[this.i % this.mod]
+	},
+	colors: [
+		p8.peach, p8.pink, p8.indigo, p8.blue, p8.green
+	]
+};
+
+function Wedge(name, rot, tot){
+	this.angle = 2*Math.PI/tot;
+	this.rot = rot * 2*Math.PI/tot;
+	this.color = color.next(tot);
+	this.name = name ;
+	
+	this.draw = function(){
+		
+		let color = this.color ;
+		let theta = (this.rot + wheelRot ) % TWOPI;
+		if(theta > TWOPI - this.angle/2 || theta < this.angle/2){
+			color = p8.yellow;
+			winner = this.name ;
+		}
+	
+		context.save();
+		context.translate(x0, y0);
+		context.rotate(theta);
+		context.beginPath();
+		context.moveTo(0, 0);
+		context.lineTo(r*Math.cos(this.angle/2), r*Math.sin(this.angle/2));
+		context.arc(0, 0, r, this.angle/2, - this.angle/2, true);
+		context.lineTo(0, 0);
+		context.fillStyle = color ;
+		context.strokeStyle = strokeColor ;
+		context.fill();
+		context.stroke();
+		context.fillStyle = strokeColor ;
+		context.textAlign = 'right';
+		context.textBaseline = 'middle';
+		context.font = '16pt Arial';
+		context.fillText(this.name, 0.95*r, 0);
+		context.restore();
+		
+		//return winner 
+
+	}
+}
+
+
+
+function setup(){
+	
+	if(scene === 'MENU'){
+		canvas.width = 2.25*r;
+		canvas.height = 3*r;
+		menuButtons = [];
+		let y = 0;
+		let x = 0;
+		let cl_names = [10.1, 10.2, 10.3, 11.1, 11.2, 12.1, ten23, 11];
+		for(let i = 0; i < cl_names.length; i++){
+			let k = cl_names[i];
+			if(k !== ''){
+				menuButtons.push(new Button(k, 50+125*Math.floor(x/3), 50*(y%3 + 1), button_call_back));
+			}
+			
+			y += 1;
+			x += 1;
+		}
+	}else if(scene === 'WHEEL'){
+
+		wedges = [];
+		let c = roster;
+		for(let i = 0; i < c.length; i++){
+			wedges.push(
+				new Wedge(c[i], i, c.length)
+			);
+		}
+
+		wheelSpeed = 0.2 + 0.2*Math.random();
+		wheelFr = 0.98;
+
+	
+	}
+	
+
+}
+
+
+
+function update(){
+	context.fillStyle = p8.white;
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	if(scene == 'MENU'){
+		menuButtons.forEach(function(b){
+			b.draw();
+			b.update();
+		});
+	
+	}else if(scene == 'WHEEL'){
+
+		for(let i = 0; i < wedges.length; i++){
+			let w = wedges[i];
+			w.draw();
+		}
+
+		
+		wheelRot += wheelSpeed;
+		wheelSpeed *= wheelFr;
+		if(wheelSpeed < 0.001){
+			//alert(winner + '!')
+			wheelSpeed = 0;
+			context.fillStyle = p8.black;
+			context.textAlign = 'center';
+			context.textBaseline = 'top';
+			context.font = '30pt Arial';
+			context.fillText(winner +'!', x0, y0 + r);
+		}
+		if(wheelSpeed === 0){
+			if(mouse.down){
+				newRoster = [];
+				for(let i = 0; i < roster.length; i++){
+					if(roster[i] !== winner){
+						newRoster.push(roster[i]);
+					}
+				}
+				roster = newRoster;
+				if(roster.length === 0){
+					roster = build_roster();
+				}
+				go_to_scene('WHEEL');
+			}
+		}
+		
+		draw_pointer();
+		draw_hub();
+	}
+
+	window.requestAnimationFrame(update);
+}
+
+setup();
+update();
+
+
+</script>

@@ -72,10 +72,13 @@
 	function make_pointer(scene, x0, y0){
 		
 		let op = {
-			sprite: scene.add.sprite(x0, y0, 'squares', 11),
+			//sprite: scene.add.sprite(x0, y0, 'squares', 11),
 			path: undefined,
+			sprite: {
+				x: x0,
+				y: y0
+			},
 			go: function(){
-				if(this.paused) return 
 				let at = scene.grid.get_tiles_at_world(
 					this.follower.sprite.x,
 					this.follower.sprite.y
@@ -95,28 +98,20 @@
 					
 					return
 				}
-			},
-			pause: function(){
-				this.paused = true 
-				this.sprite.alpha = 0 
-			},
-			unpause: function(){
-				this.paused = false 
-				this.sprite.alpha = 1 
 			}
 		}
-		
-		op.sprite.setOrigin(0)
-		op.sprite.setDepth(9)
 		
 		scene.input.on('pointermove', (a, b, c) => {
 			let tiles = scene.grid.get_tiles_at_world(a.worldX, a.worldY)
 			if(tiles.ground === this.target){
 				return 
 			}
+			scene.grid.highlight_all(false)
+			op.sprite.x = tiles.ground.pixelX + tiles.ground.width/2
+			op.sprite.y = tiles.ground.pixelY + tiles.ground.height/2
 			
 			if(tiles.walls){
-				op.sprite.setFrame(12)
+				scene.grid.highlight_tile(tiles.walls, 'no')
 			}else{
 				let p = scene.grid.get_path(
 					tiles.ground, 
@@ -126,14 +121,11 @@
 					).ground
 				)
 				if(p){
-					op.sprite.setFrame(11)
+					scene.grid.highlight_tile(tiles.ground, 'blue')
 				}else{
-					op.sprite.setFrame(12)
+					scene.grid.highlight_tile(tiles.ground, 'no')
 				}
 			}
-			
-			op.sprite.x = tiles.ground.pixelX 
-			op.sprite.y = tiles.ground.pixelY
 			
 			this.target = tiles.ground 
 			//console.log(this.target.x, this.target.y)
@@ -219,6 +211,20 @@
 				}
 			})
 			
+		}
+	}
+
+	let npcs = {
+		
+		init: function(scene, objects){
+			let scale = ['x', 'y', 'width', 'height']
+			this.objects = [] 
+			objects.forEach(obj => {
+				scale.forEach(prop => obj[prop] *= ZOOM)
+				this.objects.push(obj)
+			})
+			
+			return this 
 		}
 	}
 
@@ -324,6 +330,7 @@
 			
 			
 			this.triggers = triggers.init(this, this.map.getObjectLayer('triggers').objects)
+			this.npcs = npcs.init(this, this.map.getObjectLayer('npcs').objects)
 			let start = this.triggers.start //state.search(this.triggers, x => x.name === 'start')
 			let x0 = start.x//*ZOOM 
 			let y0 = start.y//*ZOOM 

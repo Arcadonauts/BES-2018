@@ -9,13 +9,14 @@
 				end_turn: state.make.button(this, 240*state.ZOOM, 182*state.ZOOM, 0, ()=>{
 					if(state.turn.player){
 						this.buttons.end_turn.disable()
-						console.log(this.players, this.baddies, this.cardtainers)
+						//console.log(this.players, this.baddies, this.cardtainers)
 						this.players.concat(this.baddies).forEach(c => c.deselect())
 						this.cardtainers.forEach(c => {
 							c.card && c.card.deselect({
 								hand: this.cardtainers.map(x => x.card)
 							})
 						})
+						this.grid.highlight_all(false)
 						state.turn.end()
 					}
 				}),
@@ -32,6 +33,45 @@
 			}
 			
 			this.buttons.discard.disable()
+	}
+	
+	function make_pointer(scene){
+		let pointer = {
+			select: function(tiles){
+				this.action(tiles)
+			},
+			none: function(tiles){
+				return 
+			},
+			pick: function(tiles){
+				if(tiles.occupied){
+					let occupant = undefined
+					scene.players.concat(scene.baddies).forEach(p => {
+						let ts = p.get_tiles()
+						if(!occupant && ts.occupied === tiles.occupied){
+							occupant = p 
+						}
+					})
+					
+					if(occupant){
+						occupant.select()
+					}
+				}
+			}
+		}
+		
+		scene.input.on('pointerdown', (a) => {
+			let tiles = scene.grid.get_tiles_at_world(a.worldX, a.worldY)
+			
+			if(tiles.highlight){
+				pointer.select(tiles)
+				return 
+			}
+		})
+		
+		pointer.action = pointer.pick 
+		
+		return pointer 
 	}
 	
 	function make_player(name){
@@ -72,10 +112,17 @@
 			
 			data: data,
 			name: data.NAME,
+			stamina: data.STA - 1,
 			selected: false,
 			cooldown: 0,
 			container: container,  
 			anims: sprite.anims,
+			get_tiles: function(){
+				return scene.grid.get_tiles_at_world(this.container.x, this.container.y)
+			},
+			get_ground: function(){
+				return this.get_tiles().ground 
+			},
 			init: function(decks, start, evil){
 				
 				this.evil = evil  
@@ -96,7 +143,11 @@
 					x: start.xf,
 					y: start.yf,
 					onComplete: (()=> {
-						scene.grid.occupy_at_world(start.xf, start.yf)
+						//scene.grid.occupy_at_world(start.xf, start.yf)
+						scene.refresh(true)
+						if(state.phase === 'set up'){
+							state.turn.begin()
+						}
 					})
 				})
 				
@@ -105,57 +156,74 @@
 				
 				
 			},
+			take_turn: function(){
+				this.rest()
+				
+			},
 			rest: function(){
-				this.data.STA += 1 
+				this.stamina += 1 
 				this.refresh()
-			},
-			on_over: function(){
-				return this.data.NAME + '\nHP ' + this.data.HP 
-			},
-			on_up: function(args){
-				 
-				if(state.phase !== 'pick a card'){
-					return 
-				}
-				let selected = this.selected 
-				args.players.concat(args.baddies).forEach(c => c.deselect())
-				this.selected = !selected
-				this.cell.set(this.selected ? 'selected' : 'clean')
-				
-				let card = state.search(args.hand, c => c && c.status === 'selected')
-				if(card && this.selected){
-					if(!this.evil){
-						this.act(card, args)
-					}else{
-						console.log("Don't give our cards to our enemies!")
-					}
-				}
-			},
-			deselect: function(args){
-				
-				this.cell.set('clean')
-				this.selected = false 
-				//this.cell.indicator.alpha = 0 
-			
 			},
 			act: function(card, args){
 				args.card = card 
 				args.player = this 
-				args.strat = () => {console.log('waiting for player...')}
+				args.pointer = scene.pointer 
+				args.strat = () => {console.log('waiting for user...')}
 				state.act(args)
+			},
+			select: function(){
+				let card = undefined
+				scene.cardtainers.forEach(cr => {
+					if(cr.card && cr.card.status === 'selected'){
+						card = cr.card 
+					}
+				})
+				
+				if(card){
+					this.act(card, state.get_scene_args(scene))
+				}else{
+					scene.players.forEach(p => p.deselect())
+					this.selected = true 
+					scene.grid.highlight_at_world(this.container.x, this.container.y, 'white')
+				}
+				
+				
+			},
+			deselect: function(){
+				this.selected = false 
+				scene.grid.highlight_at_world(this.container.x, this.container.y, 'yellow')
 			},
 			refresh: function(){
 				this.container.hp.text = this.data.HP
-				this.container.sta.text = this.data.STA
+				this.container.sta.text = this.stamina
+			},
+			attack: function(atks){
+				//console.log('attack', atks)
+				let dam = player.data.ATK 
+				if(atks[0] === 'DAM'){
+					atks.slice(1).forEach(a => {
+						if(a[0] === 'D'){
+							
+						}else{
+							dam += (+a)
+						}
+					})
+				}
+				
+				return {
+					damage : dam,
+					toxic: false 
+				}
 			},
 			hit: function(player, atks){
-				let atk = atks.reduce((x,y)=>x+y) + player.data.ATK
+				
+				let atk = player.attack(atks)
 				let def = this.data.DEF 
-				if(atk > def){
-					console.log('Hit!', atk, def)
-					this.data.HP -= atk - def 
+				if(atk.damage > def){
+					console.log('Hit!', this.name, atk, def)
+					this.data.HP -= atk.damage - def 
 				}else{
-					console.log('Miss!', atk, def)
+					console.log('Block!', this.name, atk, def)
 				}
 				if(this.data.HP <= 0){
 					this.die()
@@ -200,116 +268,6 @@
 		
 		return player 
 	}
-	
-	/*
-	function make_cell(scene, i, j, grid){
-		const w = 30*state.ZOOM 
-		//console.log(scene.game)
-		const y0 = (scene.game.canvas.height - ROWS*w + w)/2 - 0.5*w
-		const x0 = scene.game.canvas.width - w*(COLS-1) - y0
-		
-		let sprite = scene.add.sprite(x0 + i*w, y0 + j*w, 'squares')
-		sprite.setInteractive({
-			useHandCursor: true,
-		})
-		sprite.disableInteractive()
-		
-		let cell = {
-			sprite: sprite,
-			indicator: scene.add.sprite(x0 + i*w, y0 + j*w, 'squares', 10),
-			grid: grid,
-			row: j,
-			col: i,
-			status: 'clean',
-			color: false,
-			occupied: false,
-			occupy: function(who){
-				if(who){
-					this.sprite.setInteractive()
-					this.occupied = who 
-					who.cell = this 
-					this.sprite.setFrame(3)
-				}else{
-					//this.sprite.disableInteractive()
-					this.occupied = false 
-					this.sprite.setFrame(0)
-				}
-			},
-			set: function(val){
-				if(val === 'clean'){
-					this.indicator.alpha = 0
-					this.status = 'clean'
-					//this.sprite.disableInteractive()
-				}else if(val === 'selected'){
-					this.indicator.alpha = 1
-					this.indicator.setFrame(10)
-					//this.sprite.disableInteractive()
-					this.status = 'selected'
-					this.color = false 
-				}else if(val === 'blue'){
-					this.indicator.alpha = 1
-					this.indicator.setFrame(11)
-					this.sprite.setInteractive()
-					this.status = 'highlighted'
-					this.color = 'blue'
-				}else if(val === 'red'){
-					this.indicator.alpha = 1
-					this.indicator.setFrame(12)
-					this.sprite.setInteractive()
-					this.status = 'highlighted'
-					this.color = 'red'
-				}else{
-					throw "Unknown cell status: " + val 
-				}
-			}, 
-			on_up: function(args){
-				if(this.action){
-					this.action(this)
-				}else if(this.occupied){
-					this.occupied.on_up(args)
-				}else{
-					console.warn('What am I supposed to do?')
-				}
-			},
-			refresh_grid: function(status){
-				for(let row = 0; row < this.grid.length; row++){
-					for(let col = 0; col < this.grid[row].length; col++){
-						let cell = this.grid[row][col]
-						cell.occupy(false) 
-						if(status){
-							cell.set(status)
-						}
-					}
-				}
-				
-				scene.players.concat(scene.baddies).forEach(p => {
-					p.cell.occupy(p) 
-				})
-			},
-			for_grid: function(func){
-				for(let row = 0; row < this.grid.length; row++){
-					for(let col = 0; col < this.grid[row].length; col++){
-						let cell = this.grid[row][col]
-						func(cell)
-					}
-				}
-			},
-			hover: function(){
-				if(this.occupied && this.occupied.hover){
-					console.log(this.occupied.hover())
-				}
-			}
-		}
-		
-		sprite.parent = cell 
-		cell.indicator.alpha = 0 
-		
-		grid[j][i] = cell  
-		
-		return cell 
-		
-	}
-	*/
 
 	window.battle = {
 		init: function(data){
@@ -326,6 +284,7 @@
 			this.grid = state.make.grid(this)
 			this.grid.get_area(this.data.trigger, this.data.scene)
 			this.grid.check()
+			this.grid.highlight_all(false)
 			
 			
 			
@@ -350,7 +309,7 @@
 				direction = 'E'
 			}
 			let starting_tiles = (this.grid.get_tiles_from(direction)
-									.filter(t => t.walls.index < 0)
+									.filter(t => !t.walls || t.walls.index < 0)
 									.map(t => t.ground)
 								)
 			
@@ -379,14 +338,18 @@
 			this.cardtainers.forEach(c => c.draw(this.deck))
 			
 			
-			let baddie_names = []
+			let baddie_names = this.npcs.map(npc => npc.name)
 			
 			this.baddies = baddie_names.map(make_player, this)
-			this.baddies.forEach((b, i) => b.init(
-				state.data.decks, // Change this	
-				true,
-				i
-			))
+			
+			this.baddies.forEach((b, i) => {
+				let baddie = this.npcs[i]
+				let tile = this.grid.get_tiles_at(0, 0).ground 
+				let x0 = baddie.x - this.data.trigger.x + this.ground.x + tile.width/2 
+				let y0 = baddie.y - this.data.trigger.y + this.ground.y - tile.height/2
+
+				b.init(	state.data.decks, {x0: x0, y0: y0, xf: x0, yf: y0}, true)
+			})
 		
 			init_buttons.call(this)
 						
@@ -395,6 +358,30 @@
 			
 			state.init_interactives(this)
 			
-		}
+			this.pointer = make_pointer(this)
+			
+			this.refresh = function(player_turn){
+				this.grid.vacate_all()
+				this.players.concat(this.baddies).forEach(obj => {
+					this.grid.occupy_at_world(obj.container.x, obj.container.y)
+					
+				})
+				if(player_turn){
+					this.players.forEach(p => {
+						this.grid.highlight_at_world(p.container.x, p.container.y, 'yellow')
+					})
+					this.pointer.action = this.pointer.pick 
+				}else{
+					this.players.forEach(p => {
+						this.grid.highlight_at_world(p.container.x, p.container.y, false)
+					})
+					this.pointer.action = this.pointer.none 
+				}
+				console.log("It is the player turn: ", player_turn)
+			
+				
+			}
+		},
+	
 	}
 })()

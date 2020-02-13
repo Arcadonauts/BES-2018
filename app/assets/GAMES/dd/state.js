@@ -13,7 +13,8 @@
 		  PICK_A_CARD = 'pick a card',
 		  EFFECT_1 	= 'effect 1',
 		  EFFECT_2	= 'effect 2',
-		  ENEMY_ACT = 'enemy action'
+		  ENEMY_ACT = 'enemy action',
+		  SET_UP 	= 'set up'
 
 	function search(dict, func){
 		for(let key in dict){
@@ -41,57 +42,41 @@
 		}
 	}
 	
-	function get(grid, row, col){
-		if(row >= 0 && row < grid.length && col >= 0 && col < grid[row].length){
-			return grid[row][col]
-		}else{
-			return undefined
-		}
-	}	
-	
-	function neighbors(cell){
-		return [
-			get(cell.grid, cell.row, 	cell.col - 1),
-			get(cell.grid, cell.row, 	cell.col + 1),
-			get(cell.grid, cell.row - 1,cell.col),
-			get(cell.grid, cell.row + 1,cell.col)
-		].filter(x => x)
-	}
-	
-	function find_shortest_path(cell, target){
-				let que = [cell]
-				let paths = []
-				for(let i = 0; i < cell.grid.length; i++){
-					paths[i] = [] 
-					for(let j = 0; j < cell.grid[i].length; j++){
-						paths[i][j] = undefined 
-					}
-				}
-				paths[cell.row][cell.col] = [cell]
-				//console.log(target.row, target.col)
-				while(que.length){
-					//console.log(que.map(c => c.row + ' ' + c.col))
-					let current = que.shift()
-					let neighs = neighbors(current)
-					let cur_path = paths[current.row][current.col]
-					for(let i = 0; i < neighs.length; i++){
-						c = neighs[i]
-						if(!c.occupied){
-							//console.log(target.row - c.row, target.col - c.col)
-							if(c.row === target.row && c.col === target.col){
-								//console.log('found:',cur_path.concat(c))
-								return cur_path.concat(c)
-							}else if(!paths[c.row][c.col]){
-							
-								paths[c.row][c.col] = cur_path.concat(c)
-								que.push(c)
-							}
-						}
-					}
-				}
-				return false 
-				
+	/*function find_shortest_path(cell, target){
+		let que = [cell]
+		let paths = []
+		for(let i = 0; i < cell.grid.length; i++){
+			paths[i] = [] 
+			for(let j = 0; j < cell.grid[i].length; j++){
+				paths[i][j] = undefined 
 			}
+		}
+		paths[cell.row][cell.col] = [cell]
+		//console.log(target.row, target.col)
+		while(que.length){
+			//console.log(que.map(c => c.row + ' ' + c.col))
+			let current = que.shift()
+			let neighs = neighbors(current)
+			let cur_path = paths[current.row][current.col]
+			for(let i = 0; i < neighs.length; i++){
+				c = neighs[i]
+				if(!c.occupied){
+					//console.log(target.row - c.row, target.col - c.col)
+					if(c.row === target.row && c.col === target.col){
+						//console.log('found:',cur_path.concat(c))
+						return cur_path.concat(c)
+					}else if(!paths[c.row][c.col]){
+					
+						paths[c.row][c.col] = cur_path.concat(c)
+						que.push(c)
+					}
+				}
+			}
+		}
+		return false 
+		
+	}
+	*/
 	
 	function copy(dict){
 		let op = {}
@@ -174,17 +159,32 @@
 	}
 
 	function animate(who, what, where){
-		let dr = where.row - who.cell.row 
-		let dc = where.col - who.cell.col
+		function last_dir(who){
+			if(who && who.anims && who.anims.currentAnim && who.anims.currentAnim.key){
+				return who.anims.currentAnim.key.split('-')[2]
+			}else{
+				return 'up'
+			}
+			
+		}
 		let dir
-		if(dr > 0){
-			dir = 'down'
-		}else if(dr < 0){
-			dir = 'up'
-		}else if(dc > 0){
-			dir = 'right'
-		}else if(dc < 0){
-			dir = 'left'
+		if(where){
+			let dx = where.x - who.get_tiles().ground.x
+			let dy = where.y - who.get_tiles().ground.y 
+			
+			if(dx > 0){
+				dir = 'right'
+			}else if(dx < 0){
+				dir = 'left'
+			}else if(dy > 0){
+				dir = 'down'
+			}else if(dy < 0){
+				dir = 'up'
+			}else{
+				dir = last_dir(who)
+			}
+		}else{
+			dir = last_dir(who)
 		}
 		if(dir){
 			who.anims.play(who.data.NAME+'-'+what+'-'+dir)
@@ -193,11 +193,11 @@
 
 	function act(args){
 		
-		if(args.card.data.COST > args.player.data.STA){
+		if(args.card.data.COST > args.player.stamina){
 			console.log('Too Expensive')
 			return 
 		}else{
-			args.player.data.STA -= args.card.data.COST
+			args.player.stamina -= args.card.data.COST
 			args.player.refresh()
 		}
 		
@@ -249,7 +249,6 @@
 					c = color(tile, c)
 				}
 			})
-			console.log(c, count)
 		},
 		refresh: function(tile){
 			let dt = 300 
@@ -285,15 +284,17 @@
 		init: function(scene){
 			this.player = true 
 			this.scene = scene
+			state.phase = SET_UP
 		},
 		end: function(){
-			//console.log('End turn', this.player)
+			
 			this.player = !this.player 
 			this.begin()
 		},
 		begin: function(){
+			this.scene.refresh(this.player)
 			if(this.player){
-				this.scene.players.forEach(b => b.rest())
+				this.scene.players.forEach(b => b.take_turn())
 				state.phase = PICK_A_CARD
 				this.scene.cardtainers.forEach(c => {
 					if(!c.card){
@@ -309,6 +310,8 @@
 			
 		},
 		next: function(){
+			this.scene.refresh(this.player)
+			
 			if(this.player){
 				state.phase = PICK_A_CARD
 				//console.log('waiting...')
@@ -330,11 +333,12 @@
 		},
 		
 		next: function(){
-			
+			console.log('manager next')
 			function execute(target){
 				manager.execute(target)
 			}
-			this.args.player.cell.for_grid(c => c.action = undefined)
+			this.args.scene.grid.highlight_all(false)
+			this.args.pointer.action = this.args.pointer.none 
 			if(this.effects.length === 0){
 				turn.next()
 				return 
@@ -342,16 +346,15 @@
 			
 			this.eff = this.effects.shift() 
 			this.is_legal_effect(this.eff)
-			let cells = this.eff.highlight(this.args.player.cell)
-			if(!cells || cells.length === 0){
+			let tiles = this.eff.highlight(this.args)
+			if(!tiles || tiles.length === 0){
 				return this.next()
 			}
-			cells.forEach(c => {
-				c.set(this.eff.color)
-				c.action = execute 
+			tiles.forEach(t => {
+				this.args.scene.grid.highlight_tile(t, this.eff.color)
 			})
-			
-			this.args.strat(this.args, cells, this.eff.flavor)
+			this.args.pointer.action = execute 
+			this.args.strat(this.args, tiles, this.eff.flavor)
 		},
 		execute: function(target){
 			this.eff.action(target, this.args)
@@ -475,7 +478,7 @@
 				move : /^MOV:(\d+)$/,
 				//melee: /^MEL\+(.*)$/,
 				//range: /^RNG\+(.*)$/,
-				attack: /^(RNG|MEL)\+(.*)$/,
+				attack: /^(RNG|MEL):(.*)$/,
 				self: /^SELF:(.*)$/
 			}
 			if(!string){
@@ -554,43 +557,31 @@
 				color: 'blue',
 				flavor: 'move',
 				
-				highlight: function(cell){
-					let cells = [cell]
-					for(let i = 0; i < cell.grid.length; i++){
-						for(let j = 0; j < cell.grid[i].length; j++){
-							let dr = cell.grid[i][j].row - cell.row 
-							let dc = cell.grid[i][j].col - cell.col
-							if(Math.abs(dr) + Math.abs(dc) <= amnt){
-								//console.log('find path')
-								let path = find_shortest_path(cell, cell.grid[i][j])
-								//console.log(path)
-								if(path && path.length <= amnt+1){
-									cells.push(cell.grid[i][j])
-								}
-								
-							}
-						
-						}
-					}
-					return cells 
+				highlight: function(args){
+					let t0 = args.scene.grid.get_tiles_at_world(args.player.container.x, args.player.container.y).ground 
+					//console.log(t0)
+					return args.scene.grid.get_all_tiles_that(t => {
+						let path = args.scene.grid.get_path(t0, t)
+						return path && path.length <= amnt + 1
+					}).concat([t0])
 				},
 				action: function(target, args){
-					//console.log('move your body', target, args)
-					target.refresh_grid('clean')
+					
+					args.scene.grid.highlight_all(false)
 					function move_player(player, path){
+						console.log(path.length)
 						if(path.length){
 							let to = path.shift()
 							animate(player, 'walk', to)
+							//console.log(to)
 							args.scene.tweens.add({
 								targets: player.container,
 								duration: 300,
-								x: to.sprite.x,
-								y: to.sprite.y,
+								x: to.pixelX + to.width/2 + to.layer.tilemapLayer.x,
+								y: to.pixelY + to.height/2 + to.layer.tilemapLayer.y,
 								//ease: 'Sine.easeInOut',
 								onComplete: ()=> {
-									animate(player, 'stand', to)
-									to.occupy(player)
-									to.refresh_grid('clean')
+									animate(player, 'stand')
 									move_player(player, path)
 								}
 							})
@@ -599,7 +590,7 @@
 						}
 					}
 					
-					let path = find_shortest_path(args.player.cell, target)
+					let path = args.scene.grid.get_path(args.player.get_tiles().ground, target.ground)
 					move_player(args.player, path)
 				}
 				
@@ -607,9 +598,14 @@
 			
 		},
 		melee: function(atks){
-			function attack(player, cell){
-				if(cell.occupied){
-					cell.occupied.hit(player, atks.map(roll))
+			
+			function attack(player, target, args){
+				if(target.occupied){
+					let objs = args.scene.players.concat(args.scene.baddies).filter(obj => {
+						return args.grid.is_on_tile(target.ground, obj.container)
+					})
+					console.log('attack', objs)
+					objs.forEach(obj => obj.hit(player, atks))
 				}else{
 					console.log('miss')
 				}
@@ -618,32 +614,37 @@
 			return {
 				color: 'red',
 				flavor: 'melee',
-				highlight: function(cell){
-					//console.log('melee attack: highlight')
-					return neighbors(cell)
+				highlight: function(args){
+					let t0 = args.scene.grid.get_tiles_at_world(args.player.container.x, args.player.container.y).ground 
+					console.log(args.scene.grid.get_neighbors(t0, true))
+					return  args.scene.grid.get_neighbors(t0, true)
 				},
 				action: function(target, args){
-					let dr = args.player.cell.row - target.row 
-					let dc = args.player.cell.col - target.col 
+					//console.log('Attack', target, args)
+					let dx = args.player.get_ground().x - target.ground.x  
+					let dy = args.player.get_ground().y - target.ground.y 
 					//console.log(dr, dc)
-					let f = 200
-					if(dc > 0){
-						f += 2
-					}else if(dc < 0){
-						
-					}else if(dr > 0){
-						f += 1 
-					}else if(dr < 0){
-						f += 3
+					let rot = 0 
+					if(dx > 0){
+						rot = 180 
+					}else if(dx < 0){
+						rot = 0 
+					}else if(dy > 0){
+						rot = -90 
+					}else if(dy < 0){
+						rot = 90 
 					}
-					let s = args.scene.add.sprite(args.player.container.x, args.player.container.y, 'characters', f)
-					target.refresh_grid('clean')
-					animate(args.player, 'stand', target)
+					let f = 0 
+					let s = args.scene.add.sprite(args.player.container.x, args.player.container.y, 'hud', f)
+					args.grid.highlight_all(false)
+					
+					animate(args.player, 'stand')
+					s.angle = rot 
 					args.scene.tweens.add({
 						targets: s,
 						duration: 150,
-						x: target.sprite.x,
-						y: target.sprite.y,
+						x: args.scene.grid.get_world_x(target.ground),
+						y: args.scene.grid.get_world_y(target.ground),
 						yoyo: true,
 						
 						//ease: 'Sine.easeInOut',
@@ -654,7 +655,7 @@
 								alpha: 0,
 								onComplete: () => {
 									s.destroy()
-									attack(args.player, target)
+									attack(args.player, target, args)
 									manager.next()
 								}
 							})
@@ -753,7 +754,12 @@
 					deck = this.deck || deck
 					this.deck = deck 
 					if(deck.length){
-						deck.filter(c => c.status === IN_DECK)[0].draw(this)
+						let d = deck.filter(c => c.status === IN_DECK)
+						if(d.length){
+							d[0].draw(this)
+						}else{
+							console.log('All out of cards!')
+						}
 					}
 				},
 				deselect: function(){
@@ -906,6 +912,7 @@
 			let grid = {
 				scene: scene,
 				limit: 12,
+				index_offset: 0,
 				init: function(where){
 					this.create(where)
 					roof.init(scene)
@@ -1019,7 +1026,7 @@
 					paths.log()
 					return false 
 				},
-				get_neighbors: function(tile){
+				get_neighbors: function(tile, all){
 					let neighbors = []
 					let dirs = [
 						{dir: 'W', dx: -1, dy:  0},
@@ -1028,13 +1035,13 @@
 						{dir: 'S', dx:  0, dy:  1}
 					]
 					//*
-					let lefts = (state.search(this.scene.exterior.layer.properties, x=>x.name==='left')
+					let lefts = (search(this.scene.exterior.layer.properties, x=>x.name==='left')
 						.value 
 						.split(' ')
 						.map(x => +x)
 					)
 								
-					let rights = (state.search(this.scene.exterior.layer.properties, x=>x.name==='right')
+					let rights = (search(this.scene.exterior.layer.properties, x=>x.name==='right')
 						.value 
 						.split(' ')
 						.map(x => +x)
@@ -1046,16 +1053,18 @@
 					let tiles = []
 					dirs.forEach(dir => {
 						let t = this.get_rel_tiles(tile, dir.dx, dir.dy)
-						if(t.ground && !t.walls){
+						//console.log(t)
+						if(t.ground && (all || (!t.walls && !t.occupied))){
 							if(t.exterior){
 								let id = t.exterior.index - 1 //What?!?!
+								
 								if(dir.dir === 'W'){
 									//console.log(t.ground)
-									if(rights.indexOf(id) === -1){
+									if(rights.indexOf(id) < 0){
 										tiles.push(t.ground)
 									}
 								}else if(dir.dir === 'E'){
-									if(lefts.indexOf(id) === -1){
+									if(lefts.indexOf(id) < 0){
 										tiles.push(t.ground)
 									}
 								}else{
@@ -1066,6 +1075,17 @@
 								tiles.push(t.ground)
 							}
 						}
+					})
+					return tiles 
+				},
+				get_all_tiles_that: function(func){
+					let tiles = []
+					layers.forEach(lay => {
+						this.scene[lay].forEachTile(t => {
+							if(func(t)){
+								tiles.push(t)
+							}
+						})
 					})
 					return tiles 
 				},
@@ -1143,17 +1163,37 @@
 							tl.height
 						)
 						
+						//console.log(old_scene[layer].layer.properties)
+						new_scene[layer].layer.properties = old_scene[layer].layer.properties
+						
 						tiles.forEach(tile => {
-							new_scene[layer].putTileAt(
-								tile.index - 1, 
-								tile.x - trigger.x/tile.width, 
-								tile.y - trigger.y/tile.height
-							)
+							if(tile.index - 1 >= 0){
+								new_scene[layer].putTileAt(
+									tile.index - 1, 
+									tile.x - trigger.x/tile.width, 
+									tile.y - trigger.y/tile.height
+								)
+							}
 						})
 						
 						
 					})
-					 
+					
+					new_scene.npcs = old_scene.map.getObjectLayer('npcs').objects.filter(obj => {
+						return (obj.x >= trigger.x && 
+								obj.x <= trigger.x + trigger.width &&
+								obj.y >= trigger.y &&
+								obj.y <= trigger.y + trigger.height)
+					})
+					/*
+					let scale = ['x', 'y', 'width', 'height']
+					new_scene.npcs.forEach(obj => {
+						scale.forEach(prop => obj[prop] *= ZOOM)
+					})
+					*/
+					
+					
+					this.index_offset = -1 
 				},
 				get_tiles_from(direction){
 					let w = scene.map.layers[0].width 
@@ -1214,11 +1254,23 @@
 					
 					console.log(scene[name])
 				},
-
+				get_world_x: function(tile){
+					return tile.pixelX + tile.layer.tilemapLayer.x + tile.width/2
+				},
+				get_world_y: function(tile){
+					return tile.pixelY + tile.layer.tilemapLayer.y + tile.height/2
+				},
+				is_on_tile: function(tile, s){
+					return (s.x >= this.get_world_x(tile) - tile.width/2&&
+							s.x <= this.get_world_x(tile) + tile.width/2 &&
+							s.y >= this.get_world_y(tile) - tile.width/2&&
+							s.y <= this.get_world_y(tile) + tile.height/2)
+				},
 				create_thing_family: function(string, func){
 					this[string + '_at'] = this.thing_at(func)
 					this[string + '_tile'] = this.thing_tile(string)
 					this[string + '_at_world'] = this.thing_at_world(string)
+					this[string + '_all'] = this.thing_all(string)
 				},
 				thing_at: function(func){
 					return function(x, y, arg){
@@ -1238,12 +1290,17 @@
 						let tile = this.get_tiles_at_world(x, y).ground 
 						this[string + '_tile'](tile, arg)
 					}
+				},
+				thing_all(string){
+					return function(arg){
+						this.scene.ground.forEachTile(t => this[string + '_tile'](t, arg))
+					}
 				}
 			}
 			
 			grid.create_thing_family('occupy', function(x, y){
 				//console.log('occupy', x, y)
-				scene.occupied.putTileAt(9, x, y)
+				scene.occupied.putTileAt(10 + scene.grid.index_offset, x, y)
 			})
 			
 			grid.create_thing_family('vacate', function(x, y){
@@ -1252,15 +1309,17 @@
 			
 			grid.create_thing_family('highlight', function(x, y, color){
 				let colors = {
-					white: 10,
-					blue: 11,
-					red: 12
+					white: 11,
+					blue: 12,
+					red: 13,
+					yellow: 32,
+					no: 33,
 				}
 				
 				if(color){
-					scene.highlight.putTileAt(colors[color], x, y)
+					scene.highlight.putTileAt(colors[color] + scene.grid.index_offset, x, y)
 				}else{
-					scene.occupied.removeTileAt(x, y)
+					scene.highlight.removeTileAt(x, y)
 				}
 			})
 			
@@ -1305,17 +1364,21 @@
 			;['up', 'over', 'out', 'down', 'drag'].forEach( x => {
 				scene.input.on('gameobject'+x, (pointer, obj) => {
 					if(obj.parent['on_'+x]){
-						obj.parent['on_'+x]({
-							hand: scene.cardtainers.map(x => x.card),
-							players: scene.players,
-							baddies: scene.baddies,
-							grid: scene.grid,
-							scene: scene
-						})
+						obj.parent['on_'+x](this.get_scene_args(scene))
 					}
 				})
 			})
+		},
+		get_scene_args: function(scene){
+			return {
+				hand: scene.cardtainers.map(x => x.card),
+				players: scene.players,
+				baddies: scene.baddies,
+				grid: scene.grid,
+				scene: scene
+			}
 		}
+		
 	}
 
 })()

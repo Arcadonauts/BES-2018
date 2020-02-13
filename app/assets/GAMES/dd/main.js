@@ -89,6 +89,10 @@
 					name: ZOOM+'x_headshots',
 					width: 64,
 					height: 45
+				}, {
+					name: ZOOM+'x_hud',
+					width: 24,
+					height: 24
 				}
 			]
 		
