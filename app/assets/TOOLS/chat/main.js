@@ -132,7 +132,7 @@
 						'^' + stud.lower + '$'
 					))
 				})
-				//return exact 
+				return exact 
 			})
 			
 			
