@@ -126,22 +126,22 @@ function Button(label, x, y, callback){
 	};
 
 }
-
+// Updated 2/13/2020
 let classes = {
 	/*
 	10.1:['Alex', 'Amy', 'Avery', 'Barry', 'Cathy', 'Ethan', 'Harris', 'Jasper', 'Jeff', 'Jennifer', 'Jessie', 'Jim', 'Leo', 'Lucy', 'Michael', 'Peki', 'Reina', 'Roy', 'Tim', 'Tony', 'Vicky', 'William'],
 	10.2:['Alan', 'Annie', 'Bill', 'Bob', 'Casey', 'Cecilia', 'Dale', 'Frank', 'George', 'Helen', 'Irene', 'Jenny', 'Johnathan', 'Lydia', 'Nina', 'Rebecca', 'Steven', 'Tommy', 'Tony'],
 	10.3: ['Aaron', 'Allen', 'Arie', 'Bob', 'George', 'James Hu', 'James Wang', 'Lori', 'Mike', 'Susan', 'Timmy', 'Zack'],
 	*/
-	10.1: ['Alex', 'Avery', 'Barry', 'Cathy', 'Ethan', 'Harris', 'Jasper', 'Jeff', 'Jennifer', 'Jessie', 'Leo', 'Lucy', 'Michael', 'Nina', 'Peki', 'Reina', 'Roy', 'Tim', 'Tony Hu', 'Vicky', 'William'],
-	10.2: ['Alan', 'Amy', 'Annie', 'Bill', 'Bob Hou', 'Casey', 'Cecilia', 'Frank', 'George Zhang', 'Helen', 'Irene', 'James Wang', 'Jenny', 'Jim', 'Jonathan', 'Lydia', 'Mike', 'Steven', 'Timmy', 'Tommy'],
-	10.3: ['Aaron', 'Allen', 'Arie', 'Bob Wang', 'Dale', 'George Zhang', 'James Hu', 'Lori', 'Rebecca', 'Susan', 'Tony Wang', 'Zack'],
+	10.1: ['Alex', 'Avery', 'Barry', 'Cathy', 'Ethan', 'Harris', 'Jasper', 'Jeff', 'Jennifer Yan', 'Jessie', 'Leo', 'Lucy', 'Michael Zhu', 'Nina Li', 'Peki', 'Reina', 'Roy', 'Tim Shen', 'Tony Hu', 'Vicky Li', 'William'],
+	10.2: ['Alan Gao', 'Amy', 'Annie Xiong', 'Bill', 'Bob Hou', 'Casey', 'Cecilia', 'Frank', 'George Zhang', 'Helen', 'Irene', 'James Wang', 'Jenny', 'Jim', 'Jonathan', 'Lydia', 'Mike', 'Steven', 'Timmy', 'Tommy'],
+	10.3: ['Aaron', 'Allen', 'Arie', 'Bob Wang', 'Dale', 'James Hu', 'Lori', 'Rebecca Pan', 'Susan', 'Tony Wang', 'Zack'],
 
-	11.1: ['Lucas', 'Abel', 'Albert', 'Angel', 'Ann', 'Benedict', 'Bob', 'Carleton', 'Charles', 'Elias', 'George', 'Harvey', 'Howard', 'Iris', 'Isabella', 'Ivy', 'Jack', 'Jennifer', 'Katherine', 'Kenney', 'Leila', 'Loki', 'Miles', 'Paul', 'Ray', 'Ruby', 'Sally', 'Sherry', 'Tom', 'Vicky'],
-	11.2: ['Annie', 'Blake', 'Claire', 'Claudia', 'Evan', 'Grace', 'Johnny', 'Joyce', 'Kevin', 'Maxwell', 'Morris', 'Nina', 'Rebecca', 'Rexa', 'Rita', 'Solomon', 'Toim', 'Winnie'],
+	11.1: ['Abel', 'Albert', 'Angel', 'Ann', 'Benedict', 'Bob Wei', 'Carleton', 'Charles', 'Elias', 'George Zhang', 'Harvey', 'Howard', 'Iris', 'Isabella', 'Ivy', 'Jack', 'Jennifer Qiao', 'Katherine', 'Kenney', 'Leila', 'Loki', 'Lucas', 'Miles', 'Paul', 'Ray', 'Ruby', 'Sally', 'Sherry', 'Tom', 'Vicky Fu'],
+	11.2: ['Annie Miao', 'Claire', 'Claudia', 'Evan', 'Grace', 'Johnny', 'Joyce', 'Kevin Zheng', 'Maxwell', 'Morris', 'Nina Huo', 'Rebecca Zhang', 'Rexa', 'Rita', 'Solomon', 'Tim Zhou', 'Winnie'],
 	
-	12.1: ['Alan', 'Amanda', 'Ares', 'Bary', 'Buford', 'David', 'Kevin', 'Lynn', 'Michael', 'Nancy', 'Robert', 'Scott', 'Yvette', 'Zed', 'Barry Allen', 'Mark', 'Tony'],
-	//classes : ['10.1', '10.2', '10.3', '11.1', '11.2', '12']
+	12: ['Alan Xie', 'Amanda', 'Ares', 'Barry Allen', 'Bary', 'Buford', 'David', 'Kevin Zhang', 'Lynn', 'Mark', 'Michael Zhang', 'Nancy', 'Robert', 'Scott', 'Tony Tang', 'Yvette', 'Zed']
+	
 };
 
 let ten23 = '10.2/3'
@@ -265,7 +265,7 @@ function setup(){
 		menuButtons = [];
 		let y = 0;
 		let x = 0;
-		let cl_names = [10.1, 10.2, 10.3, 11.1, 11.2, 12.1, ten23, 11];
+		let cl_names = [10.1, 10.2, 10.3, 11.1, 11.2, 12, ten23, 11];
 		for(let i = 0; i < cl_names.length; i++){
 			let k = cl_names[i];
 			if(k !== ''){
