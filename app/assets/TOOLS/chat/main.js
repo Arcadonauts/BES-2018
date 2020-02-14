@@ -15,12 +15,17 @@
 	function get_line(line){
 		if(!line) return 
 		
-		let re = /^(\d+:\d+:\d+)\s+From\s+([^:]+) : (.+)$/
+		let comp_re = /^(\d+:\d+:\d+)\s+From\s+([^:]+) : (.+)$/
+		let phone_re = /^(\d+:\d+:\d+)\s+([^:]+):\s+(.+)$/
 	
-		let match = line.match(re)
+		let match = line.match(comp_re)
 		if(!match){
-			console.log('bad line: ', line)
-			return
+			match = line.match(phone_re)
+			if(!match){
+				console.log('bad line: ', line)
+				return
+			}
+			
 		}
 		return {
 			raw: line,
@@ -44,12 +49,12 @@
 			
 					let names = name.split(' ')
 					this.students[name + ' ' + cls] = {
-						name: name,
+						name: name.replace('_', ' '),
 						cls: cls, 
-						first: names[0],
+						first: names[0].replace('_', ' '),
 						last: names[1],
 						lines: [],
-						lower: names[0].toLowerCase()
+						lower: names[0].replace('_', ' ').toLowerCase()
 					}
 			})
 		},
