@@ -1,6 +1,6 @@
 (function(){
-	const ZOOM = 3
-	let layers = ['ground', 'walls', 'exterior', 'roof', 'highlight', 'occupied']
+	const ZOOM = 2
+	let layers = ['ground', 'walls', 'exterior', 'roof',  'highlight', 'occupied', 'entangled']
 	
 	const IN_DECK 	= 'in deck',
 		  DRAWN		= 'drawn',
@@ -28,6 +28,42 @@
 		return undefined
 	}
 	
+	function attack(atks, player, target, args){
+		if(target.occupied){
+			let objs = args.scene.players.concat(args.scene.baddies).filter(obj => {
+				return args.grid.is_on_tile(target.ground, obj.container)
+			})
+			//console.log('attack', objs)
+			objs.forEach(obj => obj.hit(player, atks))
+		}else{
+			console.log('miss')
+		}
+	}
+	
+	function sign(x){
+		if(x > 0){
+			return 1
+		}else if(x < 0){
+			return -1 
+		}else{
+			return x 
+		}
+	}
+
+	function get_rot(dx, dy){
+		let rot = 0 
+		if(dx > 0){
+			rot = 180 
+		}else if(dx < 0){
+			rot = 0 
+		}else if(dy > 0){
+			rot = -90 
+		}else if(dy < 0){
+			rot = 90 
+		}
+		return rot 
+	}
+	
 	function roll(die){
 		if(typeof die === 'number'){
 			return die
@@ -41,42 +77,6 @@
 			}
 		}
 	}
-	
-	/*function find_shortest_path(cell, target){
-		let que = [cell]
-		let paths = []
-		for(let i = 0; i < cell.grid.length; i++){
-			paths[i] = [] 
-			for(let j = 0; j < cell.grid[i].length; j++){
-				paths[i][j] = undefined 
-			}
-		}
-		paths[cell.row][cell.col] = [cell]
-		//console.log(target.row, target.col)
-		while(que.length){
-			//console.log(que.map(c => c.row + ' ' + c.col))
-			let current = que.shift()
-			let neighs = neighbors(current)
-			let cur_path = paths[current.row][current.col]
-			for(let i = 0; i < neighs.length; i++){
-				c = neighs[i]
-				if(!c.occupied){
-					//console.log(target.row - c.row, target.col - c.col)
-					if(c.row === target.row && c.col === target.col){
-						//console.log('found:',cur_path.concat(c))
-						return cur_path.concat(c)
-					}else if(!paths[c.row][c.col]){
-					
-						paths[c.row][c.col] = cur_path.concat(c)
-						que.push(c)
-					}
-				}
-			}
-		}
-		return false 
-		
-	}
-	*/
 	
 	function copy(dict){
 		let op = {}
@@ -333,7 +333,8 @@
 		},
 		
 		next: function(){
-			console.log('manager next')
+			//console.log('manager next')
+			this.args.scene.refresh()
 			function execute(target){
 				manager.execute(target)
 			}
@@ -354,7 +355,7 @@
 				this.args.scene.grid.highlight_tile(t, this.eff.color)
 			})
 			this.args.pointer.action = execute 
-			this.args.strat(this.args, tiles, this.eff.flavor)
+			this.args.strat(this.args, tiles, this.eff.flavor, execute)
 		},
 		execute: function(target){
 			this.eff.action(target, this.args)
@@ -556,7 +557,7 @@
 			return {
 				color: 'blue',
 				flavor: 'move',
-				
+				distance: amnt,
 				highlight: function(args){
 					let t0 = args.scene.grid.get_tiles_at_world(args.player.container.x, args.player.container.y).ground 
 					//console.log(t0)
@@ -569,7 +570,6 @@
 					
 					args.scene.grid.highlight_all(false)
 					function move_player(player, path){
-						console.log(path.length)
 						if(path.length){
 							let to = path.shift()
 							animate(player, 'walk', to)
@@ -599,24 +599,13 @@
 		},
 		melee: function(atks){
 			
-			function attack(player, target, args){
-				if(target.occupied){
-					let objs = args.scene.players.concat(args.scene.baddies).filter(obj => {
-						return args.grid.is_on_tile(target.ground, obj.container)
-					})
-					console.log('attack', objs)
-					objs.forEach(obj => obj.hit(player, atks))
-				}else{
-					console.log('miss')
-				}
-			}
-			
 			return {
 				color: 'red',
 				flavor: 'melee',
+				damage: atks,
 				highlight: function(args){
 					let t0 = args.scene.grid.get_tiles_at_world(args.player.container.x, args.player.container.y).ground 
-					console.log(args.scene.grid.get_neighbors(t0, true))
+					//console.log(args.scene.grid.get_neighbors(t0, true))
 					return  args.scene.grid.get_neighbors(t0, true)
 				},
 				action: function(target, args){
@@ -624,22 +613,14 @@
 					let dx = args.player.get_ground().x - target.ground.x  
 					let dy = args.player.get_ground().y - target.ground.y 
 					//console.log(dr, dc)
-					let rot = 0 
-					if(dx > 0){
-						rot = 180 
-					}else if(dx < 0){
-						rot = 0 
-					}else if(dy > 0){
-						rot = -90 
-					}else if(dy < 0){
-						rot = 90 
-					}
-					let f = 0 
+					
+					
+					let f = args.card.data.HUD
 					let s = args.scene.add.sprite(args.player.container.x, args.player.container.y, 'hud', f)
 					args.grid.highlight_all(false)
 					
 					animate(args.player, 'stand')
-					s.angle = rot 
+					s.angle = get_rot(dx, dy) 
 					args.scene.tweens.add({
 						targets: s,
 						duration: 150,
@@ -655,7 +636,7 @@
 								alpha: 0,
 								onComplete: () => {
 									s.destroy()
-									attack(args.player, target, args)
+									attack(atks, args.player, target, args)
 									manager.next()
 								}
 							})
@@ -668,19 +649,61 @@
 			return {
 				color: 'red',
 				flavor: 'range',
-				highlight: function(){
-					console.log('range attack: highlight')
-					return [] 
+				damage: atks,
+				highlight: function(args){
+					let t0 = args.player.get_ground()
+					return args.scene.grid.get_all_tiles_that(t => {
+						return (Math.abs(t.x - t0.x) === 0) ^ (Math.abs(t.y - t0.y) === 0)
+					})
 				},
-				action: function(){
+				action: function(target, args){
+					let t0 = args.player.get_ground()
+					let dx = -sign(t0.x - target.ground.x)
+					let dy = -sign(t0.y - target.ground.y)
 					
+					let t = args.scene.grid.get_tiles_from_tile(t0)
+					t = args.scene.grid.get_rel_tiles(t.ground, dx, dy)
+					let tf = t 
+					do{
+						tf = t 
+						t = args.scene.grid.get_rel_tiles(t.ground, dx, dy)
+					}while(t.ground && !tf.occupied)
+					
+					let f = args.card.data.HUD
+					let s = args.scene.add.sprite(args.player.container.x, args.player.container.y, 'hud', f)
+					args.grid.highlight_all(false)
+					
+					animate(args.player, 'stand')
+					s.angle = get_rot(-dx, -dy) 
+					console.log(tf)
+					args.scene.tweens.add({
+						targets: s,
+						duration: 150*(Math.abs(tf.ground.x - t0.x) + Math.abs(tf.ground.y - t0.y)),
+						x: args.scene.grid.get_world_x(tf.ground),
+						y: args.scene.grid.get_world_y(tf.ground),
+						yoyo: false,
+						
+						//ease: 'Sine.easeInOut',
+						onComplete: ()=> {
+							args.scene.tweens.add({
+								targets: s,
+								duration: 50,
+								alpha: 0,
+								onComplete: () => {
+									s.destroy()
+									attack(atks, args.player, tf, args)
+									manager.next()
+								}
+							})
+						}
+					})
 				}
 			}
 		},
 		self: function(what){
 			return function(){
 				console.log('Go ' + what + ' yourself.')
-				state.phase = PICK_A_CARD
+				manager.next()
 			}
 		}
 	}
@@ -791,7 +814,7 @@
 				let container = scene.add.container(-150, scene.game.canvas.height/2)
 				let bg = scene.add.sprite(0, 0, 'cards', 8)
 				let sprite = scene.add.sprite(0, 0, 'cards', color)
-				let img = scene.add.sprite(0, -22*ZOOM, 'card_art', data.ART)
+				let img = scene.add.sprite(0, -21*ZOOM, 'card_art', data.ART)
 				let title = scene.add.text(-25*ZOOM, -42*ZOOM, data.NAME, font)
 				title.setOrigin(0,0)
 				
@@ -862,11 +885,14 @@
 						this.deselect(args)
 					}else if(this.status === READY){
 						this.deselect(args)
-						let ct = this.cardtainer.sprite
 						this.status = SELECTED
+						
+						let ct = this.cardtainer.sprite
+						
 						ct.setFrame(5)
 						ct.setScale(1.1, 1.1)
-						this.container.setScale(1.05)
+						
+						this.scale(1.05)
 						
 						let player = search(args.players, p => p.selected)
 						if(player){
@@ -876,6 +902,18 @@
 						}
 					}
 				},
+				scale: function(r){	
+					this.container.setScale(r)	
+					this.container.list.forEach(child => {
+						if(child.type === 'Text'){
+							child.setScale(1/r)
+						}else{
+							//console.log(child.type)
+							
+						}
+					})
+				},
+				
 				deselect: function(args){
 					this.scene.buttons.discard.disable()
 					args.hand.filter(c => c).forEach(c => {
@@ -883,7 +921,7 @@
 						let ct = c.cardtainer.sprite
 						ct.setFrame(4)
 						ct.setScale(1, 1)
-						c.container.setScale(1, 1)
+						this.scale(1)
 					})
 				},
 				discard: function(args){
@@ -1047,7 +1085,10 @@
 						.map(x => +x)
 					)
 
-					
+					let all_tiles = this.get_tiles_from_tile(tile)
+					if(all_tiles.entangled && !all){
+						return []
+					}
 					//console.log(lefts, rights)
 					//*/
 					let tiles = []
@@ -1297,6 +1338,22 @@
 					}
 				}
 			}
+			
+			grid.create_thing_family('entangle', function(x, y, color){
+				if(color === undefined){
+					console.warn('Entangle assuming the color is grey')
+					color = 'grey' 
+				}
+				let colors = {
+					'green': 195,
+					'grey': 175
+				}
+				if(color){
+					scene.entangled.putTileAt(colors[color], x, y)
+				}else{
+					scene.entangled.removeTileAt(x, y)
+				}
+			})
 			
 			grid.create_thing_family('occupy', function(x, y){
 				//console.log('occupy', x, y)

@@ -38,6 +38,7 @@
 	function make_pointer(scene){
 		let pointer = {
 			select: function(tiles){
+				//console.log(this.action)
 				this.action(tiles)
 			},
 			none: function(tiles){
@@ -199,20 +200,28 @@
 			},
 			attack: function(atks){
 				//console.log('attack', atks)
-				let dam = player.data.ATK 
+				let dam = 0
+				let entangle = false
+				let toxic = false 
 				if(atks[0] === 'DAM'){
+					dam = player.data.ATK 
 					atks.slice(1).forEach(a => {
 						if(a[0] === 'D'){
-							
+							dam += this.roll(a)
 						}else{
 							dam += (+a)
 						}
 					})
+				}else if(atks[0] === 'TGL'){
+					entangle = true 
+				}else if(atks[0] === 'TOX'){
+					toxic = true 
 				}
 				
 				return {
-					damage : dam,
-					toxic: false 
+					damage: dam,
+					toxic: toxic,
+					entangle: entangle 
 				}
 			},
 			hit: function(player, atks){
@@ -220,17 +229,39 @@
 				let atk = player.attack(atks)
 				let def = this.data.DEF 
 				if(atk.damage > def){
-					console.log('Hit!', this.name, atk, def)
+					console.log('Hit!', this.name, atk.damage, def)
 					this.data.HP -= atk.damage - def 
 				}else{
-					console.log('Block!', this.name, atk, def)
+					console.log('Block!', this.name, atk.damage, def)
 				}
+				
+				if(atk.entangle){
+					this.entangle()
+				}
+				
+				if(atk.toxic){
+					this.toxic()
+				}
+				
 				if(this.data.HP <= 0){
 					this.die()
 				}
 				this.refresh()
 				
 			},
+			entangle: function(){
+				scene.grid.entangle_tile(this.get_ground())
+			},
+			toxic: function(){
+				console.warn('Toxic not implemented')
+			},
+			heal: function(){
+				console.warn('Healing not implemented')
+			},
+			roll: function(die){
+				return Math.ceil(6*Math.random())
+			},
+			
 			die: function(){
 				let scene = this.container.scene 
 				console.log("I'm dead. You've killed me.")
@@ -256,7 +287,7 @@
 					//ease: 'Sine.easeInOut',
 					onComplete: ()=> {
 						this.container.destroy()
-						scene.grid[0][0].refresh_grid()
+						//scene.grid[0][0].refresh_grid()
 						// add corpse
 					}
 				})
@@ -377,7 +408,9 @@
 					})
 					this.pointer.action = this.pointer.none 
 				}
-				console.log("It is the player turn: ", player_turn)
+				if(player_turn) console.log(" ")
+				if(player_turn !== undefined) console.log("It is the player turn: ", player_turn)
+				
 			
 				
 			}

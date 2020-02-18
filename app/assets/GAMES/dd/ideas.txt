@@ -5,6 +5,8 @@ To Do:
 		Cancel
 		Conditions
 		HUD
+		AI
+		
 	World
 	Map
 	Dialog

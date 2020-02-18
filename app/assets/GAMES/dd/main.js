@@ -8,8 +8,8 @@
 		width: 16*TW,
 		height: 9*TW,
 		backgroundColor: '#45283c',
-		pixelArt: false,
-		zoom: .5,
+		pixelArt: true,
+		zoom: 1,
 		/*
 		physics: {
 			default: 'arcade',
