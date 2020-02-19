@@ -1,4 +1,5 @@
 //(function(){
+	console.log('你好')
 	let classes = {
 		10.1: ['Alex', 'Avery', 'Barry', 'Cathy', 'Ethan', 'Harris', 'Jasper', 'Jeff', 'Jennifer Yan', 'Jessie', 'Leo', 'Lucy', 'Michael Zhu', 'Nina Li', 'Peki', 'Reina', 'Roy', 'Tim Shen', 'Tony Hu', 'Vicky Li', 'William'],
 		10.2: ['Alan Gao', 'Amy', 'Bill', 'Bob Hou', 'Casey', 'Cecilia', 'Frank', 'George Zhang', 'Helen', 'Irene', 'James Wang', 'Jenny', 'Jim', 'Jonathan', 'Lydia', 'Mike', 'Steven', 'Timmy', 'Tommy'],
@@ -370,12 +371,14 @@
 	}
 	
 	window.onload = function(){
+		console.log('on load')
 		let butt = document.getElementById('the_button')
 		
 		butt.onclick = do_the_thing
 		
 		show('Help', help)
-
+		
+		console.log('On Load finished')
 		
 	}
 	
