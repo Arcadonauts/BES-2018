@@ -220,7 +220,7 @@
 	let strats = {
 		go: function(scene, decks){
 			let acts = []
-			console.log(decks)
+			//console.log(decks)
 			scene.baddies.forEach((bad, i) => {
 				let ai = this.ais[bad.name] || this.ais['simple']
 				

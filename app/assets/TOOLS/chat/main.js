@@ -25,7 +25,7 @@
 		
 		let comp_re = /^(\d+:\d+:\d+)\s+From\s+([^:]+) : (.+)$/
 		let phone_re = /^(\d+:\d+:\d+)\s+([^:]+):\s+(.+)$/
-		let ding_re = /^(.+):\s(.+)$/
+		let ding_re = /^(.+):\s?(.+)$/
 	
 		let match = line.match(comp_re)
 		if(match){

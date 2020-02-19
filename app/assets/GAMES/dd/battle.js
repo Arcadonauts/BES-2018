@@ -264,8 +264,8 @@
 			
 			die: function(){
 				let scene = this.container.scene 
-				console.log("I'm dead. You've killed me.")
-				console.log(this)
+				console.log("I'm dead. You've killed me.", this)
+		
 				scene.deck.forEach(c => {
 					if(c.who === this.name){
 						if(c.status === 'drawn'){
