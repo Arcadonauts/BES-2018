@@ -1,4 +1,9 @@
 //(function(){
+	function flat(a){
+		return a.reduce((acc, val) => acc.concat(val), [])
+	}
+	
+	
 	console.log('你好')
 	let classes = {
 		10.1: ['Alex', 'Avery', 'Barry', 'Cathy', 'Ethan', 'Harris', 'Jasper', 'Jeff', 'Jennifer Yan', 'Jessie', 'Leo', 'Lucy', 'Michael Zhu', 'Nina Li', 'Peki', 'Reina', 'Roy', 'Tim Shen', 'Tony Hu', 'Vicky Li', 'William'],
@@ -185,7 +190,7 @@
 			return matches 
 		},
 		for_each_student: function(func){
-			this.classes.flat().forEach(cls => {
+			flat(this.classes).forEach(cls => {
 				classes[cls].forEach(name => {
 					let stud = this.students[name + ' ' + cls]
 					func(stud)
@@ -193,7 +198,7 @@
 			})
 		},
 		for_each_name: function(func){
-			this.classes.flat().forEach(cls => {
+			flat(this.classes).forEach(cls => {
 				classes[cls].forEach(name => {
 					func(name, cls)
 				})
@@ -262,10 +267,17 @@
 				name.innerHTML += '(' + stud.lines.length + ') '
 			}
 			
+			let lines = document.createElement('ul')
+			
 			name.href = '#'
 			name.addEventListener('click', function(e){
 				e.preventDefault()
-				lines.hidden = !lines.hidden
+				//lines.hidden = !lines.hidden
+				if(lines.style.display === 'block'){
+					lines.style.display = 'none'
+				}else{
+					lines.style.display = 'block'
+				}
 			})
 			
 			li.appendChild(name)
@@ -274,10 +286,10 @@
 			
 			li.className = stud.lines.length ? 'good' : 'bad'
 			
-			let lines = document.createElement('ul')
+			
 		
 			li.appendChild(lines)
-			lines.hidden = true 
+			lines.style="display:none";
 			
 			stud.lines.forEach(line => {
 				let li = document.createElement('li')
@@ -358,7 +370,7 @@
 			show('Unidentifable Students', unidentified)
 		}
 		
-		students.classes.flat().filter(cls => students.active_classes[cls]).forEach(cls => {
+		flat(students.classes).filter(cls => students.active_classes[cls]).forEach(cls => {
 			let roster = students.get_class(cls)
 			show(cls, roster)
 		})
