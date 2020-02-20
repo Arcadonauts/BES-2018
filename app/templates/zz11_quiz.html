@@ -4,7 +4,7 @@
 	<script src="/static/TOOLS/quiz/polyfill.min.js?features=es6"></script>
 	<script id="MathJax-script" async src="/static/TOOLS/quiz/es5/tex-mml-chtml.js"></script>
 	<script src="/static/TOOLS/quiz/main.js"></script>
-	<script src="/static/TOOLS/quiz/show_results.js"></script>
+	<script src="/static/TOOLS/quiz/make_quiz.js"></script>
 
 	<style>
 	* {
@@ -24,8 +24,17 @@
 		margin: 10px;
 	}
 	
+	
+	.bad {
+		color: #FF77A8;
+	}
+	
 	.comment {
 		color: #FFF1E8;
+	}
+	
+	.time {
+		color: #29ADFF;
 	}
 	
 	ul {
@@ -38,30 +47,9 @@
 	}
 	
 	body {
-		background-color: #000000;
-		color: #C2C3C7;
+		\\background-color: #1D2B53;
+		\\color: #C2C3C7;
 	}
-	
-	.question {
-		margin-right: 20px;
-		color: #29ADFF;
-		width: auto;
-		display: inline-block;
-	}
-	
-	.right {
-		margin-right: 20px;
-		color: #29ADFF;
-	}
-	
-	.correct {
-		margin-right: 20px;
-	}
-	.wrong {
-		margin-right: 20px;
-		color: #FF77A8;
-	}
-	
 
 	textarea {
 		background-color: black;
@@ -87,13 +75,21 @@
 	
 </head>
 <body>
-<div>
-	<input id="key" placeholder="Quiz Key"></input>
-	<input type="password" id="pw" placeholder="Password"></input>
-	<button id="get_scores" >Get Scores</button>
-<div>
-<ul id="scores">
-
-</ul>
+<form id="quiz" method="post">
+	<div>
+		<label for="name">Name:</label>
+		<input type="text" id="name" name="name" placeholder="English Name" ></input>
+		
+	</div>
+	<div>
+		<label>Key:</label> {{ key }}
+		<input type="text" id="key" name="key" placeholder="Quiz Key" value="{{ key }}" class="hidden"></input>
+	</div>
+	<button id="show_quiz">Show Quiz</button>
+	
+	<div id="problems">
+		
+	</div>
+</form>
 
 </body>

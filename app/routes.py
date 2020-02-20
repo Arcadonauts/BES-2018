@@ -3,6 +3,7 @@ import flask
 import json
 import os
 from app.direct import Lvl
+from app.dir import name as root_dir
 try:
     import email_myself
 except ImportError:
@@ -45,6 +46,57 @@ def game(g):
 @app.route('/tools/<g>')
 def tool(g):
     return flask.send_from_directory('assets/TOOLS/%s'%g, 'main.html')
+
+################################################################################
+#                               ZZ11 Quiz
+################################################################################
+
+@app.route('/zz11/quiz/<key>', methods=[GET, POST])
+def zz11_quiz(key):
+    def safe(s):
+        print(s)
+        if len(s):
+            return s.replace(' ', '_')
+        else:
+            return '_'
+
+    if flask.request.method == POST:
+        name = flask.request.form.get('name')
+        key = flask.request.form.get('key')
+        qs = []
+        i = 0
+        while True:
+
+            try:
+                q = flask.request.form['q%s' % i]
+                qs.append(q)
+            except KeyError:
+                break
+            i += 1
+
+        #print(name, key, qs)
+        #print(flask.request.form)
+        #print(root_dir)
+        head, tail = os.path.split(root_dir)
+        fn = os.path.join(head, 'TOOLS/quiz/quizzes/%s.txt' % key)
+
+        if(not os.path.isfile(fn)):
+            open(fn, 'a').close()
+        with open(fn, 'a') as f:
+            f.write(safe(name))
+            f.write(' ')
+            for q in qs:
+                f.write(safe(q))
+                f.write(' ')
+            f.write('\n')
+
+        return flask.redirect(flask.url_for('zz11_thanks'))
+    else:
+        return flask.render_template('zz11_quiz.html', key=key)
+
+@app.route('/zz11/thanks')
+def zz11_thanks():
+    return flask.render_template('zz11_thanks.html')
 
 ################################################################################
 #                               PICO-8
