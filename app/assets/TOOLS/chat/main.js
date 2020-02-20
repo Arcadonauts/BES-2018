@@ -25,6 +25,10 @@
 		11.2: {'Annie': '苗昕宜', 'Claire': '张旭', 'Claudia': '郑家星', 'Evan': '禹明君', 'Grace': '叶芮希', 'Johnny': '陶嘉乐', 'Joyce': '王莹', 'Kevin': '郑钊', 'Maxwell': '王一帆', 'Morris': '常克营', 'Nina': '霍宁宁', 'Rebecca': '张英琦', 'Rexa': '高彧飞', 'Rita': '马一文', 'Solomon': '李昊洋', 'Tim': '周亦凡', 'Winnie': '魏卓然'}, 
 		12: {'Alan': '谢璐阳', 'Amanda': '张琦', 'Ares': '魏星宇', 'Barry Allen': '郝珈铭', 'Bary': '周也涛', 'Buford': '吕祎玮', 'David': '张沅朋', 'Kevin': '张一行', 'Lynn': '李欣雨', 'Mark': '张皓源', 'Michael': '张益持枫', 'Nancy': '刘冰姿', 'Robert': '张博康', 'Scott': '朱少坤', 'Tony': '唐子维', 'Yvette': '王悦懿', 'Zed': '赵楚涵'}
 	}
+	
+	let special_case = {
+		'Zhang Maxwell': 'Dale'
+	}
 
 	function get_line(line){
 		if(!line) return 
@@ -96,6 +100,19 @@
 					}
 			})
 		},
+		indentify: function(){
+			//if(!this.unidentified) return 
+			
+			for(let key in this.unidentified){
+				if(this.unidentified.hasOwnProperty(key)){
+					let stud = this.unidentified[key]
+					console.log('who is', stud)
+					
+					let matches = this.match_student(stud.lines[0])
+					console.log('One of these?', matches)
+				}
+			}
+		},
 		add_line: function(line){
 			
 			
@@ -139,6 +156,8 @@
 			}
 			
 			
+			
+			
 		},
 		match_student: function(line){
 			if(!line) return 
@@ -158,23 +177,32 @@
 				if(!stud.chinese){
 					console.log(stud.name, 'has no Chinese name')
 				}
-					
-				if(line.name.toLowerCase().match(stud.lower)){
-					matches.push(stud)
-				}
-				if(line.name.match(stud.chinese)){
-					console.log(line.name, stud.chinese)
+				
+				if(special_case[line.name]){
+					//console.log('special case!')
+					if(special_case[line.name].toLowerCase().match(stud.lower)){
+						//console.log("It's", stud)
+						matches.push(stud)
+					}
+				}else if(line.name.toLowerCase().match(stud.lower) || line.name.match(stud.chinese)){
+					//console.log(line.name, stud.chinese)
 					matches.push(stud)
 				}
 			})
 			
+			
+			
 			matches = remove_dupes(matches, stud => {
-				stud.last && line.name.toLowerCase().match(stud.last.toLowerCase())
+				return stud.last && line.name.toLowerCase().match(stud.last.toLowerCase())
+			})
+			
+			matches = remove_dupes(matches, stud => {
+				return stud.cls && line.name.match(stud.cls)
 			})
 			
 			
 			matches = remove_dupes(matches, stud => {
-				line.name.match(stud.first)
+				return line.name.match(stud.first)
 			})
 			
 			matches = remove_dupes(matches, stud => {
@@ -372,6 +400,7 @@
 		
 		
 		lines.forEach(line => students.add_line(line))
+		students.indentify()
 		
 		let unidentified = students.get_unidentified()
 		if(unidentified.length){
