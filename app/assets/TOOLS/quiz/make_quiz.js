@@ -15,7 +15,9 @@ window.onload = function(){
 		if(name && key){
 			disable_input('name', name)
 			disable_input('key', key)
-			disable_input('show_quiz', 'Show Quiz')
+			
+			let butt = document.getElementById('show_quiz')
+			butt.remove()
 			generate_quiz(name, key)
 			
 		}else if(key){
