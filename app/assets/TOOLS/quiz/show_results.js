@@ -66,15 +66,17 @@ let students = {
 				q_span.innerHTML = q 
 				q_span.className = 'question'
 				
+				
+				
+				let c_span = document.createElement('span')
+				li.appendChild(c_span)
+				c_span.innerHTML = Math.round(c*Math.pow(10, tol))/Math.pow(10, tol)
+				c_span.className = 'right'
+				
 				let a_span = document.createElement('span')
 				li.appendChild(a_span)
 				a_span.innerHTML = 'Student: ' + a 
 				a_span.className = Math.abs((+a)-(+c)) < Math.pow(10, -tol) ? 'correct' : 'wrong'
-				
-				let c_span = document.createElement('span')
-				li.appendChild(c_span)
-				c_span.innerHTML = 'Correct: ' + Math.round(c*Math.pow(10, tol))/Math.pow(10, tol)
-				c_span.className = 'correct'
 				
 			})
 		})
