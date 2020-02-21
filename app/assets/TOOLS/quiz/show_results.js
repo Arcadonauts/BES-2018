@@ -1,4 +1,4 @@
-let tol = 3
+let tol = 2
 
 let students = {
 	init: function(){
@@ -69,7 +69,7 @@ let students = {
 				let a_span = document.createElement('span')
 				li.appendChild(a_span)
 				a_span.innerHTML = 'Student: ' + a 
-				a_span.className = (+a) == (+c) ? 'correct' : 'wrong'
+				a_span.className = Math.abs((+a)-(+c)) < Math.pow(10, -tol) ? 'correct' : 'wrong'
 				
 				let c_span = document.createElement('span')
 				li.appendChild(c_span)
