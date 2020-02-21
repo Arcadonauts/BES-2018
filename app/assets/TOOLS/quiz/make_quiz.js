@@ -1,9 +1,14 @@
 window.onload = function(){
-	//let integral = integrate(funcs.exp, -2, 5)
-	
-	
-	//let span = document.getElementById('formula')
-	//span.innerHTML = integral.formula + '\\(\\ \\ \\approx \\ \\ \\)' + integral.answer 
+
+	function stopRKey(evt) {
+	  var evt = (evt) ? evt : ((event) ? event : null);
+	  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+	  if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
+	}
+
+	document.onkeypress = stopRKey;
+
+
 	document.getElementById('show_quiz').addEventListener('click', function(e){
 		e.preventDefault()
 		//lines.hidden = !lines.hidden
