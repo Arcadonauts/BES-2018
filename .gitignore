@@ -7,3 +7,4 @@ app/__init__.py
 *xlsx
 
 app/assets/BES-2018/levels/*
+app/assets/TOOLS/quiz/quizzes/*
