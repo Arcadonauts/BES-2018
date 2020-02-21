@@ -287,6 +287,7 @@ function generate_quiz(seed, key){
 		let input = document.createElement('input')
 		div.appendChild(input)
 		input.className = "problem"
+		input.style = "width:80px"
 		input.id = 'q' + i 
 		input.name = 'q' + i 
 		
