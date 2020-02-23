@@ -10,7 +10,7 @@ let students = {
 			return 
 		}
 		
-		random.seed(name.trim())
+		random.seed(name.replace('_', ' ').trim())
 		console.log('seed', name)
 		
 		let quiz = get_quiz(key)

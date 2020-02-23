@@ -116,6 +116,87 @@ let quizzes = [
 		}
 	},
 	{
+		key: 'conics',
+		name: 'Rotating Conic Sections',
+		problems: function(){
+			function sign(x){
+				return x < 0 ? '- ' : '+ '
+			}
+			
+			function formula(A1, B1, C1, F){
+				let f = A1 + "x^2 " + sign(B1) + Math.abs(B1) + "xy " + sign(C1) + Math.abs(C1) + "y^2 " + sign(F) + Math.abs(F) + ' = 0'
+				return "\\[ \\ \\ \\ " + f + "\\ \\ \\ \\]"
+			}
+			
+			function angle_prob(){
+				let A1 = random.range(-5, 5)
+				let B1 = random.range(-5, 5)
+				let C1 = random.range(-5, 5)
+				let F = random.range(-10, 10)
+				
+				while(A1 === 0){
+					A1 = random.range(-5, 5)
+				}
+				while(B1 === 0){
+					B1 = random.range(-5, 5)
+				}
+				while(C1 === 0 || C1 === A1){
+					C1 = random.range(-5, 5)
+				}
+				while(F === 0){
+					F = random.range(-5, 5)
+				}
+				
+				return {
+					formula: formula(A1, B1, C1, F),
+					instruction: "What is the angle (in radians) you must rotate to eliminate B?",
+					answer: Math.atan(B1/(A1-C1))/2
+				}
+			}
+			
+			let probs = []
+			let p = 
+			probs.push(angle_prob())
+			probs.push(angle_prob())
+			
+			
+			
+			let A = random.range(10, 30)
+			while(A === 25 || A === 16){
+				A = random.range(10, 30)
+			}
+			let C = A - 25 
+			let F = -A - C
+
+			let A1 = (16*A + 9*C)/25
+			let C1 = (9*A + 16*C)/25 
+			let B1 = -24 
+			
+			let f = formula(A1, B1, C1, F)
+			
+			let ps = [
+				[A, 'A'],
+				[C, 'C'],
+				[F, 'F']
+			]
+			
+			
+			
+			
+			
+			ps.forEach(p => {
+				probs.push({
+					answer: p[0],
+					formula: f,
+					instruction: "Rotate to eliminate the B term. What is your new <b>" + p[1] + "</b>?"
+				})
+			})
+			
+			
+			return probs 
+		}
+	},
+	{
 		key: 'u_sub',
 		name: 'Calculus U-Substitution Quiz',
 		problems: function(){
