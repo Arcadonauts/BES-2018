@@ -1,0 +1,33 @@
+@start
+@title(Test)
+@size(3)
+o o o
+o x o
+x x x
+@end
+
+@start
+@title(Big O)
+@size(5)
+o  o  o  o  oo
+o  x  x  x  o
+o  x  xo xx ox
+o  xx x  x  o
+o  o  o  o  o
+@end
+
+@start
+@title(Six By Three)
+@size(6)
+o x o x o x
+x x _ _ x x
+x o x o x o
+@end 
+
+@start
+@title(Undecided)
+@size(6)
+o x o x o x
+? ? ? ? ? ?
+x o x o x o
+@end 
