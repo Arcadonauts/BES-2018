@@ -1,5 +1,17 @@
 (function(){
+/* TO DO:
+	UI:
+		538:
+			Population
+			Districts
+		Size
+		Count
+		RESET Button 
+	SFX
+	Level Select
+	Tutorial
 
+*/
 	const path = '/static/GAMES/gerry/'
 	
 	let config = {
@@ -64,9 +76,21 @@
 					ext: 'jpg'
 				},
 				{
+					name: 'paper',
+					width: 1920,
+					height: 1080,
+					ext: 'jpg'
+				},
+				{
 					name: 'voters',
 					width: 150,
 					height: 300,
+					ext: 'png'
+				},
+				{
+					name: 'borders',
+					width: 140,
+					height: 175,
 					ext: 'png'
 				},
 			]
@@ -108,7 +132,7 @@
 		create:	function create(){
 	
 			this.scene.start('play', {
-				title: 'Test'
+				title: 'Six By Three'
 			})
 		},
 		update: function update(){
