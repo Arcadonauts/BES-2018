@@ -7,6 +7,10 @@
 			}
 		}
 		
+		if(str === '_'){
+			return 
+		}
+		
 		let party = {
 			_:0,
 			o:1,
@@ -14,7 +18,17 @@
 			'?':3
 		}
 		
-		let c = this.add.container(x, y)
+		let c = this.add.container(this.voter_cam.centerX, this.voter_cam.centerY)
+		this.add.tween({
+			targets: c,
+			x: x,
+			y: y,
+			duration: 300,
+			ease: 'Sine.easeInOut',
+			onComplete: function(){
+				suppression.create()
+			}
+		})
 		c.str = str 
 		c.district = undefined
 		c.selectable = true 
@@ -40,12 +54,14 @@
 		}
 		
 		c.set_lean = function(s){
+			
 			//console.log(s, 2*party[s] + this.card.id)
 			this.card.setFrame(2*party[s] + this.card.id)
 			this.selectable = false 
 			this.lean = s 
 			
 			this.border()
+			this.setScale(1)
 		}
 		
 		c.border = function(){
@@ -102,7 +118,7 @@
 					let nx = i0 + dir[d][id].x - 1
 					let ny = j0 + dir[d][id].y - 1
 					let n =  grid.get(ny, nx)
-					if(n && n.selected){
+					if(n && (n.selected || (n.district !== undefined && n.district === this.district))){
 						neighs += Math.pow(2, i)
 					}else{
 						
@@ -122,6 +138,7 @@
 			
 			
 		}
+		
 		
 		let corners = []
 		
@@ -154,25 +171,322 @@
 		c.add(c.card)
 		
 		c.card.setInteractive()
-		this.input.setDraggable(c.card)
+		//this.input.setDraggable(c.card)
 		c.card.on('pointerover', select)
+		c.card.on('pointerover', function(){
+			c.setScale(1.1)
+		})
+		c.card.on('pointerout', function(){
+			c.setScale(1)
+		})
 		c.card.on('pointerdown', select)
 		//*/
 		
 		let w = 100*(str.length - 1)
 		let x0 = -w/2
+		c.voters = [] 
 		for(let i = 0; i < str.length; i++){
 			
-			c.voter = this.add.sprite(x0 + i*w, 0, 'voters')
+			c.voter = this.physics.add.sprite(x0 + i*w, 0, 'voters')
 			c.voter.id = Math.floor(12*Math.random())
+			let s = str[i]
 			
-			c.voter.party = 12*party[str[i]]
+			c.voter.party = 12*party[s]
+			demographics.register_voter(s)
 
 			c.voter.setFrame(c.voter.party + c.voter.id)
+			c.voter.suppress = function(){
+				demographics.supress(s)
+				this.party = 12*party['?']
+				
+				this.setFrame(this.party + this.id)
+				let new_str = ''
+				for(let i = 0; i < str.length; i++){
+					new_str += '?'
+				}
+				c.str = new_str
+				
+				this.suppress = ()=>{}
+			}
+			
 			c.add(c.voter)
+			
+			c.voters.push(c.voter)
 		}
 		
 		return c 
+	}
+	
+	let demographics = {
+		init: function(){
+			this.voters = {total:0}
+		},
+		register_voter: function(str){
+			if(!this.voters[str]){
+				this.voters[str] = 0 
+			}
+			this.voters[str] += 1
+			this.voters.total += 1 
+		},
+		supress: function(str){
+			this.voters[str] -= 1
+			this.voters['?'] += 1
+			this.voters.update()
+		}
+	}
+	
+	function pie(x, y, data, s, label){
+		//let s = 1
+		let container = this.add.container(x, y-16)
+		this.voter_cam.ignore(container)
+		container.setScale(s)
+		let that = this 
+		
+		data.update = function(){
+			container.update()
+		}
+		
+		container.update = function(){
+			container.clear()
+			
+			let bg = that.add.sprite(0, 0, 'pie')
+			container.add(bg)
+			
+			let t = 0
+			let groups = ['o', 'x']
+			let slices = []
+			groups.forEach((xo, i) => {
+				t += 2*(Math.PI*data[xo]||0)/data.total
+				
+				let color = that.add.sprite(0, 0, 'pie')
+				slices.unshift(color)
+				color.setFrame(i+1)
+
+				
+				let shape = that.make.graphics()
+				shape.fillStyle(0xffffff)
+				shape.slice(x, y, 200, 0, t, false)
+				shape.fillPath()
+
+				var mask = shape.createGeometryMask();
+				color.setMask(mask);
+				
+				//color.sendBack()
+				
+			})
+			
+			slices.forEach(slice => {
+				container.add(slice)
+			})
+		}
+		
+		container.clear = function(){
+			while(this.list.length){
+				this.list[0].destroy()
+			}
+		}
+		
+		container.update()
+		
+		let text = this.add.text(x, y+130, label, {
+			fill: 'black',
+			fontFamily: 'LinLib',
+			fontSize: '24pt',
+			align: 'center'
+		})
+		this.voter_cam.ignore(text)
+		text.setOrigin(0.5, 0.5)
+		text.alpha = 0.75
+		
+
+		return container 
+	}
+	
+	let solver = {
+		solve: function(lvl){
+			console.log(lvl)
+			let divisions = this.divide(lvl.rows, lvl.size, lvl.pop)
+			let scores = divisions.map(div => this.score(div))
+			
+			let max = Math.max.apply(null, scores)
+			let index = scores.indexOf(max)
+			
+			this.table(divisions[index], 'dis')
+			
+			return max 
+		},
+		divide: function(rows, size, gens){
+					
+			let prev_gen = [this.get_base(rows)]
+			for(let i = 1; i < gens; i++){
+				let children = []
+				prev_gen.forEach(parent => {
+					children = children.concat(this.get_children(parent, size, i))
+				})
+				children = this.remove_dupes(children)
+				console.log(i, children.length)
+				/*
+				if(i === 14){
+					console.log('i is',i)
+					children.forEach(child => {
+						console.log(this.id(child))
+						this.table(child, 'dis')
+					})
+				}
+				//*/
+				prev_gen = children
+			}
+			//base[0][0].dis = 0
+			//console.log(prev_gen)
+			//prev_gen.forEach(child => this.table(child, 'dis'))
+			//this.table(prev_gen[0], 'str')
+			
+			return prev_gen
+		},
+		remove_dupes: function(divisions){
+			let keepers = []
+			let got = {}
+			divisions.forEach(div => {
+				let id = this.id(div)
+				if(!got[id]){
+					got[id] = true 
+					keepers.push(div)
+				}
+			})
+			
+			return keepers 
+		},
+		get_children: function(base, size, gen){
+			let children = [] 
+			let dis = Math.floor(gen/size)
+			let border = gen % size ? dis : (dis - 1)
+			//let got = {}
+			//console.table({size:size, gen:gen, dis:dis, border:border})
+			
+			base.forEach((row, i) => {
+				row.forEach((voter, j) => {
+					if(voter.dis === border){
+						let neighs = this.get_neighborhood(base, i, j).filter(v => v.dis === -1)
+						neighs.forEach(n => {
+							let child = this.copy(base)
+							child[n.i][n.j].dis = dis 
+							//let child_id = this.id(child)
+							//if(!got[child_id]){
+								children.push(child)
+							//	got[child_id] = true 
+							//}
+						})
+					}
+					
+				})
+			})
+		
+			return children 
+		},
+		id: function(rows){
+			let op = ''
+			rows.forEach((row, i) => {
+				row.forEach((voter, j) => {
+					op += voter.dis + '.'
+				})
+			})
+			return op 
+		},
+		get_base: function(rows){
+			let base = []
+			let initialized = false 
+			rows.forEach((row, i) => {
+				base[i] = []
+				row.forEach((str, j) => {
+					let dis 
+					if(!initialized && str.length > 0){
+						initialized = true 
+						dis = 0
+					}else{
+						dis = -1 
+					}
+					base[i][j] = {
+						pop: str.replace('_', '').length,
+						dis: dis,
+						i:i,
+						j:j,
+						str:str
+					}
+				})
+			})
+			return base 
+		},
+		get_neighborhood: function(base, i0, j0){
+			let neighs = []
+			for(let di = -1; di < 2; di++){
+				for(let dj = -1; dj < 2; dj++){
+					if(Math.abs(di) + Math.abs(dj) === 1){
+						if(base[i0+di] && base[i0+di][j0+dj] && base[i0+di][j0+dj].pop > 0){
+							neighs.push(base[i0+di][j0+dj])
+						}
+					}
+				}
+			}
+			return neighs 
+		},
+		copy: function(base){
+			let cop = []
+			base.forEach((row, i) => {
+				cop[i] = []
+				row.forEach((str, j) => {
+					cop[i][j] = {}
+					let voter = base[i][j]
+					for(let key in voter){
+						if(voter.hasOwnProperty(key)){
+							cop[i][j][key] = voter[key]
+						}
+					}
+				})
+			})
+			return cop 
+		},
+		score: function(division){
+			let s = 0
+			let districts = []
+			division.forEach((row, i) => {
+				row.forEach((voter, j) => {
+					if(districts[voter.dis] === undefined){
+						districts[voter.dis] = 0 
+					}
+					if(voter.str === 'o'){
+						districts[voter.dis] += 1
+					}else if(voter.str === 'x'){
+						districts[voter.dis] -= 1
+					}
+					
+				})
+			})
+			
+			districts.forEach(dis => {
+				if(dis > 0){
+					s += 1
+				}else if(dis < 0){
+					s -= 1
+				}
+			})
+			
+			return s 
+		},
+		table: function(grid, key){
+			if(!grid){
+				console.log(grid)
+				return 
+			}
+			let tab = []
+			grid.forEach((row, i) => {
+				tab[i] = []
+				row.forEach((str, j) => {
+					tab[i][j] = grid[i][j][key]
+				})
+			})
+			
+			console.table(tab)
+		}
 	}
 
 	let levels = {
@@ -185,7 +499,8 @@
 			const re = {
 				title: /^\@title\((.+)\)$/,
 				size: /^\@size\((\d+)\)$/,
-				end: /@end/
+				end: /@end/,
+				suppress: /^\@suppress\((.+)\)$/
 			}
 			const WAIT = 'wait';
 			const GO = 'go'
@@ -210,12 +525,22 @@
 					}else if(line.match(re.size)){
 						let match = line.match(re.size)
 						lvl['size'] = +match[1]
+					}else if(line.match(re.suppress)){
+						let match = line.match(re.suppress)
+						if(!lvl['suppress']){
+							lvl.suppress = {vertical: false, horizantal: false}
+						}
+						if(match[1] === 'v'){
+							lvl.suppress.vertical = true 
+						}else if(match[1] === 'h'){
+							lvl.suppress.horizantal = true
+						}
 					}else if(line.length > 0){
 						lvl.rows.push(line.split(/\s/).filter(x => x.length))
 					}
 				}
 			})
-			console.log(this.lvls)
+			
 		},
 		check: function(){
 			this.titles.forEach(title => {
@@ -253,7 +578,7 @@
 				lvl.pop = 0 
 				lvl.rows.forEach(row => {
 					row.forEach(str => {
-						lvl.pop += str.length
+						lvl.pop += str.replace('_', '').length
 					})
 				})
 				lvl.count = Math.floor(lvl.pop/lvl.size)
@@ -261,6 +586,7 @@
 					throw(title + ' population is not a multiple of its size')
 				}
 			})
+			
 		},
 		init: function(scene){
 			this.load(scene)
@@ -270,10 +596,12 @@
 			this.init = ()=>{
 				this.current = undefined
 			}
+			
+		
 		},
 		create: function(scene){
 			grid.init()
-			districts.init()
+			
 			let lvl = this.lvls[scene.data.title]
 			this.current = lvl 
 			if(!lvl){
@@ -284,7 +612,7 @@
 			let width = dx*(lvl.rows[0].length-1)
 			let height = dy*(lvl.rows.length-1)
 			
-			let x0 = scene.cameras.main.centerX - 0.33*width
+			let x0 = scene.cameras.main.centerX - 0.5*width
 			let y0 = scene.cameras.main.centerY - height/2
 			
 			lvl.rows.forEach((row, y) => {
@@ -295,25 +623,187 @@
 			})
 			
 			return {
-				width: width + dx,
-				height: height + dy
+				width: width,
+				height: height,
+				x: x0,
+				y: y0
 			}
 		}
 		
 	}
 	
+	let suppression = {
+		init: function(scene, lvl){
+			this.scene = scene 
+			this.lvl = lvl
+			this.created = false 
+			this.used = false 
+		},
+		create: function(){
+			if(this.created) return 
+			this.created = true 
+			let scene = this.scene 
+			let lvl = this.lvl 
+			
+			
+			let pointers = []
+			let dt = 400
+			if(lvl.suppress){
+				if(lvl.suppress.horizantal){
+					grid.rows[0].forEach((voter, i) => {
+						//let voter = row[0]
+						let offset = 2*(i%2)-1
+						let pointer = scene.physics.add.sprite(voter.x - voter.card.width -5*offset, voter.y, 'pointer')
+						
+						pointer.dx = pointer.x + 10*offset
+						pointer.delay = 0
+						pointer.target_x = scene.cameras.main.centerY*5
+						pointer.target_y = pointer.y 
+						pointer.dy = pointer.y
+						pointer.angle = -90
+						pointers.push(pointer)
+					})
+				}
+				if(lvl.suppress.vertical){
+					grid.rows.forEach((row, i) => {
+						
+						let voter = row.filter(x=>x)[0]
+						if(voter){
+							let offset = 2*(i%2)-1
+							let pointer = scene.physics.add.sprite(voter.x, voter.y - voter.card.width - 5*offset, 'pointer')
+							
+							pointer.dy = pointer.y + 10*offset
+							pointer.delay = 0
+							pointer.target_x = pointer.x
+							pointer.target_y = scene.cameras.main.centerY*5
+							pointer.dx = pointer.x
+							pointer.angle = 0
+							pointers.push(pointer)
+						}
+					})
+				}
+			}else{
+				this.used = true 
+			}
+			
+			pointers.forEach(pointer => {
+				scene.cameras.main.ignore(pointer)
+				let scale = 0.45
+				pointer.setScale(scale)
+				
+				grid.for_each(voter => {
+					voter.voters.forEach(v => {
+						scene.physics.add.collider(v, pointer, function(v, p){
+							v.suppress()
+							return true 
+						});
+					})
+					
+					
+				})
+				
+				pointer.tween = scene.tweens.add({
+					targets: pointer,
+					duration: dt,
+					x: pointer.dx,
+					y: pointer.dy,
+					delay: pointer.delay,
+					ease: 'Sine.easeInOut',
+					loop: -1,
+					yoyo: true
+				})
+				
+				pointer.setInteractive()
+				pointer.on('pointerover', function(){
+					this.setScale(0.55)
+				})
+				
+				pointer.on('pointerout', function(){
+					this.setScale(scale)
+				})
+				
+				pointer.on('pointerdown', function(){
+					pointers.forEach(p => {
+						if(p === pointer){
+							p.tween.stop()
+							scene.tweens.add({
+								targets: p,
+								duration: 500,
+								x: pointer.target_x,
+								y: pointer.target_y,
+								ease: 'Sine.easeIn',
+								onComplete: function(){
+									p.destroy()
+									suppression.used = true 
+									districts.recalculate()
+									end.check()
+								}
+							})
+						}else{
+							p.destroy()
+						}
+					})
+					
+				})
+			})
+		},
+	}
+	
 	let districts = {
-		init: function(){
+		init: function(tot){
+		    
 			this.districts = []
+			this.winners = {total:tot}
 		},
 		add: function(voters){
+			let winner = this.find_winner(voters)
+			
+			voters.forEach(voter => {
+				voter.set_lean(winner)
+				voter.district = this.districts.length
+				
+			})
+			this.districts.push(voters)
+			//this.winners.total += 1
+			if(!this.winners[winner]){
+				this.winners[winner] = 0
+			}
+			this.winners[winner] += 1 
+			
+			this.winners.update()
+			
+			end.check()
+		},
+		recalculate: function(){
+			for(let key in this.winners){
+				if(this.winners.hasOwnProperty(key)){
+					if(key !== 'update' && key !== 'total'){
+						this.winners[key] = 0
+					}
+				}
+			}
+			
+			this.districts.forEach(voters => {
+				let winner = this.find_winner(voters)
+				voters.forEach(voter => voter.set_lean(winner))
+				if(!this.winners[winner]){
+					this.winners[winner] = 0
+				}
+				this.winners[winner] += 1
+			})
+			
+			this.winners.update()
+			
+			end.check()
+		},
+		find_winner: function(voters){
 			let votes = {
 				x:0,
 				o:0,
 				_:0
 			}
 			voters.forEach(voter => {
-				voter.district = this.districts.length
+				//voter.district = this.districts.length
 				for(let i = 0; i < voter.str.length; i++){
 					let c = voter.str[i]
 					if(votes[c] !== undefined){
@@ -324,7 +814,7 @@
 				}
 			})
 			//console.log(votes)
-			this.districts.push(voters)
+			
 			let winner = '_'
 			if(votes.x > votes.o){
 				winner = 'x'
@@ -332,9 +822,7 @@
 				winner = 'o'
 			}
 			
-			voters.forEach(voter => {
-				voter.set_lean(winner)
-			})
+			return winner 
 		}
 	}
 	
@@ -352,7 +840,9 @@
 		for_each: function(func){
 			this.rows.forEach((row, i) => {
 				row.forEach((voter, j) => {
-					func(voter, i, j)
+					if(voter){
+						func(voter, i, j)
+					}
 				})
 			})
 		},
@@ -427,9 +917,153 @@
 		}
 	}
 	
+	function make_button(x, y, frame, callback){
+		let butt = this.add.sprite(x, y, 'reset')
+		butt.setFrame(frame)
+		butt.setScale(.35)
+		this.voter_cam.ignore(butt)
+		
+		butt.setInteractive()
+		let scene = this 
+		butt.on('pointerdown', function(){
+			callback()
+			butt.setScale(.35)
+		})
+		
+		butt.on('pointerover', function(){
+			butt.setScale(.4)
+		})
+		
+		butt.on('pointerout', function(){
+			butt.setScale(.35)
+		})
+		
+		return butt 
+	}
+	
+	let end = {
+		init: function(scene){
+			this.scene = scene 
+		},
+		check: function(){
+			if(districts.districts.length === levels.current.count){
+				if(districts.winners.o > districts.winners.x){
+					this.win()
+				}else if(suppression.used){
+					this.lose()
+				}
+			}
+		},
+		win: function(){
+			let duration = 450
+			let scene = this.scene 
+			let cx = scene.cameras.main.centerX
+			let cy = scene.cameras.main.centerY
+			let banner = scene.add.sprite(cx + 0.08*cx, -cy, 'banner')
+			banner.setScrollFactor(0)
+			scene.voter_cam.ignore(banner)
+			
+			//this.scene.cameras.main.zoom = 0.5
+			let horns = []
+			
+			for(let i = 0; i < 3; i++){
+				for(let j = -1; j < 2; j += 2){
+					let horn = scene.add.sprite(cx - 1.5*j*cx, cy + i*0.5*cy, 'horn')
+					horn.target_x = cx - j*0.85*cx + j*i*i*0.1*cy
+					horn.target_y = cy + i*0.3*cy
+					horn.delay = i*50
+					
+					horn.setScale(j, 1)
+					horn.setScrollFactor(0)
+					scene.voter_cam.ignore(horn)
+					horns.push(horn)
+				}
+			}
+			
+			horns.forEach(horn => {
+				scene.add.tween({
+					targets: horn,
+					x: horn.target_x,
+					y: horn.target_y,
+					delay: horn.delay,
+					duration: duration,
+					ease: 'Sine.easeInOut'
+				})
+			})
+			
+			scene.add.tween({
+				targets: scene.cameras.main,
+				scrollX: 2*scene.cameras.main.centerX,
+				duration: duration,
+				ease: 'Sine.easeInOut'
+			})
+			
+			scene.add.tween({
+				targets: scene.voter_cam,
+				scrollX: -2*scene.cameras.main.centerX,
+				duration: duration,
+				ease: 'Sine.easeInOut'
+			})
+			
+			scene.add.tween({
+				targets: banner,
+				y: 0.75*scene.cameras.main.centerY,
+				duration: duration,
+				ease: 'Sine.easeInOut',
+				onComplete: function(){
+					let text = scene.add.text(cx, 0.55*cy, "You've ensured yet another successful election!", {
+						fill: 'black',
+						fontFamily: 'LinLib',
+						fontSize: '30pt',
+						align: 'center',
+						fixedWidth: 0.55*cx,
+						wordWrap: {
+							width: 0.55*cx
+						}
+					})
+					
+					scene.voter_cam.ignore(text)
+					text.setScrollFactor(0)
+					text.setOrigin(0.5)
+					
+					let button = make_button.call(scene, cx, 0.85*cy, 1, function(){
+						scene.scene.start('menu')
+					})
+					button.setScrollFactor(0)
+					
+				}
+			})
+			
+			/*
+			this.scene.add.tween({
+				targets: banner,
+				y: this.scene.cameras.main.centerY,
+				duration: duration
+			})
+			
+			
+			grid.for_each(container => {
+				targets.push(container)
+			})
+			
+			this.scene.add.tween({
+				targets: targets,
+				y: this.scene.cameras.main.centerY*3,
+				duration: duration
+			})
+			*/
+		},
+		lose: function(){
+			console.log("You lose!")
+		}
+	}
+	
 	window.play = {
 		init: function(data){
 			this.data = data
+		},
+		update: function(){
+			//this.voter_cam.scrollX += 1 
 		},
 		create: function(){
 			//console.log(this)
@@ -437,25 +1071,117 @@
 			
 			let bg = this.add.image(0, 0, 'paper')
 			bg.setOrigin(0, 0)
+			bg.setScrollFactor(0)
 			this.voter_cam.ignore(bg)
+			
+			window.scene = this 
 			
 			
 			levels.init(this)
+			demographics.init()
 			let size = levels.create(this)
-			let w_max = 4*this.cameras.main.centerX/3
-			let h_max = 2*this.cameras.main.centerY
+			districts.init(levels.current.count)
+			suppression.init(this, levels.current)
+			end.init(this)
 			
-			let zoom_w = w_max/size.width 
-			let zoom_h = h_max/size.height 
+	
+			let w_max = (1.55)*this.cameras.main.centerX
+			let h_max = 1.75*this.cameras.main.centerY
+			
+			let zoom_w = w_max/size.width /1.5
+			let zoom_h = h_max/size.height /1.5
+			
 			this.voter_cam.zoom = Math.min(zoom_w, zoom_h)
+			
+			let x_avg = 0 
+			let corner_frame = 0
+			for(let index = 0; index < 4; index++){
+				let i = 2*Math.floor(index/2) - 1 
+				let j = 2*(index%2) - 1
+				
+				let x = 2*this.cameras.main.centerX - w_max + (1-i)*w_max/2 
+				x_avg += x/4
+				
+				let y = (1-j)*this.cameras.main.centerY
+				
+				let corner = this.add.sprite(x, y, 'decorations')
+				
+				corner.setFrame(corner_frame)
+				let margin = 0.05
+				corner.setOrigin(0+margin,1-margin)
+				let scale = 0.75
+				corner.setScale(scale*i, -scale*j)
+				this.voter_cam.ignore(corner)
+				corner.alpha = 0.75
+	
+				
+			}
+			
+			this.voter_cam.scrollX = (this.cameras.main.centerX - x_avg)/this.voter_cam.zoom
+			
+			let hud_cx = (2*this.cameras.main.centerX - w_max)/2
+			
+		
+			
+			
+			for(let i = -1; i < 2; i += 1){
+				let spread = 400 
+				
+				let banner = this.add.sprite(hud_cx, this.cameras.main.centerY + i*spread, 'decorations')
+				banner.setFrame(2)
+				banner.setScale(0.8)
+				this.voter_cam.ignore(banner)
+				banner.alpha = 1
+			}
+	
+			
+			
+			let reset = make_button.call(this, hud_cx, 60, 0, function(){
+				scene.scene.start('play', this.scene.data)
+			})
 			
 			this.input.on('pointerup', function(){
 				grid.add_district()
+				reset.setScale(.35)
 			})
 			
 			this.input.on('pointerupoutside', function(){
 				grid.add_district()
+				reset.setScale(.35)
 			})
+			let dx = 100
+			let s = 0.75
+			let y = 725
+			this.voter_graph = pie.call(this, hud_cx - dx, y, demographics.voters, s, 'Population')
+			this.district_graph = pie.call(this, hud_cx + dx, y, districts.winners, s, 'Election\nResults')
+			
+			let text = this.add.text(hud_cx, 300, "Make " + levels.current.count + " districts with " + levels.current.size + " voters each.", {
+				fill: 'black',
+				fontFamily: 'LinLib',
+				fontSize: '30pt',
+				align: 'center',
+				fixedWidth: 1.75*hud_cx,
+				wordWrap: {
+					width: 1.75*hud_cx
+				}
+			})
+			
+			text.setOrigin(0.5, 0)
+			this.voter_cam.ignore(text)
+			
+			end.win()
+			
+			/*
+			let voter_arrow = this.add.sprite(hud_cx + 1.6*dx, 375, 'decorations', 3)
+			voter_arrow.setScale(0.5)
+			voter_arrow.alpha = 0.75
+			this.voter_cam.ignore(voter_arrow)
+			*/
+			//console.log(solver.solve(levels.current))
+			
+			
+			
+			
 		}
 	}
 //})()

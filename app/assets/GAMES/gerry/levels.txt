@@ -1,9 +1,35 @@
 @start
 @title(Test)
 @size(3)
+@suppress(v)
+_ x o x xx _
+_ o _ _ x  _
+_ x x o oo _
+@end
+
+@start
+@title(Suppress)
+@size(3)
+@suppress(h)
+x o x
+o x ?
+x x o
+@end
+
+@start
+@title(Level 1)
+@size(3)
 o o o
-o x o
+x o x
 x x x
+@end
+
+@start
+@title(Mass)
+@size(5)
+o ? o ? o
+x ? ? ? x 
+? x ? x ?
 @end
 
 @start
@@ -18,16 +44,34 @@ o  o  o  o  o
 
 @start
 @title(Six By Three)
-@size(6)
-o x o x o x
-x x _ _ x x
-x o x o x o
+@size(5)
+x x o o x x
+o _ o _ x _
+x x o o x x
 @end 
 
 @start
 @title(Undecided)
 @size(6)
 o x o x o x
-? ? ? ? ? ?
+? x ? ? x ?
 x o x o x o
 @end 
+
+@start
+@title(Diagonal)
+@size(5)
+x x o o o
+x x x o o
+o x x x o
+o o x x x
+@end
+
+@start
+@title(Donut)
+@size(4)
+x o o o
+x ? ? x
+x ? ? x
+o o o x 
+@end

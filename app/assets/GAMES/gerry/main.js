@@ -1,15 +1,17 @@
 (function(){
 /* TO DO:
+	BUGS:
+		Distrtict Pie Chart doesn't update until you create a red district 
 	UI:
-		538:
-			Population
-			Districts
 		Size
 		Count
-		RESET Button 
+	Win State
 	SFX
 	Level Select
 	Tutorial
+	Powers:
+		Foreign Interferencce
+		Voter Suppression
 
 */
 	const path = '/static/GAMES/gerry/'
@@ -20,7 +22,12 @@
 		backgroundColor: '#45283c',
 		pixelArt: false,
 		zoom: 0.5,
-
+		physics: {
+			default: 'arcade',
+			arcade: {
+				debug: false,
+			}
+		}
 	};
 	
 
@@ -93,6 +100,42 @@
 					height: 175,
 					ext: 'png'
 				},
+				{
+					name: 'reset',
+					width: 704,
+					height: 254,
+					ext: 'png'
+				},
+				{
+					name: 'pie',
+					width: 250,
+					height: 290,
+					ext: 'png'
+				},
+				{
+					name: 'decorations',
+					width: 450,
+					height: 450,
+					ext: 'png'
+				},
+				{
+					name: 'pointer',
+					width: 250,
+					height: 250,
+					ext: 'png'
+				},
+				{
+					name: 'banner',
+					width: 1479,
+					height: 762,
+					ext: 'png'
+				},
+				{
+					name: 'horn',
+					width: 884,
+					height: 509,
+					ext: 'png'
+				}
 			]
 		
 			sheets.forEach(s => {
@@ -132,7 +175,8 @@
 		create:	function create(){
 	
 			this.scene.start('play', {
-				title: 'Six By Three'
+				//title: 'Test'
+				title: 'Level 1'
 			})
 		},
 		update: function update(){
