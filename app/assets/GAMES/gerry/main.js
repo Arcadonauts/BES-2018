@@ -108,7 +108,7 @@
 			})
 			
 			
-			let v = Math.random()
+			let v = 1//Math.random()
 			
 			this.load.text('levels', path+'levels.txt?v='+v)
 			
