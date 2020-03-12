@@ -1,18 +1,10 @@
 (function(){
 /* TO DO:
-	BUGS:
-		Distrtict Pie Chart doesn't update until you create a red district 
-	UI:
-		Size
-		Count
-	Win State
+	Lose State
 	SFX
-	Level Select
-	Tutorial
-	Powers:
-		Foreign Interferencce
-		Voter Suppression
 
+
+		
 */
 	const path = '/static/GAMES/gerry/'
 	
@@ -33,7 +25,49 @@
 
 	let main_menu = {
 		create: function(){
-			console.log('main menu')
+			let bg = this.add.sprite(0, 0, 'paper')
+			bg.setOrigin(0)
+			
+			let title = this.add.text(this.cameras.main.centerX, 0.67*this.cameras.main.centerY, 'reDISTRICT', {
+				fill: 'black',
+				fontFamily: 'LinLib',
+				fontSize: '120pt',
+				
+			})
+			
+			let text = this.add.text(this.cameras.main.centerX, 1.2*this.cameras.main.centerY, "Click to begin.", {
+				fill: 'black',
+				fontFamily: 'LinLib',
+				fontSize: '60pt',
+			})
+			
+			title.setOrigin(0.5)
+			text.setOrigin(0.5)
+			
+			
+			let scene = this 
+			this.input.on('pointerdown', function(){
+				scene.scene.start('menu')
+			})
+			
+			let tl = this.add.sprite(0, 0, 'decorations')
+			tl.setScale(1, -1)
+			tl.setOrigin(0, 1)
+			
+			let tr = this.add.sprite(2*this.cameras.main.centerX, 0, 'decorations')
+			tr.setScale(-1, -1)
+			tr.setOrigin(0, 1)
+			
+			let br = this.add.sprite(2*this.cameras.main.centerX, 2*this.cameras.main.centerY, 'decorations')
+			br.setScale(-1, 1)
+			br.setOrigin(0, 1)
+			
+			let bl = this.add.sprite(0, 2*this.cameras.main.centerY, 'decorations')
+			bl.setScale(1, 1)
+			bl.setOrigin(0, 1)
+			
+			
+			
 			
 		},
 		update: function(){
@@ -46,6 +80,9 @@
 		game.scene.add('setup', setup)
 		//game.scene.add('menu', menu)
 		game.scene.add('main menu', main_menu)
+		game.scene.add('menu', menu)
+		game.scene.add('audio', audio)
+		game.scene.add('tut', tut)
 		game.scene.add('play', play)
 		//game.scene.add('battle', battle)
 		//game.scene.add('world', world)
@@ -81,6 +118,18 @@
 					width: 250,
 					height: 1270/4,
 					ext: 'jpg'
+				},
+					{
+					name: 'split',
+					width: 173,
+					height: 33,
+					ext: 'png'
+				},
+				{
+					name: 'gerry top',
+					width: 1203,
+					height: 327,
+					ext: 'png'
 				},
 				{
 					name: 'paper',
@@ -135,11 +184,29 @@
 					width: 884,
 					height: 509,
 					ext: 'png'
+				},
+				{
+					name: 'dots',
+					width: 24,
+					height: 24,
+					ext: 'png'
+				},
+				{
+					name: 'frames',
+					width: 360,
+					height: 480,
+					ext: 'png'
+				},
+				{
+					name: 'continue',
+					width: 912,
+					height: 324,
+					ext: 'png'
 				}
 			]
 		
 			sheets.forEach(s => {
-			
+				
 				this.load.spritesheet(
 					s.name, 
 					path+'images/'+s.name+'.'+(s.ext || '.png')+'?v='+v, 
@@ -153,17 +220,20 @@
 			//this.load.json('data', path+'data.json?v='+v)
 			
 			let sounds = [
-				
+				'Haydn',
+				'click',
+				'whistle',
+				'tick'
 			]
 			
 			for(let i = 0; i < sounds.length; i++){
 				let s = sounds[i]
 				//console.log('load:', s+'.wav')
-				this.load.audio(s, path + s+'.wav')
+				this.load.audio(s, path + 'audio/' + s + '.mp3')
 				
 			}
 			
-			this.sound.volume = 0.25
+			this.sound.volume = 1
 			
 			let maps = []
 			maps.forEach(m => {
@@ -173,13 +243,15 @@
 		
 		},
 		create:	function create(){
-	
-			this.scene.start('play', {
-				//title: 'Test'
-				title: 'Level 1'
+			levels.init(this)
+			this.scene.launch('audio', {
+				
 			})
-		},
-		update: function update(){
+			
+			this.scene.start('main menu', {
+				title: 'Menu'
+				//title: 'suppress'
+			})
 		}
 	}
 	

@@ -1,23 +1,13 @@
 @start
-@title(Test)
+@title(Texas's 33rd)
 @size(3)
-@suppress(v)
-_ x o x xx _
-_ o _ _ x  _
-_ x x o oo _
+o o o o
+o o x x
+x x x x
 @end
 
 @start
-@title(Suppress)
-@size(3)
-@suppress(h)
-x o x
-o x ?
-x x o
-@end
-
-@start
-@title(Level 1)
+@title(Ohio's 11th)
 @size(3)
 o o o
 x o x
@@ -25,41 +15,15 @@ x x x
 @end
 
 @start
-@title(Mass)
+@title(Iowa's 9th)
 @size(5)
-o ? o ? o
-x ? ? ? x 
-? x ? x ?
+x o x x o
+o o x x o
+o x o x x
 @end
 
 @start
-@title(Big O)
-@size(5)
-o  o  o  o  oo
-o  x  x  x  o
-o  x  xo xx ox
-o  xx x  x  o
-o  o  o  o  o
-@end
-
-@start
-@title(Six By Three)
-@size(5)
-x x o o x x
-o _ o _ x _
-x x o o x x
-@end 
-
-@start
-@title(Undecided)
-@size(6)
-o x o x o x
-? x ? ? x ?
-x o x o x o
-@end 
-
-@start
-@title(Diagonal)
+@title(Illinois' 7th)
 @size(5)
 x x o o o
 x x x o o
@@ -68,10 +32,143 @@ o o x x x
 @end
 
 @start
-@title(Donut)
+@title(Georgia's 4th)
+@size(5)
+x x o o x x
+o _ o _ x _
+x x o o x x
+@end 
+
+@start
+@title(Alaska's 35th)
+@size(3)
+oo  o  x
+
+x   o  xx
+x  oo x
+@end
+
+@start
+@title(Lousiana's 2nd)
+@size(5)
+o o  xx oo
+x xx x  x
+o x  o  x
+@end
+
+
+
+@start
+@title(Utah's 4th)
+@size(5)
+
+o  _  _  _  _  xx
+o  x  xo xo ox xx
+o  o  o  xx  o x
+_  o  o  o  xx _
+@end
+
+@start
+@title(Colorado's 5th)
+@size(3)
+o ? o
+? ? ?
+x x x
+@end
+
+@start
+@title(Florida's 7th)
+@size(5)
+o ? o ? o
+x ? ? ? x 
+? x ? x ?
+@end
+
+@start
+@title(Vermont's 7th)
 @size(4)
 x o o o
 x ? ? x
 x ? ? x
 o o o x 
 @end
+
+@start
+@title(Maine's 3rd)
+@size(6)
+o x o x o x
+? x ? ? x ?
+x o x o x o
+@end 
+
+
+
+@start
+@title(Idaho's 55th)
+@size(3)
+@suppress(v)
+_ x o x xx _
+_ o _ _ x  _
+_ x x o oo _
+@end
+
+
+@start
+@title(Hawaii's 8th)
+@size(3)
+@suppress(h)
+x o x
+o x ?
+x x o
+@end
+
+@start
+@title(Ohio's 65th)
+@size(5)
+@suppress(v)
+_ x o x  x xx _
+_ _ x oo x _  _
+_ x o o  x x _
+@end
+
+@start
+@title(Virginia's 2nd)
+@size(3)
+@suppress(h)
+o  x o x 
+x  o x o 
+o  o x xx
+xx x o o 
+@end
+
+@start
+@title(Kansas' 11th)
+@size(3)
+@suppress(h)
+x o x _ 
+o x ? x  
+? o x o
+o x o ? 
+@end
+
+@start
+@title(Nevada's 28th)
+@size(4)
+@suppress(h)
+x  o o o 
+x  x x o 
+x  o x o
+x  x x x 
+@end
+
+
+
+
+
+
+
+
+
+
+
+

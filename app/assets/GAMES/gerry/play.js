@@ -1,5 +1,14 @@
-//(function(){
+(function(){
+	
 
+	let taught = {
+		unlocked: false,
+		how_to: false,
+		dense: false,
+		nonvoter: false,
+		suppress: false
+	}
+	
 	function make_voter(x, y, str){
 		function select(pointer){
 			if(pointer.isDown && c.selectable){
@@ -36,7 +45,7 @@
 		this.cameras.main.ignore(c)
 		
 		c.select = function(bool){
-		
+			scene.sound.play('click')
 			if(!bool){
 				if(this.lean){
 					this.card.setFrame(2*party[this.lean] + this.card.id)
@@ -174,6 +183,7 @@
 		//this.input.setDraggable(c.card)
 		c.card.on('pointerover', select)
 		c.card.on('pointerover', function(){
+			scene.sound.play('tick')
 			c.setScale(1.1)
 		})
 		c.card.on('pointerout', function(){
@@ -489,7 +499,7 @@
 		}
 	}
 
-	let levels = {
+	window.levels = {
 		lvls: {},
 		titles: [],
 		load: function(scene){
@@ -573,15 +583,26 @@
 			})
 		},
 		populate: function(){
-			this.titles.forEach(title => {
+			this.titles.forEach((title, i) => {
 				let lvl = this.lvls[title]
 				lvl.pop = 0 
 				lvl.rows.forEach(row => {
 					row.forEach(str => {
-						lvl.pop += str.replace('_', '').length
+						let pop = str.replace('_', '').length
+						lvl.pop += pop 
+						if(pop > 1){
+							lvl.dense = true 
+						}
+						if(str.indexOf('?') > -1){
+							lvl.nonvoter = true 
+						}
 					})
 				})
 				lvl.count = Math.floor(lvl.pop/lvl.size)
+				lvl.locked = !!i && !taught.unlocked
+				lvl.index = i 
+				
+
 				if(lvl.count * lvl.size !== lvl.pop){
 					throw(title + ' population is not a multiple of its size')
 				}
@@ -589,6 +610,7 @@
 			
 		},
 		init: function(scene){
+			console.log('init levels')
 			this.load(scene)
 			this.process()
 			this.check()
@@ -599,8 +621,114 @@
 			
 		
 		},
+		thumb: function(scene, x, y, title, i){
+			let container = scene.add.container(x, y)
+			let lvl = this.lvls[title]
+			
+			if(lvl.locked){
+				let bg = scene.add.sprite(0, 0, 'frames', 2)
+				bg.setScale(0.75)
+				bg.setOrigin(0.5)
+				container.add(bg)
+				
+				return 
+			}
+			
+			let bg = scene.add.sprite(0, 0, 'frames', i)
+			bg.setScale(0.7)
+			bg.setOrigin(0.5)
+			container.add(bg)
+			
+			bg.setInteractive()
+			
+			bg.on('pointerover', function(){
+			
+				container.setScale(1.1)
+				scene.sound.play('tick')
+			})
+			
+			bg.on('pointerout', function(){
+			
+				container.setScale(1)
+			})
+			
+			bg.on('pointerdown', function(){
+				
+				scene.sound.play('click')
+				
+				if(taught.unlocked){
+					scene.scene.start('play', {
+						title: title
+					})
+				}else if(!taught.how_to){
+					taught.how_to = true 
+					scene.scene.start('tut', {
+						title: 'intro'
+					})
+				}else if(!taught.dense && lvl.dense){
+					taught.dense = true 
+					scene.scene.start('tut', {
+						title: 'dense'
+					})
+				
+				}else if(!taught.nonvoter && lvl.nonvoter){
+					taught.nonvoter = true 
+					scene.scene.start('tut', {
+						title: 'nonvoter'
+					})
+				}else if(!taught.suppress && lvl.suppress){
+					taught.suppress = true 
+					scene.scene.start('tut', {
+						title: 'suppress'
+					})
+				}else{
+					
+					scene.scene.start('play', {
+						title: title
+					})
+				}
+			})
+				
+			
+			let title_text = scene.add.text(0, 85, title, {
+				fill: 'black',
+				fontFamily: 'LinLib',
+				fontSize: '24pt',
+				align: 'center',
+				fixedWidth: 150,
+				
+				wordWrap: {
+					width: 150
+				}
+
+			})
+			title_text.setLineSpacing(-3)
+			title_text.setOrigin(0.5)
+			container.add(title_text)
+			
+			
+			lvl.rows.forEach((row, i) => {
+				
+				row.forEach((str, j) => {
+					let dx = 24
+					let x0 = -dx*(row.length-1)/2
+					let y0 = -dx*(lvl.rows.length-1)/2
+					
+					let f = 0
+					if(str[0] === 'o'){
+						f = 1
+					}else if(str[0] === 'x'){
+						f = 2
+					}else if(str[0] === '_'){
+						f = 3
+					}
+					let dot = scene.add.sprite(x0 + j*dx, y0 + i*dx, 'dots', f)
+					container.add(dot)
+				})
+			})
+		},
 		create: function(scene){
-			grid.init()
+			grid.init(scene)
 			
 			let lvl = this.lvls[scene.data.title]
 			this.current = lvl 
@@ -631,6 +759,8 @@
 		}
 		
 	}
+	
+
 	
 	let suppression = {
 		init: function(scene, lvl){
@@ -715,6 +845,7 @@
 				
 				pointer.setInteractive()
 				pointer.on('pointerover', function(){
+					scene.sound.play('tick')
 					this.setScale(0.55)
 				})
 				
@@ -723,6 +854,8 @@
 				})
 				
 				pointer.on('pointerdown', function(){
+					scene.sound.play('click')
+					scene.sound.play('whistle')
 					pointers.forEach(p => {
 						if(p === pointer){
 							p.tween.stop()
@@ -753,7 +886,7 @@
 		init: function(tot){
 		    
 			this.districts = []
-			this.winners = {total:tot}
+			this.winners = {total:tot, o:0, x:0}
 		},
 		add: function(voters){
 			let winner = this.find_winner(voters)
@@ -827,8 +960,9 @@
 	}
 	
 	let grid = {
-		init: function(){
+		init: function(scene){
 			this.rows = []
+			this.scene = scene 
 		},
 		add: function(row, col, voter){
 			if(!this.rows[row]){
@@ -880,8 +1014,22 @@
 		},
 		is_legal_district: function(selected){
 			
-			
-			if(selected.reduce((acc, cur) => acc + cur.str.length, 0) !== levels.current.size){
+			let size = selected.reduce((acc, cur) => acc + cur.str.length, 0)
+			if(size !== levels.current.size){
+				if(size > 1){
+					let ins = this.scene.instructions
+					this.scene.add.tween({
+						targets: ins,
+						duration: 100,
+						scaleX: 1.25,
+						scaleY: 1.25,
+						yoyo: true,
+						ease: 'Sine.easeInOut',
+						onComplete: function(){
+							ins.setScale(1)
+						}
+					})
+				}
 				return false 
 			}
 			
@@ -927,10 +1075,12 @@
 		let scene = this 
 		butt.on('pointerdown', function(){
 			callback()
+			scene.sound.play('click')
 			butt.setScale(.35)
 		})
 		
 		butt.on('pointerover', function(){
+			scene.sound.play('tick')
 			butt.setScale(.4)
 		})
 		
@@ -947,6 +1097,7 @@
 		},
 		check: function(){
 			if(districts.districts.length === levels.current.count){
+				
 				if(districts.winners.o > districts.winners.x){
 					this.win()
 				}else if(suppression.used){
@@ -955,6 +1106,9 @@
 			}
 		},
 		win: function(){
+			levels.titles.forEach(title => {
+				levels.lvls[title].locked = levels.lvls[title].index > levels.current.index + 1 
+			})
 			let duration = 450
 			let scene = this.scene 
 			let cx = scene.cameras.main.centerX
@@ -1000,7 +1154,7 @@
 			
 			scene.add.tween({
 				targets: scene.voter_cam,
-				scrollX: -2*scene.cameras.main.centerX,
+				scrollX: -2*scene.cameras.main.centerX/scene.voter_cam.zoom,
 				duration: duration,
 				ease: 'Sine.easeInOut'
 			})
@@ -1027,34 +1181,33 @@
 					text.setOrigin(0.5)
 					
 					let button = make_button.call(scene, cx, 0.85*cy, 1, function(){
-						scene.scene.start('menu')
+						if(levels.titles.indexOf(levels.current.title) === levels.titles.length - 1){
+							scene.scene.start('tut', {
+								title: 'winner'
+							})
+						}else{
+							scene.scene.start('menu')
+						}
 					})
 					button.setScrollFactor(0)
 					
 				}
 			})
 			
-			/*
-			this.scene.add.tween({
-				targets: banner,
-				y: this.scene.cameras.main.centerY,
-				duration: duration
-			})
-			
-			
-			grid.for_each(container => {
-				targets.push(container)
-			})
-			
-			this.scene.add.tween({
-				targets: targets,
-				y: this.scene.cameras.main.centerY*3,
-				duration: duration
-			})
-			*/
 		},
 		lose: function(){
-			console.log("You lose!")
+			let ins = this.scene.win_cond 
+			this.scene.add.tween({
+				targets: ins,
+				duration: 100,
+				scaleX: 1.25,
+				scaleY: 1.25,
+				yoyo: true,
+				ease: 'Sine.easeInOut',
+				onComplete: function(){
+					ins.setScale(1)
+				}
+			})
 		}
 	}
 	
@@ -1086,7 +1239,7 @@
 			
 	
 			let w_max = (1.55)*this.cameras.main.centerX
-			let h_max = 1.75*this.cameras.main.centerY
+			let h_max = 1.95*this.cameras.main.centerY
 			
 			let zoom_w = w_max/size.width /1.5
 			let zoom_h = h_max/size.height /1.5
@@ -1139,15 +1292,22 @@
 			let reset = make_button.call(this, hud_cx, 60, 0, function(){
 				scene.scene.start('play', this.scene.data)
 			})
+			this.reset = reset 
+			
+			let menu = make_button.call(this, hud_cx, 2*this.cameras.main.centerY - 60, 1, function(){
+				scene.scene.start('menu')
+			})
 			
 			this.input.on('pointerup', function(){
 				grid.add_district()
 				reset.setScale(.35)
+				menu.setScale(.35)
 			})
 			
 			this.input.on('pointerupoutside', function(){
 				grid.add_district()
 				reset.setScale(.35)
+				menu.setScale(.35)
 			})
 			let dx = 100
 			let s = 0.75
@@ -1155,7 +1315,26 @@
 			this.voter_graph = pie.call(this, hud_cx - dx, y, demographics.voters, s, 'Population')
 			this.district_graph = pie.call(this, hud_cx + dx, y, districts.winners, s, 'Election\nResults')
 			
-			let text = this.add.text(hud_cx, 300, "Make " + levels.current.count + " districts with " + levels.current.size + " voters each.", {
+			let title = this.add.text(hud_cx, 200, levels.current.title, {
+				fill: 'black',
+				fontFamily: 'LinLib',
+				fontSize: '40pt',
+				align: 'center',
+				fixedWidth: 1.75*hud_cx,
+				wordWrap: {
+					width: 1.75*hud_cx
+				}
+			})
+			
+			title.setOrigin(0.5, 0)
+			this.voter_cam.ignore(title)
+			
+			
+			let sp = this.add.sprite(hud_cx, 264, 'split')
+			this.voter_cam.ignore(sp)
+			
+			
+			let text = this.add.text(hud_cx, 275, "Make " + levels.current.count + " districts with " + levels.current.size + " voters each.", {
 				fill: 'black',
 				fontFamily: 'LinLib',
 				fontSize: '30pt',
@@ -1166,10 +1345,32 @@
 				}
 			})
 			
+			this.instructions = text 
 			text.setOrigin(0.5, 0)
 			this.voter_cam.ignore(text)
 			
-			end.win()
+			
+			sp = this.add.sprite(hud_cx, 368, 'split')
+			this.voter_cam.ignore(sp)
+			
+			
+			this.win_cond = this.add.text(hud_cx, 375, "The red districts must outnumber the blue.", {
+				fill: 'black',
+				fontFamily: 'LinLib',
+				fontSize: '30pt',
+				align: 'center',
+				fixedWidth: 1.75*hud_cx,
+				wordWrap: {
+					width: 1.75*hud_cx
+				}
+			})
+			
+			this.win_cond.setOrigin(0.5, 0)
+			this.voter_cam.ignore(this.win_cond)
+			
+		
+			
+			//end.win()
 			
 			/*
 			let voter_arrow = this.add.sprite(hud_cx + 1.6*dx, 375, 'decorations', 3)
@@ -1184,4 +1385,4 @@
 			
 		}
 	}
-//})()
+})()
