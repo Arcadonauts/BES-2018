@@ -28,7 +28,7 @@
 			let bg = this.add.sprite(0, 0, 'paper')
 			bg.setOrigin(0)
 			
-			let title = this.add.text(this.cameras.main.centerX, 0.67*this.cameras.main.centerY, 'reDISTRICT', {
+			let title = this.add.text(this.cameras.main.centerX, 0.67*this.cameras.main.centerY, 'Gerry and Me', {
 				fill: 'black',
 				fontFamily: 'LinLib',
 				fontSize: '120pt',
