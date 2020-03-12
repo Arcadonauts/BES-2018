@@ -192,7 +192,7 @@
 		c.card.on('pointerdown', select)
 		//*/
 		
-		let w = 100*(str.length - 1)
+		let w = 50*(str.length - 1)
 		let x0 = -w/2
 		c.voters = [] 
 		for(let i = 0; i < str.length; i++){
@@ -247,7 +247,7 @@
 	
 	function pie(x, y, data, s, label){
 		//let s = 1
-		let container = this.add.container(x, y-16)
+		let container = this.add.container(x, y-16/2)
 		this.voter_cam.ignore(container)
 		container.setScale(s)
 		let that = this 
@@ -298,10 +298,10 @@
 		
 		container.update()
 		
-		let text = this.add.text(x, y+130, label, {
+		let text = this.add.text(x, y+120/2, label, {
 			fill: 'black',
 			fontFamily: 'LinLib',
-			fontSize: '24pt',
+			fontSize: '12pt',
 			align: 'center'
 		})
 		this.voter_cam.ignore(text)
@@ -690,15 +690,15 @@
 			})
 				
 			
-			let title_text = scene.add.text(0, 85, title, {
+			let title_text = scene.add.text(0, 85/2, title, {
 				fill: 'black',
 				fontFamily: 'LinLib',
-				fontSize: '24pt',
+				fontSize: '12pt',
 				align: 'center',
-				fixedWidth: 150,
+				fixedWidth: 75,
 				
 				wordWrap: {
-					width: 150
+					width: 75
 				}
 
 			})
@@ -710,7 +710,7 @@
 			lvl.rows.forEach((row, i) => {
 				
 				row.forEach((str, j) => {
-					let dx = 24
+					let dx = 12
 					let x0 = -dx*(row.length-1)/2
 					let y0 = -dx*(lvl.rows.length-1)/2
 					
@@ -735,8 +735,8 @@
 			if(!lvl){
 				throw(scene.data.title + ' not found')
 			}
-			let dx = 280 
-			let dy = 350 
+			let dx = 280/2 
+			let dy = 350/2 
 			let width = dx*(lvl.rows[0].length-1)
 			let height = dy*(lvl.rows.length-1)
 			
@@ -1168,7 +1168,7 @@
 					let text = scene.add.text(cx, 0.55*cy, "You've ensured yet another successful election!", {
 						fill: 'black',
 						fontFamily: 'LinLib',
-						fontSize: '30pt',
+						fontSize: '15pt',
 						align: 'center',
 						fixedWidth: 0.55*cx,
 						wordWrap: {
@@ -1278,7 +1278,7 @@
 			
 			
 			for(let i = -1; i < 2; i += 1){
-				let spread = 400 
+				let spread = 400/2 
 				
 				let banner = this.add.sprite(hud_cx, this.cameras.main.centerY + i*spread, 'decorations')
 				banner.setFrame(2)
@@ -1289,12 +1289,12 @@
 	
 			
 			
-			let reset = make_button.call(this, hud_cx, 60, 0, function(){
+			let reset = make_button.call(this, hud_cx, 60/2, 0, function(){
 				scene.scene.start('play', this.scene.data)
 			})
 			this.reset = reset 
 			
-			let menu = make_button.call(this, hud_cx, 2*this.cameras.main.centerY - 60, 1, function(){
+			let menu = make_button.call(this, hud_cx, 2*this.cameras.main.centerY - 60/2, 1, function(){
 				scene.scene.start('menu')
 			})
 			
@@ -1309,16 +1309,16 @@
 				reset.setScale(.35)
 				menu.setScale(.35)
 			})
-			let dx = 100
+			let dx = 100/2
 			let s = 0.75
-			let y = 725
+			let y = 725/2
 			this.voter_graph = pie.call(this, hud_cx - dx, y, demographics.voters, s, 'Population')
 			this.district_graph = pie.call(this, hud_cx + dx, y, districts.winners, s, 'Election\nResults')
 			
-			let title = this.add.text(hud_cx, 200, levels.current.title, {
+			let title = this.add.text(hud_cx, 200/2, levels.current.title, {
 				fill: 'black',
 				fontFamily: 'LinLib',
-				fontSize: '40pt',
+				fontSize: '20pt',
 				align: 'center',
 				fixedWidth: 1.75*hud_cx,
 				wordWrap: {
@@ -1330,14 +1330,14 @@
 			this.voter_cam.ignore(title)
 			
 			
-			let sp = this.add.sprite(hud_cx, 264, 'split')
+			let sp = this.add.sprite(hud_cx, 264/2, 'split')
 			this.voter_cam.ignore(sp)
 			
 			
-			let text = this.add.text(hud_cx, 275, "Make " + levels.current.count + " districts with " + levels.current.size + " voters each.", {
+			let text = this.add.text(hud_cx, 275/2, "Make " + levels.current.count + " districts with " + levels.current.size + " voters each.", {
 				fill: 'black',
 				fontFamily: 'LinLib',
-				fontSize: '30pt',
+				fontSize: '15pt',
 				align: 'center',
 				fixedWidth: 1.75*hud_cx,
 				wordWrap: {
@@ -1350,14 +1350,14 @@
 			this.voter_cam.ignore(text)
 			
 			
-			sp = this.add.sprite(hud_cx, 368, 'split')
+			sp = this.add.sprite(hud_cx, 368/2, 'split')
 			this.voter_cam.ignore(sp)
 			
 			
-			this.win_cond = this.add.text(hud_cx, 375, "The red districts must outnumber the blue.", {
+			this.win_cond = this.add.text(hud_cx, 375/2, "The red districts must outnumber the blue.", {
 				fill: 'black',
 				fontFamily: 'LinLib',
-				fontSize: '30pt',
+				fontSize: '15pt',
 				align: 'center',
 				fixedWidth: 1.75*hud_cx,
 				wordWrap: {

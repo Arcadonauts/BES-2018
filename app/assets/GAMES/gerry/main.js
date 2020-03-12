@@ -1,19 +1,15 @@
 (function(){
-/* TO DO:
-	Lose State
-	SFX
 
+	let zoom = 2 
 
-		
-*/
 	const path = '/static/GAMES/gerry/'
 	
 	let config = {
-		width: 1920,
-		height: 1080,
+		width: 1920/zoom,
+		height: 1080/zoom,
 		backgroundColor: '#45283c',
 		pixelArt: false,
-		zoom: 0.5,
+		zoom: 0.5*zoom,
 		physics: {
 			default: 'arcade',
 			arcade: {
@@ -31,14 +27,14 @@
 			let title = this.add.text(this.cameras.main.centerX, 0.67*this.cameras.main.centerY, 'Gerry and Me', {
 				fill: 'black',
 				fontFamily: 'LinLib',
-				fontSize: '120pt',
+				fontSize: '60pt',
 				
 			})
 			
 			let text = this.add.text(this.cameras.main.centerX, 1.2*this.cameras.main.centerY, "Click to begin.", {
 				fill: 'black',
 				fontFamily: 'LinLib',
-				fontSize: '60pt',
+				fontSize: '30pt',
 			})
 			
 			title.setOrigin(0.5)
@@ -108,7 +104,7 @@
 			})
 			
 			
-			let v = 1//Math.random()
+			let v = 5//Math.random()
 			
 			this.load.text('levels', path+'levels.txt?v='+v)
 			
@@ -211,8 +207,8 @@
 					s.name, 
 					path+'images/'+s.name+'.'+(s.ext || '.png')+'?v='+v, 
 					{ 
-						frameWidth: s.width, 
-						frameHeight: s.height 
+						frameWidth: s.width/zoom, 
+						frameHeight: s.height/zoom 
 					}
 				)
 			})
@@ -249,7 +245,7 @@
 			})
 			
 			this.scene.start('main menu', {
-				title: 'Menu'
+				title: "Nevada's 28th"
 				//title: 'suppress'
 			})
 		}

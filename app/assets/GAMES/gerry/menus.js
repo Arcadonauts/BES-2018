@@ -70,8 +70,8 @@
 				let corners = {}
 				let voters = {}
 				
-				let dx = 280 
-				let dy = 350 
+				let dx = 280 /2
+				let dy = 350 /2
 						
 				for(let i = -1; i < 2; i+= 1){
 					for(let j = 0; j < 2; j += 1){
@@ -201,8 +201,8 @@
 				let corners = {}
 				
 				
-				let dx = 280 
-				let dy = 350 
+				let dx = 280 /2
+				let dy = 350 /2
 						
 				for(let i = -1; i < 2; i+= 1){
 					for(let j = 0; j < 2; j += 1){
@@ -448,8 +448,8 @@
 				let corners = {}
 				
 				
-				let dx = 280 
-				let dy = 350 
+				let dx = 280 /2
+				let dy = 350 /2
 						
 				for(let i = -1; i < 2; i+= 1){
 					for(let j = 0; j < 2; j += 1){
@@ -491,10 +491,10 @@
 						container.add(voter)
 						
 						if(i == -1 && j == 0){
-							voter.x -= 50
+							voter.x -= 25
 							voter = scene.add.sprite(x, y, 'voters', 12*party + Math.abs(i+j + 1)%12)
 							container.add(voter)
-							voter.x += 50 
+							voter.x += 25 
 						}
 						
 						
@@ -691,8 +691,8 @@
 				let corners = {}
 				
 				
-				let dx = 280 
-				let dy = 350 
+				let dx = 280 /2
+				let dy = 350 /2
 						
 				for(let i = -1; i < 2; i+= 1){
 					for(let j = 0; j < 2; j += 1){
@@ -931,8 +931,8 @@
 					for(let j = 0; j < 2; j += 1){
 						let s = 0.75 
 						
-						let dx = 280 
-						let dy = 350 
+						let dx = 280 /2
+						let dy = 350 /2
 			
 						let x = scene.cameras.main.centerX + s*i*dx
 						let y = 1.125*scene.cameras.main.centerY + s*j*dy
@@ -971,8 +971,8 @@
 				let corners = {}
 				
 				
-				let dx = 280 
-				let dy = 350 
+				let dx = 280 /2
+				let dy = 350 /2
 						
 				for(let i = -1; i < 2; i+= 1){
 					for(let j = 0; j < 2; j += 1){
@@ -1169,10 +1169,10 @@
 			
 			let guide = guides[this.data.title]
 			
-			let text = this.add.text(width/2, 350, guide.bubble, {
+			let text = this.add.text(width/2, 350/2, guide.bubble, {
 				fill: 'black',
 				fontFamily: 'LinLib',
-				fontSize: '30pt',
+				fontSize: '15pt',
 				align: 'center',
 				fixedWidth: 0.75*width,
 				wordWrap: {
