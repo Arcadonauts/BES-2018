@@ -1,0 +1,8 @@
+(function(){
+	function Character(){
+		return this 
+	}
+
+
+	window.Character = Character
+})()
