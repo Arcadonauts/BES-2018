@@ -15,6 +15,7 @@
 		this.rooms = [] 
 		this.entrances = []
 		this.interiorDoors = [] 
+
 			
 		this.container = this.scene.add.container(x, y)
 		this.container.setInteractive({
@@ -31,15 +32,16 @@
 		
 		let that = this 
 		this.container.on('pointermove', function(pointer, x, y){
-			console.log(that.getWorld(pointer.x, pointer.y).room)
+			this.scene.hud.showRoom(that.getWorld(pointer.x, pointer.y).room)
 		})
 			
 		this.footprint()
 		this.divide()
 		this.halls()
+		this.createRooms()
 		this.doors()
 	
-		this.graphics()
+		//this.graphics()
 
 		
 		return this 
@@ -90,7 +92,8 @@
 			color: c,
 			x: i*tw + tw/2,
 			y: j*tw + tw/2,
-			id: i + this.width*j
+			id: i + this.width*j,
+			use: 0 
 		}
 	}
 	
@@ -213,15 +216,19 @@
 			let room = rx + cols*ry
 
 			cell.room = room 
-			if(!this.rooms[room]){
-				this.rooms[room] = []
-				this.rooms[room].x = Infinity
-				this.rooms[room].y = Infinity
-				this.rooms[room].width = -Infinity
-				this.rooms[room].height = -Infinity
+			
+			//this.rooms[room].push(cell)
+		})
+	}
+	
+	Building.prototype.createRooms = function(){
+		this.forEach(cell => {
+			if(!this.rooms[cell.room]){
+				let room = [] 
 				
+				this.rooms[cell.room] = room 
 			}
-			this.rooms[room].push(cell)
+			this.rooms[cell.room].push(cell)
 		})
 	}
 	
@@ -381,7 +388,7 @@
 			y: 0,
 			lineStyle: {
 				width: 2*w,
-				color: 0x000000, //cell.color.color
+				color: 0xffffff, //cell.color.color
 			}
 	
 		})
@@ -404,6 +411,9 @@
 				cell.color.setFromHSV(0.5 + ((i + j)%2)*0.125, 0.75, 0.5)
 			
 			}
+			
+			//cell.color.setFromHSV(0.0, 0.5, 0.5+0.01*cell.use)
+			cell.color.setFromHSV(0.1*cell.room, 0.5, 0)
 			
 			graphics.fillStyle(cell.color.color)
 			graphics.fillRect(x0, y0, tw, tw)
@@ -460,17 +470,51 @@
 				this.container.add(text)
 			}
 			/*
-			let text1 = this.scene.add.text(i*tw, j*tw, cell.i)
-			let text2 = this.scene.add.text((i+1)*tw, (j+1)*tw, cell.j)
+			let text1 = this.scene.add.text(i*tw, j*tw, cell.use)
+			//let text2 = this.scene.add.text((i+1)*tw, (j+1)*tw, cell.j)
 			text1.setOrigin(00)
-			text2.setOrigin(1)
+			//text2.setOrigin(1)
 			this.container.add(text1)
-			this.container.add(text2)
-			*/
+			//this.container.add(text2)
+			//*/
 			
 			
 		})
 	
+	}
+	
+	Building.prototype.getRoomsBy = function(flavor){
+		return this.rooms.filter(room => room.flavor === flavor)
+	}
+	
+	Building.prototype.getRandomRoom = function(flavor){
+		if(flavor){
+			return random.pick(this.getRoomsBy(flavor))
+		}else{
+			console.error("No flavor")
+			return random.pick(this.rooms)
+		}
+	}
+	
+	Building.prototype.pick = function(a, t){
+		a.sort((a, b) => {
+			if(a.i === b.i){
+				return a.j - b.j
+			}else{
+				return a.i - b.i
+			}
+		})
+		//random.shuffle(list) // prevent from always starting in the corner and moving down 
+		let leastUsed = a[0]
+		a.forEach(cell => {
+			if(cell.use < leastUsed.use){
+				leastUsed = cell 
+			}
+		})
+		
+		//console.log('use')
+		//choice.use += t
+		return leastUsed
 	}
 	
 	window.Building = Building

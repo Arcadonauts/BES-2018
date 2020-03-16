@@ -1,4 +1,18 @@
 (function(){
+	/* To Do:
+		Stagger Enterance
+		Shapeshifter
+		Highlight Room on pointerover
+		Improved wiggling on people
+		
+		Bomb
+		
+		Menu:
+			Roster
+			
+		
+	*/
+	
 
 	const path = '/static/GAMES/shift/'
 	
@@ -6,7 +20,7 @@
 		type: Phaser.WEBGL,
 		width: 1920/2,
 		height: 1080/2,
-		backgroundColor: '#45283c',
+		backgroundColor: 'black',
 		pixelArt: false,
 		zoom: 1,
 		physics: {
@@ -51,6 +65,8 @@
 	let setup = {
 		preload: function(){
 			
+			
+			
 			let text = this.add.text(config.width/2, config.height/2, 'Loading: 0%', {
 				fill : 'white'
 			})
@@ -66,10 +82,11 @@
 			})
 			
 			
-			let v = 2//Math.random()
+			let v = Math.random()
 			
 			this.load.text('firsts', path+'firsts.txt?v='+v)
 			this.load.text('lasts', path+'lasts.txt?v='+v)
+			this.load.text('shader', path+'shader.txt?v='+v)
 			
 			let sheets = [
 				{
