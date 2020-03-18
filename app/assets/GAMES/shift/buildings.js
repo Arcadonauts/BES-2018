@@ -9,7 +9,7 @@
 		this.scene = scene
 		this.width = width 
 		this.height = height 
-		let x = 50 
+		let x = this.scene.cameras.main.centerX 
 		let y = 50 
 		
 		this.rooms = [] 
@@ -32,7 +32,15 @@
 		
 		let that = this 
 		this.container.on('pointermove', function(pointer, x, y){
-			this.scene.hud.showRoom(that.getWorld(pointer.x, pointer.y).room)
+			that.selectedRoom = that.getWorld(pointer.x, pointer.y).room
+			this.scene.hud.showRoom(that.selectedRoom)
+			that.refreshGraphics()
+		})
+		
+		this.container.on('pointerout', function(pointer, x, y){
+			that.selectedRoom = undefined
+			this.scene.hud.showRoom(that.selectedRoom)
+			that.refreshGraphics()
 		})
 			
 		this.footprint()
@@ -369,120 +377,6 @@
 		return op 
 	}
 	
-	Building.prototype.graphics = function(){
-		function drawWall(cell, neigh){
-			return (
-				neigh === undefined || (
-					neigh.room !== cell.room && (
-						cell.room !== -1 && !cell.door || cell.room === -1 && !neigh.door
-					)
-				)
-			)
-		}
-		
-		let w = 4
-			
-			
-		let graphics = this.scene.add.graphics({
-			x: 0,
-			y: 0,
-			lineStyle: {
-				width: 2*w,
-				color: 0xffffff, //cell.color.color
-			}
-	
-		})
-		
-		this.container.add(graphics)
-		
-		graphics.fillStyle(0x000000)
-		graphics.fillRect(-w, -w, tw*this.width+2*w, tw*this.height+2*w)
-		
-		this.forEach((cell, i, j) => {
-			let x0 = cell.x - tw/2
-			let y0 = cell.y - tw/2 
-			
-			if(cell.room === -1){
-				cell.color.setFromHSV(0.25, 0.75, 0.5)
-			}else{
-				let h = cell.room/(this.rows*this.cols)
-				let s = 1
-				let v = 1 
-				cell.color.setFromHSV(0.5 + ((i + j)%2)*0.125, 0.75, 0.5)
-			
-			}
-			
-			//cell.color.setFromHSV(0.0, 0.5, 0.5+0.01*cell.use)
-			cell.color.setFromHSV(0.1*cell.room, 0.5, 0)
-			
-			graphics.fillStyle(cell.color.color)
-			graphics.fillRect(x0, y0, tw, tw)
-			
-		})
-		
-		this.forEach((cell, i, j) => {
-			
-			
-			
-			let x0 = cell.x - tw/2 
-			let y0 = cell.y - tw/2
-			
-
-			graphics.beginPath()
-			
-			let neighs = this.getNeighbors(cell)
-			let north = neighs.north 
-			let south = neighs.south 
-			let east = neighs.east 
-			let west = neighs.west 
-			
-			// N 
-			if(drawWall(cell, north)){
-				graphics.moveTo(x0 - w, 	 y0)
-				graphics.lineTo(x0 + tw + w, y0)
-			}
-			
-			// S 
-			if(drawWall(cell, south)){
-				graphics.moveTo(x0 - w, 	 y0 + tw)
-				graphics.lineTo(x0 + tw + w, y0 + tw)
-			}
-			
-			// E 
-			if(drawWall(cell, east)){
-				graphics.moveTo(x0, 	 y0 - w)
-				graphics.lineTo(x0,		 y0 + tw + w)
-			}
-			
-			// W 
-			if(drawWall(cell, west)){
-				graphics.moveTo(x0 + tw, y0 - w)
-				graphics.lineTo(x0 + tw, y0 + tw + w)
-			}
-			
-			graphics.strokePath()
-			
-			if(!true){
-				let text = this.scene.add.text(x0 + tw/2, y0 + tw/2, cell.id)
-				text.setOrigin(0.5)
-				text.setScale(0.5)
-				
-				this.container.add(text)
-			}
-			/*
-			let text1 = this.scene.add.text(i*tw, j*tw, cell.use)
-			//let text2 = this.scene.add.text((i+1)*tw, (j+1)*tw, cell.j)
-			text1.setOrigin(00)
-			//text2.setOrigin(1)
-			this.container.add(text1)
-			//this.container.add(text2)
-			//*/
-			
-			
-		})
-	
-	}
-	
 	Building.prototype.getRoomsBy = function(flavor){
 		return this.rooms.filter(room => room.flavor === flavor)
 	}
@@ -497,6 +391,10 @@
 	}
 	
 	Building.prototype.pick = function(a, t){
+		if(!a){
+			console.error('a is undefined')
+			return this.pick(this.getRandomRoom())
+		}
 		a.sort((a, b) => {
 			if(a.i === b.i){
 				return a.j - b.j
@@ -515,6 +413,144 @@
 		//console.log('use')
 		//choice.use += t
 		return leastUsed
+	}
+	
+	Building.prototype.drawWalls = function(graphics, cell, i, j, w, inset){
+		function drawWall(cell, neigh){
+			return (
+				neigh === undefined || (
+					neigh.room !== cell.room && (
+						cell.room !== -1 && !cell.door || cell.room === -1 && !neigh.door
+					)
+				)
+			)
+		}
+		
+		let x0 = cell.x - tw/2 
+		let y0 = cell.y - tw/2
+		
+		
+		graphics.beginPath()
+		if(cell.room !== -1 && cell.room === this.selectedRoom){
+			graphics.lineStyle(2*w, 0xffffff)
+		}else{
+			//graphics.lineStyle(2*w, 0x555555)
+			graphics.lineStyle(2*w, 0x005555)
+		}
+		
+		let neighs = this.getNeighbors(cell)
+		let north = neighs.north 
+		let south = neighs.south 
+		let east = neighs.east 
+		let west = neighs.west 
+		
+		
+		
+		// N 
+		if(drawWall(cell, north)){
+			graphics.moveTo(x0 - w - inset, 	 y0 + inset)
+			graphics.lineTo(x0 + tw + w + inset, y0 + inset)
+		}
+		
+		// S 
+		if(drawWall(cell, south)){
+			graphics.moveTo(x0 - w - inset, 	 y0 + tw - inset)
+			graphics.lineTo(x0 + tw + w + inset, y0 + tw - inset)
+		}
+		
+		// E 
+		if(drawWall(cell, east)){
+			graphics.moveTo(x0 + inset, 	 y0 - w - inset)
+			graphics.lineTo(x0 + inset,		 y0 + tw + w + inset)
+		}
+		
+		// W 
+		if(drawWall(cell, west)){
+			graphics.moveTo(x0 + tw - inset, y0 - w - inset)
+			graphics.lineTo(x0 + tw - inset, y0 + tw + w + inset)
+		}
+		
+		graphics.strokePath()
+		
+		if(!true){
+			let text = this.scene.add.text(x0 + tw/2, y0 + tw/2, cell.id)
+			text.setOrigin(0.5)
+			text.setScale(0.5)
+			
+			this.container.add(text)
+		}
+		/*
+		let text1 = this.scene.add.text(i*tw, j*tw, cell.use)
+		//let text2 = this.scene.add.text((i+1)*tw, (j+1)*tw, cell.j)
+		text1.setOrigin(00)
+		//text2.setOrigin(1)
+		this.container.add(text1)
+		//this.container.add(text2)
+		//*/
+	}
+	
+	Building.prototype.drawFloor = function(graphics, cell, i, j, w, inset){
+		let x0 = cell.x - tw/2
+		let y0 = cell.y - tw/2 
+		
+		if(cell.room === -1){
+			cell.color.setFromHSV(0.25, 0.75, 0.5)
+		}else{
+			let h = cell.room/(this.rows*this.cols)
+			let s = 1
+			let v = 1 
+			cell.color.setFromHSV(0.5 + ((i + j)%2)*0.125, 0.75, 0.5)
+		
+		}
+		
+		cell.color.setFromHSV(0.0, 0.5, 0.5+0.01*cell.use)
+		//cell.color.setFromHSV(0.1*cell.room, 0.5, 0)
+		
+		graphics.fillStyle(cell.color.color)
+		graphics.fillRect(x0, y0, tw, tw)
+	}
+	
+	Building.prototype.refreshGraphics = function(){
+		
+		let w = 2
+		let inset = w //+ 2 
+			
+		let graphics 
+		if(this.graphics){
+			graphics = this.graphics 
+			graphics.clear()
+			
+		}else{
+			
+			graphics = this.scene.add.graphics({
+				x: 0,
+				y: 0,
+				lineStyle: {
+					width: 2*w,
+					color: 0x00ffff, //cell.color.color
+				}
+		
+			})
+			this.graphics = graphics
+			this.container.add(graphics)
+		}
+		
+		// Outside Border
+		graphics.fillStyle(0x000000)
+		graphics.strokeRect(- inset, - inset, tw*this.width+w + inset, tw*this.height+w + inset)
+		
+		
+		this.forEach((cell, i, j) => {
+			// No Need to color black 
+			// this.drawFloor(graphics, cell, i, j, w, inset)
+			
+		})
+	
+		
+		this.forEach((cell, i, j) => {
+			this.drawWalls(graphics, cell, i, j, w, inset)
+		})
+	
 	}
 	
 	window.Building = Building

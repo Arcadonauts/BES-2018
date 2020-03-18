@@ -116,6 +116,112 @@ let quizzes = [
 		}
 	},
 	{
+		key: 'der',
+		name: 'Derivatives',
+		problems: function(){
+			let probs = []
+			
+			let a =  random.range(4)
+			let b = random.range(-4, 4)
+			let c = random.range(-4, 4)
+			while(!(b*c*a)){
+				a =  random.range(4)
+				b = random.range(-4, 4)
+				c = random.range(-4, 4)
+			}
+			let quad = this.funcs.quad(a, b, c)
+			
+			for(let i = 0; i < 3; i ++){
+				
+				
+				let x = quad.x(i)
+			
+				let y = quad.f(x)
+				
+				probs.push({
+					answer: quad.fp(x),
+					formula:" \\[ \\ \\ f(x)=" + quad.form + " \\ \\ \\]",
+					instruction: "At the point (" + x + ", " + y + "), find the derivative of" 
+				})
+			}
+			
+			a =  random.range(4)
+			b = random.range(1, 4)
+			c = random.range(1, 4)
+			
+			let sqrt = this.funcs.sqrt(a, b, c)
+			for(let i = 0; i < 2; i++){
+				let x = sqrt.x(i)
+			
+				let y = sqrt.f(x)
+				
+				probs.push({
+					answer: sqrt.fp(x),
+					formula:" \\[ \\ \\ f(x)=" + sqrt.form + " \\ \\ \\]",
+					instruction: "At x = " + x + ", find the derivative of" 
+				})
+			}
+			
+			a =  random.range(4)
+			b = random.range(1, 4)
+			c = random.range(1, 4)
+			
+			let inv = this.funcs.inv(a, b, c)
+			for(let i = 0; i < 1; i++){
+				let x = inv.x(i)
+			
+				let y = inv.f(x)
+				
+				probs.push({
+					answer: inv.fp(x),
+					formula:" \\[ \\ \\ f(x)=" + inv.form + " \\ \\ \\]",
+					instruction: "At x = " + x + ", find the derivative of" 
+				})
+			}
+			
+			return probs
+		},
+		funcs: {
+			quad: function(a, b, c){
+				function sign(x){
+					return x < 0 ? '- ' : '+ '
+				}
+			
+				return {
+					x: i => 3*i - 2,
+					f: (x) => a*x*x + b*x + c,
+					fp: (x) => 2*a*x + b,
+					form: a + "x^2" + sign(b) + Math.abs(b) + 'x' + sign(c) + Math.abs(c)
+				}
+			},
+			sqrt: function(a, b, d){
+				
+				
+				d *= 2
+				let c = (2*b*d+d*d)/4
+				a *= d
+				
+				let xs = [-d/2, (2*b + d)/2]
+				return {
+					x: i => xs[i],
+					f: (x) => a*Math.sqrt(b*x + c),
+					fp: (x) => (a*b)/(2*Math.sqrt(b*x+c)),
+					form: a + " \\sqrt{" + b  + " x + " + c + "}"
+				}
+			},
+			inv: function(a0, b, d){
+				a = b*d 
+				c = a0*b 
+				return {
+					x: i => 1-a0,
+					f: (x) => a/(b*x + c),
+					fp: (x) => -(a*b)/(Math.pow(b*x+c, 2)),
+					form: "\\frac{" + a + "}{" + b  + " x + " + c + "}"
+				}
+			}
+		}
+	},
+	{
 		key: 'conics',
 		name: 'Rotating Conic Sections',
 		problems: function(){

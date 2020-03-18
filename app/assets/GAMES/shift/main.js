@@ -1,15 +1,15 @@
 (function(){
 	/* To Do:
-		Stagger Enterance
-		Shapeshifter
-		Highlight Room on pointerover
+		Pause/Play
+		
+		
 		Improved wiggling on people
 		
 		Bomb
 		
 		Menu:
 			Roster
-			
+			Map View (room names)
 		
 	*/
 	
@@ -32,21 +32,14 @@
 	};
 	
 
-	let main_menu = {
-		create: function(){
-
-			
-		},
-		update: function(){
-
-		}
-	}
+	
 
 	function init(){
 		window.game = new Phaser.Game(config)
 		game.scene.add('setup', setup)
 		//game.scene.add('menu', menu)
-		game.scene.add('main menu', main_menu)
+		game.scene.add('main menu', mainMenu)
+		game.scene.add('title', title)
 		//game.scene.add('menu', menu)
 		//game.scene.add('audio', audio)
 		//game.scene.add('tut', tut)
@@ -90,10 +83,10 @@
 			
 			let sheets = [
 				{
-					name: 'cards',
-					width: 250,
-					height: 1270/4,
-					ext: 'jpg'
+					name: 'agent',
+					width: 405,
+					height: 1020,
+					ext: 'png'
 				},	
 			]
 		

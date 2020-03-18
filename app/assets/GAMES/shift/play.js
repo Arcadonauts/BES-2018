@@ -17,8 +17,11 @@
 
 	});
 	
-	let timeStep = 20 
-	let maxTime = 500*timeStep
+	const timeStep = 20 
+	const maxTime = 500*timeStep
+	const startTime = 8.75 // 8:45
+	const endTime = 17.25 // 5:15
+	
 	
 	function keys(obj){
 		let ks = []
@@ -30,6 +33,86 @@
 		return ks 
 	}
 	
+	function Tab(hud, id, color, text){
+		
+		this.hud = hud 
+		let scene = hud.scene 
+		
+		this.width = 100
+		this.height = 25
+		this.lineWidth = 4
+		this.color = color 
+		
+		let up = 5
+		
+		let x = 6 + (this.width + this.lineWidth)*id 
+		let y = up + this.lineWidth
+		
+		this.container = scene.add.container(x, y)
+		
+		this.graphics = scene.add.graphics(0, 0)
+		this.container.add(this.graphics)
+		
+		this.graphics.lineStyle(this.lineWidth, color)
+		this.graphics.fillStyle(0x000000)
+		this.graphics.strokeRect(0, 0, this.width, this.height)
+		this.graphics.fillRect(0, 0, this.width, this.height + 2*this.lineWidth)
+		
+		let c = Phaser.Display.Color.ValueToColor(color)
+		this.text = scene.add.text(this.width/2, this.height/2, text, {
+			fill:  Phaser.Display.Color.RGBToString(c.red, c.green, c.blue),
+			fontFamily: 'retro',
+			fontSize: '16pt',
+			align: 'center'
+		})
+		this.container.add(this.text)
+		this.text.setOrigin(0.5, 0.4)
+		
+		
+		this.graphics.setInteractive({
+			hitArea: {
+				x: 0,
+				y: 0, 
+				width: this.width, 
+				height: this.height
+			},
+			hitAreaCallback: function(hitArea, x, y, gameObject){
+				return x > hitArea.x && x < hitArea.width + hitArea.x && y > hitArea.y && y < hitArea.y + hitArea.height 
+			}
+		})
+		
+		let that = this 
+		this.graphics.on('pointerover', function(){
+			that.text.y -= up 
+			that.graphics.y -= up 
+		})
+		
+		this.graphics.on('pointerout', function(){
+			that.text.y += up 
+			that.graphics.y += up 
+		})
+		
+		this.graphics.on('pointerdown', function(){
+			that.select()
+		})
+		
+		
+	}
+	
+	Tab.prototype.select = function(){
+		this.hud.tabs.forEach(tab => {
+			
+			if(tab === this){
+				tab.container.setDepth(1)
+				hud.draw(this.color)
+			}else{
+				tab.container.setDepth(-1)
+			}				
+		})
+		
+		
+	}
+	
 	let hud = {
 		init: function(scene, hr){
 			this.scene = scene 
@@ -37,23 +120,46 @@
 			
 			this.hr = hr 
 			
+			
+			
+			this.tabs = []
 			this.create()
+			let tabColors = [0x00ffff, 0xff00ff, 0xffff00]
+			let tabLabels = ["Timeline", "Personel", "Map"]
+			tabColors.forEach((color, i) => {
+				this.tabs.push(new Tab(hud, i, color, tabLabels[i]))
+			})
+			
+			
+			
+			this.tabs[0].select()
 			
 		},
 		create: function(){
-			this.title = this.scene.add.text(this.scene.cameras.main.centerX, 0.25*this.scene.cameras.main.centerY, 'Title', {
+			this.box = this.scene.add.graphics(0, 0)
+			this.draw(0x00ffff)
+			let x0 = 0.05*this.scene.cameras.main.centerX
+			this.title = this.scene.add.text(x0, 0.2*this.scene.cameras.main.centerY, 'Title', {
 				fill: 'white',
 				fontFamily: 'retro',
-				fontSize: '24pt',
+				fontSize: '22pt',
 				align: 'left'
 			})
 			this.title.setOrigin(0)
-			this.occupants = this.scene.add.text(this.scene.cameras.main.centerX, 0.4*this.scene.cameras.main.centerY, 'Occupants\nOccupants', {
+			this.occupants = this.scene.add.text(x0, 0.35*this.scene.cameras.main.centerY, 'Occupants\nOccupants', {
 				fill: 'white',
 				fontFamily: 'retro',
-				fontSize: '20pt',
+				fontSize: '18pt',
 				align: 'left'
 			})
+			
+		},
+		draw: function(color){
+			this.box.clear()
+			this.box.lineStyle(2, color)
+			let x0 = 5 
+			let y0 = 35
+			this.box.strokeRect(x0, y0, 0.875*this.scene.cameras.main.centerX, 1.5*this.scene.cameras.main.centerY)
 			
 		},
 		showRoom: function(index){
@@ -91,12 +197,17 @@
 			people.forEach(person => {
 				this.createPath(person, schedule, building)
 			})
+			
+			let shifter = random.pick(people)
+			shifter.makeShifter(people)
 		},
 		timeToClock: function(time){
-			return time*8/maxTime + 9 
+			let len = endTime - startTime
+			return time*len/maxTime + startTime 
 		},
 		clockToTime: function(hours){
-			return Math.floor((hours - 9)*maxTime/8)
+			let len = endTime - startTime
+			return Math.floor((hours - startTime)*maxTime/len)
 		},
 		timeToString: function(time){
 			let hours = this.timeToClock(time)
@@ -205,7 +316,7 @@
 		createSchedule: function(building, persons){
 			let people = persons.slice()
 			let schedule = {}
-			for(let i = 9.0; i < 17; i += 0.25){ //Magic Numbers: 9:00 AM, 5:30 PM, 15 minutes 
+			for(let i = startTime; i <= endTime; i += 0.25){ 
 				let timeSlot = {}
 				people.forEach(person => {
 					timeSlot[person.name] = undefined
@@ -270,11 +381,25 @@
 				let room
 				
 				if(where === 'office'){
+					
 					room = who.office
 				}else if(where === '*office'){
 					room = building.getRandomRoom('office')
 				}else if(where === 'base'){
-					room = building.getRandomRoom(this.jobs[who.job].base)
+					let base = this.jobs[who.job].base
+					if(base === 'office'){
+						
+						if(this.jobs[who.job].office === true){
+							room = building.rooms.find(x => x.name === who.office)
+							
+						}else{
+							room = building.getRandomRoom(this.jobs[who.job].office)
+						}
+						
+					}else{
+						room = building.getRandomRoom(base)
+					}
+					
 				}else if(where === 'hall'){
 					room = building.rooms[-1]
 				}else if(where === 'entrance'){
@@ -286,13 +411,18 @@
 				let target = building.pick(room, 1)
 				//console.log(task.time, where, room.flavor)
 				if(agenda.length === 0){
-					agenda.push(target)
+					let wait = random.between(0, 20)
+					for(let i = 0; i < wait; i++){
+						agenda.push(target)
+					}
+					
 					
 				}else{
 					let start = agenda[agenda.length - 1]
-					if(target.room === start.room){
+					if(target.room === start.room && !target.room === -1){
 						
 						target = start
+						
 						
 					}
 					
@@ -334,10 +464,12 @@
 			people.forEach(person => {
 				let job = this.jobs[person.job]
 				if(job.office === true){
+					let title = job.title.replace(/%s/g, person.lastName)
 					rooms.push({
 						room: 'office',
-						name: job.title.replace(/%s/g, person.lastName)
+						name: title,
 					})
+					person.office = title 
 				}else if(job.office){
 					if(!got[job.office]){
 						rooms.push({
@@ -382,6 +514,7 @@
 				buildingRooms[i].name = room.name 
 				buildingRooms[i].template = this.rooms[room.room]
 				buildingRooms[i].flavor = room.room 
+				
 			})
 			
 			
@@ -440,13 +573,8 @@
 			},
 			checkin: {
 				who: 'all',
-				start: 9.25,
+				start: 9.0,
 				duration: [0, 0.25],
-				where: ['base']
-			},
-			phone: {
-				who: 'all',
-				duration: [0.25, 1],
 				where: ['base']
 			},
 			paperwork: {
@@ -456,14 +584,14 @@
 			},
 			arrive: {
 				who: 'all',
-				start: 9,
+				start: 8.75,
 				duration: [0, 0.25],
 				where: ['entrance'],
 			},
 			leave: {
 				who: 'all',
-				start: 16.75,
-				duration: [0, 0.25],
+				start: 17.0,
+				duration: [1, 2],
 				where: ['entrance']
 			},
 			clean: {
@@ -499,7 +627,7 @@
 			sleep: {
 				who: 'all',
 				duration: [0.25, 1],
-				where: ['base']
+				where: ['*office']
 			}
 		},
 		jobs: {
@@ -596,22 +724,28 @@
 	
 		this.scene = scene 
 		this.margin = 50 
-		this.r = 15 
+		this.r = 10 
 		let y = 1.85*scene.cameras.main.centerY
 		this.width = this.scene.cameras.main.centerX*2 - 2*this.margin
 		
-		this.clock = scene.add.text(this.margin, y - this.margin/2, '11:00')
-		this.clock.setOrigin(0.5)
+		this.clock = scene.add.text(this.margin, y - this.margin/2, '11:00', {
+			fill: 'white',
+			fontFamily: 'retro',
+			fontSize: '20pt',
+			align: 'left'
+		})
+	
+		this.clock.setOrigin(0.5, 0.75)
 		
 		this.graphics = scene.add.graphics({
 			x: this.margin,
 			y: y,
 			lineStyle: {
 				width: 6,
-				color: 0x000000, 
+				color: 0x555555, 
 			},
 			fillStyle: {
-				color: Phaser.Display.Color.HSVToRGB(0, 0.0, 0.25).color
+				color: 0x000000
 			}
 		})
 
@@ -649,8 +783,6 @@
 			that.dragging = false 
 			that.scene.t = getTime(pointer)
 		})
-		
-	
 
 	}
 	
@@ -658,11 +790,13 @@
 		let x0 = this.width*this.scene.t/maxTime
 		let r = this.r 
 		this.graphics.clear()
+		this.graphics.lineStyle(6, 0x555555)
 		this.graphics.beginPath()
 		this.graphics.moveTo(0, 0)
 		this.graphics.lineTo(this.width, 0)
 		this.graphics.strokePath()
 		
+		this.graphics.lineStyle(6, 0xffffff)
 		this.graphics.fillCircle(x0, 0, r)
 		this.graphics.strokeCircle(x0, 0, r)
 		
@@ -670,8 +804,8 @@
 			this.scene.t += 1 
 		}
 		this.clock.x = x0 + this.graphics.x 
-		//this.clock.text = this.scene.t + "\n" + hr.timeToString(this.scene.t)
-		this.clock.text = hr.timeToString(this.scene.t)
+		this.clock.text = Math.floor(this.scene.t/timeStep) + "\n" + hr.timeToString(this.scene.t)
+		//this.clock.text = hr.timeToString(this.scene.t)
 	}
 
 	window.play = {
@@ -698,7 +832,7 @@
 			
 			this.timeline = new Timeline(this)
 			
-			this.building.graphics()
+			this.building.refreshGraphics()
 			this.guys.forEach(guy => {
 				guy.createGraphics()
 			})
@@ -707,7 +841,9 @@
 		
 		},
 		update: function(){
-			this.customPipeline.setFloat2('mouse', 0.5, 0.5);
+			let sx = this.input.mousePointer.x/(2*this.cameras.main.centerX)
+			let sy = this.input.mousePointer.y/(2*this.cameras.main.centerY)
+			this.customPipeline.setFloat2('mouse', sx, sy);
 			this.customPipeline.setFloat1('time', this.shaderTime);
 			this.shaderTime += 0.001 
 			
@@ -715,9 +851,115 @@
 			this.timeline.update()
 			this.guys.forEach(guy => guy.update(this.t, timeStep))
 			if(this.t % timeStep === 0){
-					this.hud.updateRoom()
+				this.hud.updateRoom()
 			}
 			
+		}
+	}
+	
+	window.mainMenu = {
+		create: function(){
+			let shader = this.cache.text.entries.entries['shader']
+			this.shaderTime = 0 
+			
+			this.customPipeline = game.renderer.addPipeline('Custom', new CustomPipeline2(game, shader));
+			this.customPipeline.setFloat2('resolution', game.config.width, game.config.height);
+			this.customPipeline.setFloat2('mouse', 0.5, 0.5);
+		
+			this.cameras.main.setRenderToTexture(this.customPipeline);
+			
+			this.agent = this.add.sprite(0, 0, 'agent')
+			this.agent.setOrigin(0)
+			this.agent.setScale(0.5)
+			this.agent.alpha = 0.5
+			
+			this.t = 0 
+			this.isRevealed = false 
+			
+		},
+		update: function(){
+			let sx = this.input.mousePointer.x/(2*this.cameras.main.centerX)
+			let sy = this.input.mousePointer.y/(2*this.cameras.main.centerY)
+			this.customPipeline.setFloat2('mouse', sx, sy);
+			
+			this.customPipeline.setFloat1('time', this.shaderTime);
+			this.shaderTime += 0.001 
+			
+			let r = random.frac()
+			let freq = 0.02
+			let frame
+			if(r > 1 - freq){
+				frame = 1
+			}else if(r < freq){
+				frame = 0
+			}else{
+				frame = 0 
+			}
+			frame *= 2 
+			if(this.isRevealed){
+				frame += 1
+			}
+			this.agent.setFrame(frame)
+			
+			this.t += 1 
+		}
+	}
+	
+	window.title = {
+		create: function(){
+			let shader = this.cache.text.entries.entries['shader']
+			this.shaderTime = 0 
+			
+			this.customPipeline = game.renderer.addPipeline('Custom', new CustomPipeline2(game, shader));
+			this.customPipeline.setFloat2('resolution', game.config.width, game.config.height);
+			this.customPipeline.setFloat2('mouse', 0.5, 0.5);
+		
+			this.cameras.main.setRenderToTexture(this.customPipeline);
+			
+			this.nineTo = this.add.text(0, 0, "NINE\nTO", {
+				fill: 'white',
+				fontFamily: 'retro',
+				fontSize: '100pt',
+				align: 'left'
+			})
+			
+			this.die = this.add.text(0, this.nineTo.height, "DIE", {
+				fill: 'red',
+				fontFamily: 'retro',
+				fontSize: '100pt',
+				align: 'left'
+			})
+			this.t = 0 
+			this.isRevealed = false 
+			
+		},
+		update: function(){
+			let sx = this.input.mousePointer.x/(2*this.cameras.main.centerX)
+			let sy = this.input.mousePointer.y/(2*this.cameras.main.centerY)
+			this.customPipeline.setFloat2('mouse', sx, sy);
+			this.customPipeline.setFloat1('time', this.shaderTime);
+			this.shaderTime += 0.001 
+			
+			/*
+			let r = random.frac()
+			
+			if(r < 0.05){
+				this.isRevealed = true
+			}else if(r > 0.90){
+				this.isRevealed = false 
+			}
+			
+			if(this.isRevealed){
+				this.die.text = "DIE"
+				
+			}else{
+				this.die.text = "FIVE"
+			
+			}
+			*/
+			
+			
+			this.t += 1 
 		}
 	}
 
