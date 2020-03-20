@@ -200,7 +200,9 @@ let quizzes = [
 				d *= 2
 				let c = (2*b*d+d*d)/4
 				a *= d
-				
+				if(a === 0){
+					a = 1
+				}
 				let xs = [-d/2, (2*b + d)/2]
 				return {
 					x: i => xs[i],
@@ -212,6 +214,9 @@ let quizzes = [
 			inv: function(a0, b, d){
 				a = b*d 
 				c = a0*b 
+				if(a === 0){
+					a = 1
+				}
 				return {
 					x: i => 1-a0,
 					f: (x) => a/(b*x + c),

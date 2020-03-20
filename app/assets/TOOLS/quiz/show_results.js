@@ -21,7 +21,7 @@ let students = {
 			name: name,
 			answers: line.slice(1),
 			correct: problems.map(p => p.answer),
-			questions: problems.map(p => p.formula)
+			questions: problems.map(p => p.instruction + ' ' + p.formula)
 		}
 		
 		
