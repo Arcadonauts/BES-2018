@@ -20,6 +20,13 @@
 		this.color = Phaser.Display.Color.ValueToColor(0)
 		this.color.setFromHSV(0, 1, 1)
 		
+		this.profile = {
+			age: random.between(25, 65),
+			height: random.between(145, 185),
+			weight: random.between(68, 140),
+			wigX: random.realInRange(1, 3),
+			wigY: random.realInRange(1, 3),
+		}
 		
 		return this 
 	}
@@ -29,6 +36,8 @@
 		//this.color.setFromHSV(0.25, 1, 1)
 		
 		this.createGraphics()
+		
+		this.scene.shifter = this 
 		
 		this.identity = []
 		 
@@ -41,6 +50,7 @@
 		
 		let shifted = true 
 		let shifts = []
+		let count = 0 
 		for(let i = 0; i < shiftTimes.length - 1; i++){
 			let t0 = shiftTimes[i]
 			let t1 = shiftTimes[i+1]
@@ -56,12 +66,18 @@
 				let copy = random.pick(people.filter(x => see.indexOf(x) === -1))
 				name = copy.name 
 				shifted = true 
+				count += 1
 			}
 			
 			
 			shifts.push(name)
 			
 			
+		}
+		
+		if(count < 3){
+			console.warn("Not shifty enough")
+			this.scene.scene.restart({diff: this.scene.diff})
 		}
 		
 		console.groupCollapsed("Click here if you are a cheater...")
@@ -160,6 +176,7 @@
 		https://www.thoughtco.com/most-common-us-surnames-1422656
 		https://www.ssa.gov/OACT/babynames/decades/century.html
 		*/
+		
 		let firsts = this.scene.cache.text.entries.entries['firsts'].split('\n')
 		let lasts = this.scene.cache.text.entries.entries['lasts'].split('\n')
 		
@@ -175,6 +192,7 @@
 		
 		this.lastName = last 
 		this.name = name 
+		this.trueName = name 
 		
 		//this.nameText.text = this.name 
 	}
@@ -219,8 +237,8 @@
 			
 			if(this.graphics){
 			
-				this.graphics.x = Phaser.Math.Linear(x0, x1, dt) + Math.sin(2*Math.PI*dt)
-				this.graphics.y = Phaser.Math.Linear(y0, y1, dt) + Math.cos(2*Math.PI*dt)
+				this.graphics.x = Phaser.Math.Linear(x0, x1, dt) + Math.sin(this.profile.wigX*t/10)
+				this.graphics.y = Phaser.Math.Linear(y0, y1, dt) + Math.cos(this.profile.wigY*t/10)
 				
 				if(a === b && a.room === -1 && a.door){
 					this.graphics.alpha = 0 
@@ -241,6 +259,16 @@
 		}
 		
 		
+	}
+	
+		
+	Character.prototype.hide = function(){
+		if(this.graphics) this.graphics.alpha = 0 
+		
+	}
+	
+	Character.prototype.show = function(){
+		if(this.graphics) this.graphics.alpha = 1 
 	}
 
 	window.Character = Character

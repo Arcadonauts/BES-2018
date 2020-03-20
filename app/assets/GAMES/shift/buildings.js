@@ -385,14 +385,14 @@
 		if(flavor){
 			return random.pick(this.getRoomsBy(flavor))
 		}else{
-			console.error("No flavor")
+			//console.error("No flavor")
 			return random.pick(this.rooms)
 		}
 	}
 	
 	Building.prototype.pick = function(a, t){
 		if(!a){
-			console.error('a is undefined')
+			//console.error('a is undefined')
 			return this.pick(this.getRandomRoom())
 		}
 		a.sort((a, b) => {
@@ -551,6 +551,15 @@
 			this.drawWalls(graphics, cell, i, j, w, inset)
 		})
 	
+	}
+	
+	Building.prototype.hide = function(){
+		this.container.alpha = 0 
+		
+	}
+	
+	Building.prototype.show = function(){
+		this.container.alpha = 1 
 	}
 	
 	window.Building = Building

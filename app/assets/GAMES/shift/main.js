@@ -1,17 +1,34 @@
 (function(){
 	/* To Do:
-		Pause/Play
+		Timeline
+			
+			Improved wiggling on people
+			
+		Personel:
+			Accuse
+		Map
+		Tutorial
 		
-		
-		Improved wiggling on people
-		
-		Bomb
-		
-		Menu:
-			Roster
-			Map View (room names)
-		
+			
+
 	*/
+	
+	let CustomPipeline2 = new Phaser.Class({
+
+		Extends: Phaser.Renderer.WebGL.Pipelines.TextureTintPipeline,
+
+		initialize:
+
+		function CustomPipeline2 (game, text)
+		{
+			Phaser.Renderer.WebGL.Pipelines.TextureTintPipeline.call(this, {
+				game: game,
+				renderer: game.renderer,
+				fragShader: text
+			});
+		} 
+
+	});
 	
 
 	const path = '/static/GAMES/shift/'
@@ -38,11 +55,13 @@
 		window.game = new Phaser.Game(config)
 		game.scene.add('setup', setup)
 		//game.scene.add('menu', menu)
-		game.scene.add('main menu', mainMenu)
+		game.scene.add('tut', tut)
 		game.scene.add('title', title)
+		game.scene.add('accuse', accuseScene)
 		//game.scene.add('menu', menu)
 		//game.scene.add('audio', audio)
 		//game.scene.add('tut', tut)
+
 		game.scene.add('play', play)
 		//game.scene.add('battle', battle)
 		//game.scene.add('world', world)
@@ -88,6 +107,12 @@
 					height: 1020,
 					ext: 'png'
 				},	
+				{
+					name: 'dot',
+					width: 2,
+					height: 2,
+					ext: 'png'
+				},	
 			]
 		
 			sheets.forEach(s => {
@@ -105,17 +130,17 @@
 			//this.load.json('data', path+'data.json?v='+v)
 			
 			let sounds = [
-		
+				//'bip', 'blap', 'blip', 'bup', 'plip', 'boop'
 			]
 			
 			for(let i = 0; i < sounds.length; i++){
 				let s = sounds[i]
 				//console.log('load:', s+'.wav')
-				this.load.audio(s, path + 'audio/' + s + '.mp3')
+				this.load.audio(s, path + 'sfx/' + s + '.wav')
 				
 			}
 			
-			this.sound.volume = 1
+			this.sound.volume = 0.3
 			
 			let maps = []
 			maps.forEach(m => {
@@ -125,15 +150,43 @@
 		
 		},
 		create:	function create(){
+			window.state = {
+				unlocked: 0,
+				set: function(x){
+					if(x > this.unlocked){
+						this.unlocked = x
+						localStorage.shiftUnlocked = x 
+					}
+					
+				},
+				clear: function(){
+					delete localStorage.shiftUnlocked
+				}
+			}
+			
+			if(localStorage.shiftUnlocked){
+				state.unlocked = +localStorage.shiftUnlocked 
+			}
+	
+			let shaderText = this.cache.text.entries.entries['shader']
+			
+			this.customPipeline = game.renderer.addPipeline('Custom', new CustomPipeline2(game, shaderText));
+			this.customPipeline.setFloat2('resolution', game.config.width, game.config.height);
+			this.customPipeline.setFloat2('mouse', 0.5, 0.5);
+			
+			window.shader = this.customPipeline 
 		
-			this.scene.launch('audio', {
+			this.scene.start('audio', {
 				
 			})
 			
-			this.scene.start('play', {
+			this.scene.launch('title', {
+				unlocked: 0
 			})
 		}
 	}
+	
+	
 	
 	
 	init()
