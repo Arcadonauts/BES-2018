@@ -1,6 +1,29 @@
 (function(){
 	/* To Do:
-
+		Map Move 11:05
+		Shop
+			Upgrades 8:43
+		Tutorial 11:30
+		Tool tips 
+		Menu
+		Game Over 
+		SFX
+		Random:
+			1. Meteor
+				If HP == 1:
+					HP = 0
+				elif 1 < HP <= 10:
+					HP = 1 
+				else:
+					HP -= 10
+			2. Battle
+			3. Nothing
+			4. Store
+			5. Luck
+			6. Gift
+		Push Your Luck
+		Shader
+		Boss
 
 	*/
 	
@@ -49,9 +72,12 @@
 
 		//game.scene.add('audio', audio)
 
-		game.scene.add('victory', victory)
+		game.scene.add('tut', tut)
+		game.scene.add('jump', jump)
 		game.scene.add('battle', battle)
+		game.scene.add('store', store)
 		game.scene.add('play', play)
+		game.scene.add('dieEdit', dieEdit)
 
 		
 		
@@ -135,8 +161,8 @@
 				},	
 				{
 					name: 'explode',
-					width: 240/2,
-					height: 135,
+					width: 240,
+					height: 135*2,
 					ext: 'png'
 				},	
 				{
@@ -195,6 +221,36 @@
 		
 		},
 		create:	function create(){
+			
+			this.anims.create({
+				key: 'roll',
+				frames: this.anims.generateFrameNumbers('roll', { start: 0, end: 20 }),
+				frameRate: 48,
+				repeat: -1
+			})
+			
+			this.anims.create({
+				key: 'reveal',
+				frames: this.anims.generateFrameNumbers('roll', { start: 20, end: 24 }),
+				frameRate: 48,
+
+			})
+			
+			this.anims.create({
+				key: 'oroll',
+				frames: this.anims.generateFrameNumbers('roll', { start: 25, end: 45 }),
+				frameRate: 48,
+				repeat: -1
+			})
+			
+			this.anims.create({
+				key: 'oreveal',
+				frames: this.anims.generateFrameNumbers('roll', { start: 45, end: 49 }),
+				frameRate: 48,
+
+			})
+			
+			/*
 			window.state = {
 				unlocked: 0,
 				set: function(x){
@@ -238,7 +294,7 @@
 				}
 				
 			}
-	
+			*/
 			let shaderText = this.cache.text.entries.entries['shader']
 			
 			this.customPipeline = game.renderer.addPipeline('Custom', new CustomPipeline2(game, shaderText));

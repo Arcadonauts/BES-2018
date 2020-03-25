@@ -17,11 +17,702 @@
 		
 	}
 	
+	function createDieSide(scene, n, orange){
+		this.container = scene.add.container(0, 0)
+		
+		this.roll = scene.add.sprite(0, 0, 'roll')
+		this.roll.setOrigin(0.5)
+		this.container.add(this.roll)
+		this.roll.angle = 90*Math.floor(4*Math.random())
+		this.roll.setScale(0.85)
+		
+		
+		this.o = orange ? 'o' : ''
+		
+		this.roll.play(this.o + 'roll')
+		
+		this.bg = scene.add.sprite(0, 0, 'icons')
+		this.bg.setOrigin(0.5)
+		this.container.add(this.bg)
+		this.bg.setFrame(3)
+		this.bg.tint = 0 
+		this.bg.alpha = 0
+		
+		this.base = scene.add.sprite(0, 0, 'icons')
+		this.base.setOrigin(0.5)
+		this.container.add(this.base)
+		this.base.setFrame(1)
+		
+		
+		
+		this.base.tint = orange ? tints.lightOrange : tints.lightPurple 
+		this.base.alpha = 0
+		
+		let dx = this.base.width/5
+		let dy = dx 
+		
+		for(let i = 0; i < 3; i++){
+			for(let j = 0; j < 3; j++){
+				if(isDot(i, j, n)){
+					let dot = scene.add.sprite((i-1)*dx, (j-1)*dy, 'icons')
+					dot.setFrame(2)
+					dot.tint = 0 
+					dot.setOrigin(0.5)
+					this.container.add(dot)
+					dot.alpha = 0
+				}
+			}
+		}
+		
+		this.container.setDepth(0)
+	}
+	
+	function box(text){
+		let scene = text.scene 
+		let w = text.width 
+		//let bounds = text.getBounds() // Doesn't play well with setOrigin()
+		let bounds = text.getTopLeft()
+		bounds.width = text.width 
+		bounds.height = text.height 
+		
+		let ox = text.originX
+		let oy = text.originY 
+		//bounds.x += ox*bounds.width
+		//bounds.y += oy*bounds.height
+		//console.log(ox, oy)
+		
+		let mx = 40
+		let my = mx/2
+		let rect = scene.add.rectangle(bounds.x - mx, bounds.y - my, bounds.width + 2*mx, bounds.height + 2*my, 0)
+		rect.setOrigin(0)
+		rect.setFillStyle(0x000000, 0.75)
+		rect.setStrokeStyle(2, 0xffffff, 0.75)
+		
+		rect.setDepth(1)
+		text.setDepth(2)
+		
+		text.on('destroy', ()=>{
+			rect.destroy()
+		})
+	}
+	
+	function Done(scene, x, y, label, callback){
+		this.container = scene.add.container(x, y + 300)
+		
+		let frames = []
+		for(let i = -1; i < 2; i+=2){
+			
+			let frame = scene.add.sprite(0, 0, 'icons', 25 + i)
+			frame.x += i*frame.width/2
+			frames.push(frame)
+			frame.tint = tints.darkPurple
+			this.container.add(frame)
+			
+		}
+		
+		let w = frames[0].width
+		let h = frames[0].height 
+		
+		
+		let text = scene.add.text(0, 0, label, {
+			fill: 'white',
+			fontFamily: 'LinLib',
+			fontSize: '24pt',
+			align: 'left',
+			wordWrap: {
+				width: w,
+	
+			},
+		
+		
+		})
+		text.tint = tints.lightPurple
+		text.setOrigin(0.5, 0.5)
+		this.container.add(text)
+		
+		scene.add.tween({
+			targets: this.container,
+			y: y,
+			ease: 'Quad.easeOut',
+			duration: 300,
+			delay: 600
+		})
+		
+		let hitArea = scene.add.sprite(0, 0, 'icons', 3)
+		hitArea.setScale(2, 1)
+		this.container.add(hitArea)
+		hitArea.alpha = 0.01
+		
+		hitArea.setInteractive()
+		
+		hitArea.on('pointerover', ()=>{
+			this.container.setScale(1.1)
+		})
+		
+		hitArea.on('pointerout', ()=>{
+			this.container.setScale(1.0)
+		})
+		
+		hitArea.on('pointerdown', callback)
+	}
+	
+	
+	function TutManager(scene, index){
+		this.scene = scene 
+		let cx = scene.cameras.main.centerX 
+		let cy = scene.cameras.main.centerY 
+		
+		this.index = index || -1 
+		this.moments = [
+			{
+				text: {
+					text: "Hello and welcome to\nthe Dice Blaster 3000!",
+					x: cx,
+					y: cy,
+				}
+			},
+			{
+				text: {
+					text: [
+					   "This is a ship powered by a Dice Drive.",
+					   "It's the cutting edge in probability base travel.",
+					   "(It's also pretty handy in a fight...)",
+					   "Let's take a look!"
+				    ].join('\n'),
+					x: cx,
+					y: cy,
+				}
+			},
+			{
+				command: ()=>{
+					play.view.step(-1)
+				},
+				text: {
+					text: "Wow! Isn't she a beauty!",
+					x: 1.25*cx,
+					y: cy,
+				}
+			},
+			{
+				command: (that)=>{
+					that.button.container.y = 2.5*cy
+					scene.block.x = cx 
+					that.invisible.setScale(cx/that.invisible.width, 2*cy/that.invisible.height)
+					that.invisible.callback = ()=>{
+						play.view.die.setScale(2)
+						play.view.die.play('explode')
+						that.next()
+						
+					}
+				},
+				text: {
+					text: "You can touch it if you want.\nGo ahead! Give it a click.",
+					x: 1.25*cx,
+					y: cy,
+				}
+			},
+			{
+				command: (that)=> {
+					
+					that.button.container.y = 1.5*cy
+					that.invisible.x = 1.75*cx 
+					scene.block.y = 2*cy 
+					that.invisible.callback = ()=>{}
+				},
+				text: {
+					text: "Oh look! You have an unequipped\nupgrade.You can drag that onto an\nempty die-slot to equip it.",
+					x: 1.25*cx,
+					y: cy,
+				}
+			},
+			{
+				command: (that) => {
+					that.button.container.y = 2.5*cy
+					that.invisible.callback = ()=>{
+						play.view.step(1)
+						play.view.die.play('spin')
+						play.scene.stop('dieEdit')
+						that.next()
+					}
+					
+				},
+				text:  {
+					text: "When you're ready to get\nback to the game just click\nthe right side of the screen.",
+					x: 1.25*cx,
+					y: cy,
+				}
+			},{
+				command: (that) => {
+					scene.scene.launch('battle')
+					scene.block.x = 0 
+					scene.block.y = 0 
+					that.invisible.callback = ()=>{}
+					that.button.container.x = 0.25*cx 
+					that.button.container.y = 1.75*cy 
+				},
+				text: {
+					text: "Holy crap! We're under attack!",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "Don't worry, we can take this fight\nat our own pace.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "I've disabled the controls for now,\nbut in a minute we'll really\nget into it.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "For now, I just want to explain what everything is.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "See the dice on the bottom? Those are yours.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "The spinning dice on the top are your foe's.\n You won't be able to see what they are\nuntil after you've placed your dice.",
+					x: cx,
+					y: .3*cy,
+				}
+			},{
+				text: {
+					text: "The icons in the middle are where the magic happens.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "The shield on the left is your defence\nand the sword on the right is your attack.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+
+				text: {
+					text: "If your attack die is more than their defence\nthen your attack will hit them.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "Similarly, if their attack is more than your defence\nthen their attack will hit you.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "The explosion in the middle is the amount\nof damage you will do if your attack is sucessful.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "One last thing...\nThe bars on the right are health bars.\nThe pink one belongs to you.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "If the enemy's bar falls below zero,\nhe'll be defeated.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "But if your bar falls below zero...\ngame over.",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				text: {
+					text: "Ok, that's it. You're on your own now.\nClick and drag the dice\nand Good Luck!",
+					x: cx,
+					y: .25*cy,
+				}
+			},{
+				command: ()=>{
+					scene.scene.stop()
+					this.index += 1 
+				}
+			},{
+				text: {
+					text: "Wow! Great job!",
+					x: cx,
+					y: .25*cy,
+				},
+				
+			},{
+				text: {
+					text: "Now that you've defeated your foe\nit's time to reap the rewards.",
+					x: cx,
+					y: .25*cy,
+				},
+				
+			},{
+				text: {
+					text: "After every battle, you'll roll three more dice.\nBefore you put them on the icons below,\nlet me tell you what they do.",
+					x: cx,
+					y: .25*cy,
+				},
+				
+			},{
+				text: {
+					text: "The first is how much money you get.\nYou get money equal to 100 times the\nvalue of the die.",
+					x: cx,
+					y: .25*cy,
+				},
+			},{
+				text: {
+					text: "The wrench in the middle will repair any\ndamage you took during battle.",
+					x: cx,
+					y: .25*cy,
+				},
+			},{
+				text: {
+					text: "The arrow on the right is how far you\nwill move on the map.",
+					x: cx,
+					y: .25*cy,
+				},
+				
+			},{
+				text: {
+					text: "Take a close look at the map.\nThe icons tell you what kind of encounter you will\nhave if you land there.",
+					x: cx,
+					y: .75*cy,
+				},
+			},{
+				text: {
+					text: "Ok, that's it for real this time! The tutorial is over.\nJust remember:",
+					x: cx,
+					y: .25*cy,
+				},
+				
+			},{
+				text: {
+					text: "Out here we make our own luck.",
+					x: cx,
+					y: cy,
+				},
+				
+			},{
+				command: ()=>{
+					scene.scene.stop()
+					this.index += 1 
+				}
+			}
+			
+			
+		]
+		
+		this.button = new Done(scene, 0.25*cx, 1.75*cy, 'Next', ()=>this.next())
+		this.invisible = scene.add.sprite(0, 0, 'icons', 17)
+		this.invisible.setInteractive()
+		this.invisible.setOrigin(0)
+		this.invisible.callback = ()=>{}
+		let that = this 
+		this.invisible.on('pointerdown', ()=>{
+			this.invisible.callback(that)
+		})
+		
+		this.next()
+	}
+	
+	TutManager.prototype.next = function(){
+		this.index += 1 
+		let moment = this.moments[this.index]
+		if(this.text){
+			this.text.destroy()
+		}
+		if(moment.text){
+			this.text = this.scene.add.text(moment.text.x, moment.text.y, moment.text.text, {
+				fill: 'white',
+				fontFamily: 'LinLib',
+				fontSize: '24pt',
+				align: 'center'
+			})
+			this.text.setOrigin(0.5)
+			box(this.text)
+		}
+		if(moment.command){
+			moment.command(this)
+		}
+		console.log(this.index)
+	}
+	
+	
+	
+	function Upgrade(data){
+		this.data = data 
+		this.bought = false
+		this.equipped = false
+		this.cost = data.cost
+		
+	}
+	
+	Upgrade.prototype.display = function(scene, x, y){
+		this.container = scene.add.container(x, y - 300)
+		this.alphaReset()
+		
+		let frames = []
+		for(let i = -1; i < 2; i+=2){
+			
+			let frame = scene.add.sprite(0, 0, 'icons', 25 + i)
+			frame.x += i*frame.width/2
+			frames.push(frame)
+			frame.tint = tints.darkPurple
+			this.container.add(frame)
+			
+		}
+		
+		let w = frames[0].width
+		let h = frames[0].height 
+		
+		
+		
+		let icon = scene.add.sprite(frames[0].x, 0, 'icons', this.data.icon)
+		icon.setScale(0.5)
+		this.container.add(icon)
+		icon.tint = tints.lightPurple
+		
+		let text = scene.add.text(0.25*w, 0, '$' + this.cost, {
+			fill: 'white',
+			fontFamily: 'LinLib',
+			fontSize: '24pt',
+			align: 'left',
+			wordWrap: {
+				width: w,
+	
+			},
+		
+		
+		})
+		text.tint = tints.lightPurple
+		text.setOrigin(0.5, 0.5)
+		this.container.add(text)
+		
+		scene.add.tween({
+			targets: this.container,
+			y: y,
+			ease: 'Bounce.easeOut',
+			duration: 600,
+			delay: 1000 - 4*y + 0.25*x
+		})
+		
+		let hitArea = scene.add.sprite(0, 0, 'icons', 3)
+		hitArea.setScale(2, 1)
+		this.container.add(hitArea)
+		hitArea.alpha = 0.01
+		
+		hitArea.setInteractive()
+		
+		hitArea.on('pointerover', ()=>{
+			this.container.setScale(1.1)
+		})
+		
+		hitArea.on('pointerout', ()=>{
+			this.container.setScale(1.0)
+		})
+		
+		hitArea.on('pointerdown', ()=>{
+			this.buy(scene, this.container)
+		})
+	}
+	
+	Upgrade.prototype.show = function(scene, x, y){
+		this.container = scene.add.container(x, y)
+		
+		this.frame = scene.add.sprite(0, 0, 'icons', 0)
+		this.frame.tint = tints.darkPurple
+		this.container.add(this.frame)
+		
+		this.bg  = scene.add.sprite(0, 0, 'icons', 3)
+		this.bg.tint = tints.darkPurple
+		this.container.add(this.bg)
+		
+		
+		
+		this.icon = scene.add.sprite(0, 0, 'icons', this.data.icon)
+		this.icon.tint = tints.lightPurple
+		this.container.add(this.icon)
+		this.icon.setScale(0.75)	
+		
+		if(this.data.empty){
+			this.bg.alpha = 0
+			this.icon.tint = tints.darkPurple
+		}
+		
+		this.container.alpha = 0
+		scene.add.tween({
+			targets: this.container,
+			alpha: 1,
+			duration: 200,
+			delay: x + y
+		})
+	}
+	
+	Upgrade.prototype.draggable = function(scene){
+		this.frame.setInteractive()
+		scene.input.setDraggable(this.frame);
+		
+		this.frame.on('drag', (pointer)=>{
+			this.container.x = pointer.x 
+			this.container.y = pointer.y 
+		})
+		
+		this.frame.drop = (that)=>{
+			that.replaceWith(this)
+		}
+	}
+	
+	Upgrade.prototype.destroy = function(){
+		this.dead = true 
+		this.container.destroy()
+	}
+	
+	Upgrade.prototype.replaceWith = function(newUp){
+		for(let i = 0; i < play.player.die.upgrades.length; i++){
+			for(let j = 0; j < play.player.die.upgrades[i].length; j++){
+				let oldUp = play.player.die.upgrades[i][j]
+				if(oldUp === this){
+					newUp.container.x = oldUp.container.x 
+					newUp.container.y = oldUp.container.y 
+					newUp.container.setScale(oldUp.container.scaleX)
+					oldUp.destroy()
+					play.player.die.upgrades[i][j] = newUp 
+					newUp.frame.disableInteractive()
+					newUp.equipped = true 
+					play.player.upgrades = play.player.upgrades.filter(x => !x.equipped)
+				}
+			}
+		}
+	}
+	
+	Upgrade.prototype.dropzone = function(scene){
+		this.frame.setInteractive()
+		
+		let x0 = this.container.x 
+		let y0 = this.container.y 
+		let w = this.frame.width 
+		let h = this.frame.height 
+		
+		this.zone = scene.add.zone(x0, y0, w, h).setRectangleDropZone(w, h)
+		let that = this 
+		scene.input.on('drop', (pointer, obj, zone)=>{
+			if(!obj.drop){
+				return 
+			}
+			if(zone === that.zone){
+				obj.drop(that)
+			}
+			
+			
+		})
+		
+	}
+	
+	Upgrade.prototype.alphaReset = function(){
+		this.container.alpha = this.cost <= play.player.money ? 1 : 0.5
+	}
+	
+	Upgrade.prototype.buy = function(scene, container){
+		if(this.cost <= play.player.money){
+			container.disableInteractive()
+			scene.add.tween({
+				targets: this.container,
+				x: 0,
+				y: scene.cameras.main.centerY,
+				duration: 150,
+				ease: 'Quad.easeIn'
+			})
+			this.bought = true 
+			play.player.spendMoney(scene, this.cost)
+			play.player.getUpgrade(this)
+			scene.manager.alphaReset()
+		}else{
+			
+		}
+		
+		
+	}
+	
+	Upgrade.prototype.action = function(val, play, scene, source, delay){
+		if(this.data.action){
+			scene.add.tween({
+				targets: this,
+				countdown: 0,
+				delay: delay,
+				onComplete: () => {
+					this.data.action(val, play, scene, source)
+				}
+			})
+		}
+	}
+	
+	
+	
+	function StoreManager(){
+		console.log('welcome to my store!')
+		
+		this.supply = []
+		for(let up in upgrades){
+			if(upgrades.hasOwnProperty(up) && upgrades[up].active){
+				let upgrade = upgrades[up] 
+				this.supply.push(upgrade)
+			}
+		}
+		
+		console.table(this.supply)
+		this.upgrades = []
+		
+		for(let i = 0; i < 6; i++){
+			this.upgrades.push(
+				new Upgrade(random.pick(this.supply))
+			)
+		}
+	}
+	
+	StoreManager.prototype.draw = function(scene){
+		let cx = scene.cameras.main.centerX 
+		let cy = scene.cameras.main.centerY
+		
+		this.upgrades.forEach((up, i) => {
+			
+			let x = cx + ((i%3) - 1)*96*2
+			let y = 1.5*96 + 96*Math.floor(i / 3) 
+			up.display(scene, x, y)
+		})
+		
+		play.player.makeMoney(scene)
+		play.player.showMoney(scene)()
+		
+		let done = new Done(scene, cx, 1.5*cy, 'Done', ()=>{
+			scene.scene.start('jump', {
+				message: 'Good Luck!'
+			})
+		})
+		
+	}
+	
+	StoreManager.prototype.alphaReset = function(){
+		this.upgrades.forEach(up => up.alphaReset())
+	}
+
 	
 	
 	function Map(){
 		this.stops = []
-		this.at = 10 
+		this.at = 0 
 		let total = 25
 		for(let i = 0; i < total; i ++){
 			let s
@@ -67,6 +758,7 @@
 		graphics.lineStyle(2, 0xffffff, 0.5)
 		graphics.beginPath()
 		graphics.moveTo(x0, y0-dy)
+		this.icons = []
 		this.stops.forEach((stop, i)=>{
 			let x = x0 + i*dx 
 			let y = y0 + (2*(i%2) - 1)*dy
@@ -75,6 +767,7 @@
 			
 			
 			let icon = scene.add.sprite(x, y0 + (2*(i%2) - 1)*dy*2, 'icons', this.key[stop][0])
+			this.icons.push(icon)
 			icon.setScale(0.25)
 			icon.tint = this.key[stop][1]
 			if(i <= this.at){
@@ -110,6 +803,40 @@
 		})
 	}
 	
+	Map.prototype.move = function(scene, step){
+		console.log('move', step)
+		if(step <= 0){
+			this.go(scene)
+		}else{
+			let next = this.icons[this.at + 1]
+			scene.add.tween({
+				targets: this.marker,
+				x: next.x,
+				y: next.y,
+				duration: 600,
+				onComplete: ()=>{
+					this.at += 1
+					next.alpha = 0.5
+					this.move(scene, step - 1)
+				}
+			})
+		}
+	}
+	
+	Map.prototype.go = function(scene){
+		let k = this.stops[this.at]
+		
+		if(k === 'battle'){
+			scene.scene.start('battle', {
+				diff: this.at 
+			})
+		}else if(k === 'store'){
+			scene.scene.start('store', {
+				diff: this.at 
+			})
+		}
+	}
+	
 	
 	
 	function JumpManager(scene){
@@ -120,7 +847,7 @@
 		
 		for(let i = 0; i < 3; i++){
 			x = scene.x0 + (i-1)*scene.dx 
-			let die = new BattleDie(scene, play.player.die.roll(), false)
+			let die = new BattleDie(scene, play.player.die.roll(scene), false)
 			play.player.dice.push(die)
 			die.container.y = 400 
 			die.to(x, 400, 900+200*(5 - i))
@@ -150,12 +877,16 @@
 		let repair = repairHolder.die 
 		let move = moveHolder.die 
 		
-		
-		// money 
+		scene.add.tween({
+			targets: [moneyHolder.container, money.container],
+			alpha: 0,
+			duration: 300
+		})
+			
 		play.player.getMoney(scene, 100*money.value, ()=>{
 			
 			scene.add.tween({
-				targets: [moneyHolder.container, money.container],
+				targets: [repairHolder.container, repair.container],
 				alpha: 0,
 				duration: 300
 			})
@@ -163,25 +894,18 @@
 			play.player.repair(scene, repair.value, ()=>{
 				
 				scene.add.tween({
-					targets: [repairHolder.container, repair.container],
+					targets: [moveHolder.container, move.container],
 					alpha: 0,
 					duration: 300
 				})
 			
-				scene.manager.jump(move.amount)
+				play.map.move(scene, move.value)
 			})
 		})
 		
-		// repair
-		
-		
-		// jump 
-	}
 	
-	JumpManager.prototype.jump = function(steps){
-		console.log('Here we GOOOOOOO!')
 	}
-	
+
 	
 	
 	function BattleManager(scene){
@@ -204,6 +928,11 @@
 		let ship = this.scene.ship
 		let player = play.player 
 		
+
+		
+		let goodAttackHolder = this.scene.holders[5]
+		let goodDamageHolder = this.scene.holders[4]
+		let goodDefendHolder = this.scene.holders[3]
 		
 		
 		let badAttack = this.scene.holders[0].die
@@ -368,7 +1097,7 @@
 		p0.onComplete = add(p1)
 		
 		let p3 
-		if(goodAttack.value > badDefend.value){
+		if(goodAttack.value + goodAttackHolder.bonus > badDefend.value){
 			let p2a = fly(badDefend, -1)
 			let p2b = slide(goodAttack, 1)
 			p1.onComplete = add(p2a, p2b)
@@ -376,7 +1105,7 @@
 			let p3a = sidewinderX(goodDamage)
 			p3a.onComplete = function(){
 				goodDamage.container.alpha = 0
-				ship.hit(goodDamage.value)
+				ship.hit(goodDamage.value + goodDamageHolder.bonus)
 			}
 			let p3b = sidewinderY(goodDamage)
 			p2a.onComplete = add(p3a, p3b)
@@ -400,7 +1129,7 @@
 		p4a.onComplete = add(p4b)
 
 		let p6 
-		if(badAttack.value > goodDefend.value){
+		if(badAttack.value > goodDefend.value + goodDefendHolder.bonus){
 			let p5a = fly(goodDefend, 1)
 			let p5b = slide(badAttack, -1)
 			p4b.onComplete = add(p5a, p5b)
@@ -440,22 +1169,25 @@
 		scene.input.enabled = true 
 		for(let i = 0; i < 3; i++){
 			x = scene.x0 + i*scene.dx 
-			let die = new BattleDie(scene, play.player.die.roll(), false)
+			let die = new BattleDie(scene, play.player.die.roll(scene), false)
 			play.player.dice.push(die)
 			die.container.y = 400 
 			die.to(x, 400, 900+200*(5 - i))
 			die.x = x 
 			scene.holders[i+3].unlock()
-			
+			scene.holders[i+3].bonus = 0
+			scene.holders[i+3].refresh()
 			
 		
-			let d = new BattleDie(scene, scene.ship.die.roll(), true)
+			let d = new BattleDie(scene, scene.ship.die.roll(scene), true)
 			scene.ship.dice.push(d)
 			d.base.disableInteractive()
 			d.place(x, 162, 900+100*(5 - i))
 			d.x = x 
 			
 			scene.holders[i].disable(d)
+			scene.holders[i].bonus = 0
+			scene.holders[i].refresh()
 
 		}
 	}
@@ -481,7 +1213,9 @@
 			countdown2: 0,
 			duration: 1800,
 			onComplete: ()=>{
-				this.scene.scene.start('victory')
+				this.scene.scene.start('jump', {
+					message: 'Good Luck!'
+				})
 			}
 		})
 		
@@ -554,12 +1288,23 @@
 			
 		})
 		
+		/*
+		scene.add.tween({
+			targets: this.container,
+			x: x,
+			duration: 300,
+			delay: 1200,
+			ease: 'Expo.easeOut'
+			
+		})
+		*/
 	
 		this.refresh()
 		
 	}
 	
 	Power.prototype.clear = function(){
+		
 		this.target.value = 0
 		this.refresh()
 		this.pie.disableInteractive()
@@ -569,13 +1314,13 @@
 	Power.prototype.refresh = function(){
 		
 		this.maskShape.clear()
-		
+		this.pie.disableInteractive()
 		
 		if(this.target.value === 0){
 			this.container.alpha = 0.25
 			this.pie.alpha = 0
 		}else if(this.target.value >= this.target.max){
-			
+			this.pie.setInteractive()
 			this.container.alpha = 1 
 			this.tween = this.scene.add.tween({
 				targets: this.container,
@@ -588,7 +1333,7 @@
 		}else{
 			this.pie.alpha = 1
 			let dt = Math.PI*2*this.target.value/this.target.max
-			console.log(dt, this.maskShape)
+
 			
 			this.container.alpha = 0.75
 			
@@ -888,7 +1633,7 @@
 		
 		this.container = scene.add.container(x, y0)
 		
-
+		this.bonus = 0
 		
 		this.sprite = scene.add.sprite(0, 0, 'icons')
 		this.sprite.setFrame(4 + icon)
@@ -919,12 +1664,49 @@
 			
 		})
 		
+		this.bonusFrame = scene.add.sprite(0.45*this.sprite.width, -0.45*this.sprite.height, 'icons', 3)
+		this.container.add(this.bonusFrame)
+		this.bonusFrame.setScale(0.35)
+		this.bonusFrame.tint = tints.lightPurple
+		
+		this.bonusDots = []
+		for(let i = 0; i < 3; i++){
+			for(let j = 0; j < 3; j++){
+				let dx = 8
+				let dot = scene.add.sprite(this.bonusFrame.x + dx*(i-1), this.bonusFrame.y + dx*(j-1), 'icons', 2)
+				dot.i = i 
+				dot.j = j 
+				dot.setScale(0.35)
+				dot.tint = 0
+				this.container.add(dot)
+				this.bonusDots.push(dot)
+			}
+		}
+		
+		this.refresh()
+		
 		scene.add.tween({
 			targets: this.container,
 			y: yf,
 			delay: (delay || 0) + 600+x,
 			ease: 'Bounce.easeOut',
 			duration: 600
+		})
+	}
+	
+	Holder.prototype.refresh = function(){
+		if(this.bonus <= 0){
+			this.bonusFrame.alpha = 0
+		}else{
+			this.bonusFrame.alpha = 1
+		}
+		
+		this.bonusDots.forEach(dot => {
+			if(isDot(dot.i, dot.j, this.bonus)){
+				dot.alpha = 1
+			}else{
+				dot.alpha = 0
+			}
 		})
 	}
 	
@@ -955,63 +1737,20 @@
 	
 	
 	
-	function BattleDie(scene, n, orange){
+	function BattleDie(scene, roll, orange){
+		this.n = roll.value
+		this.upgrades = roll.upgrades 
 		
 		this.isOrange = orange 
 		
 		this.scene = scene 
-		this.create(scene, n, orange)
+		this.create(scene, this.n, orange)
 	}
 	
 	BattleDie.prototype.create = function(scene, n, orange){
 		this.value = n 
-		this.container = scene.add.container(0, 0)
 		
-		this.roll = scene.add.sprite(0, 0, 'roll')
-		this.roll.setOrigin(0.5)
-		this.container.add(this.roll)
-		this.roll.angle = 90*Math.floor(4*Math.random())
-		this.roll.setScale(0.85)
-		
-		
-		this.o = orange ? 'o' : ''
-		
-		this.roll.play(this.o + 'roll')
-		
-		this.bg = scene.add.sprite(0, 0, 'icons')
-		this.bg.setOrigin(0.5)
-		this.container.add(this.bg)
-		this.bg.setFrame(3)
-		this.bg.tint = 0 
-		this.bg.alpha = 0
-		
-		this.base = scene.add.sprite(0, 0, 'icons')
-		this.base.setOrigin(0.5)
-		this.container.add(this.base)
-		this.base.setFrame(1)
-		
-		
-		
-		this.base.tint = orange ? tints.lightOrange : tints.lightPurple 
-		this.base.alpha = 0
-		
-		let dx = this.base.width/5
-		let dy = dx 
-		
-		for(let i = 0; i < 3; i++){
-			for(let j = 0; j < 3; j++){
-				if(isDot(i, j, n)){
-					let dot = scene.add.sprite((i-1)*dx, (j-1)*dy, 'icons')
-					dot.setFrame(2)
-					dot.tint = 0 
-					dot.setOrigin(0.5)
-					this.container.add(dot)
-					dot.alpha = 0
-				}
-			}
-		}
-		
-		this.container.setDepth(0)
+		createDieSide.call(this, scene, n, orange)
 		
 		this.base.setInteractive()
 		this.scene.input.setDraggable(this.base);
@@ -1107,6 +1846,11 @@
 	
 	BattleDie.prototype.reveal = function(delay){
 		
+		this.upgrades.forEach((upgrade, i) => {
+			upgrade.action(this.n, play, this.scene, this, 300*i)
+		})
+		this.upgrades = []
+		
 		this.container.iterate(child => {
 			if(child === this.roll){
 				this.scene.add.tween({
@@ -1132,11 +1876,12 @@
 		
 	}
 	
-	BattleDie.prototype.reroll = function(value){
+	BattleDie.prototype.reroll = function(roll){
+		let value = roll.value 
+		this.n = value 
+		this.upgrades = roll.upgrades 
 		this.container.y += 200
-		
-		
-		
+
 		this.container.destroy()
 		let x0 = this.home.x 
 		let y0 = this.home.y 
@@ -1153,11 +1898,13 @@
 	function Player(scene){
 		this.scene = scene 
 		this.die = new Die([1, 2, 3, 4, 5, 6])
+		this.die.parent = this 
 		this.xp = 0
-		this.hp = 3
+		this.hp = 20
 		this.maxHp = 20
-		this.money = 0
+		this.money = 500
 		this.dice = []
+		this.upgrades = []
 		
 		this.spy = {
 			value: 5,
@@ -1170,6 +1917,10 @@
 			max: 8,
 			icon: 13
 		}
+		
+		//this.getUpgrade(new Upgrade(upgrades.money))
+		this.getUpgrade(new Upgrade(upgrades.repair))
+		//this.getUpgrade(new Upgrade(upgrades.money))
 	}
 	
 	Player.prototype.hit = function(dam){
@@ -1180,7 +1931,24 @@
 		this.scene.cameras.main.shake(100*dam, 0.02)
 	}
 	
-	Player.prototype.getMoney = function(scene, amount, callback){
+	Player.prototype.diceRepair = function(amount){
+		this.hp += amount 
+		if(this.bar){
+			this.bar.set(this.hp)
+		}
+	}
+	
+	Player.prototype.spendMoney = function(scene, amount){
+		this.plusMoney(scene, -amount)()
+	}
+	
+	Player.prototype.makeMoney = function(scene, amount){
+		amount = amount || ''
+		
+		if(this.container){
+			this.container.alpha = 0
+		}
+		
 		this.container = scene.add.container(0, 1.5*scene.cameras.main.centerY)
 		
 		let graphics = scene.add.graphics(0, 0)
@@ -1206,11 +1974,22 @@
 		
 		text.text = '$' + this.money
 		
-		let plus = (() => {
+		this.container.text = text 
+		this.container.w = w 
+		this.container.h = h 
+	}
+	
+	Player.prototype.plusMoney = function(scene, amount, callback){
+		let text = this.container.text 
+		let w = this.container.w 
+		let h = this.container.h 
+		
+		return (() => {
 			this.money += amount 
 			text.text = '$' + this.money
 			
-			let pText = scene.add.text(0, 0, '+' + amount, {
+			let pm = amount > 0 ? '+' : '-'
+			let pText = scene.add.text(0, 0, pm + Math.abs(amount), {
 				fill: 'white',
 				fontFamily: 'LinLib',
 				fontSize: '32pt',
@@ -1225,11 +2004,17 @@
 				duration: 600,
 				alpha: 0,
 				ease: 'Quad.easeOut',
-				onComplete: goBack
+				onComplete: callback
 			})
 		})
+	}
+	
+	Player.prototype.hideMoney = function(scene, callback){
+		let text = this.container.text 
+		let w = this.container.w 
+		let h = this.container.h 
 		
-		let goBack = (()=>{
+		return (()=>{
 			scene.add.tween({
 				targets: this.container,
 				x: 0,
@@ -1238,16 +2023,40 @@
 				onComplete: callback
 			})
 		})
+	}
+	
+	Player.prototype.showMoney = function(scene, callback){
+		let text = this.container.text 
+		let w = this.container.w 
+		let h = this.container.h 
 		
-		scene.tweens.add({
-			targets: this.container,
-			x: 200 + w/2,
-			ease: 'Quad.easeOut',
-			duration: 500,
-			onComplete: plus
-		})
+		return ()=>{
+			scene.tweens.add({
+				targets: this.container,
+				x: 200 + w/2,
+				ease: 'Quad.easeOut',
+				duration: 500,
+				onComplete: callback
+			})
+		}
+	}
+	
+	Player.prototype.getMoney = function(scene, amount, callback){
 		
 		
+		this.makeMoney(scene, amount)
+		let text = this.container.text 
+		let w = this.container.w 
+		let h = this.container.h ;
+		
+		(this.showMoney(scene, 
+			this.plusMoney(scene, amount,	
+				this.hideMoney(scene, 
+					callback
+				)
+			)
+		))()
+
 	}
 	
 	Player.prototype.repair = function(scene, amount, callback){
@@ -1290,26 +2099,50 @@
 		
 	}
 	
+	Player.prototype.getUpgrade = function(upgrade){
+		this.upgrades.push(upgrade)
+	}
+	
 	
 	
 	function Die(values){
 		this.values = values 
-		this.effects = [] 
+		this.upgrades = [] 
+		this.values.forEach((v, i) => {
+			this.upgrades.push([
+				new Upgrade(upgrades.none),
+				new Upgrade(upgrades.none)
+			])
+		})
 		this.history = []
 		
 		
 	}
 	
 	Die.prototype.roll = function(){
-	
 		let index = random.between(0, this.values.length - 1)
 		let val = this.values[index]
 		this.history.push(val)
-		if(this.effects[index]){
-			this.effects[index]()
+		
+		let upgrades = []
+		if(this.parent === play.player){
+		this.upgrades[index].forEach((upgrade, i) => {
+			upgrades.push(upgrade)
+		})
 		}
+		/*
+		this.upgrades[index].forEach((upgrade, i) => {
+			if(this.parent === play.player){
+				console.log('action')
+				upgrade.action(val, play, scene, 300 + 300*i)
+			}
+		})
+		*/
 
-		return val 
+		return {
+			value: val,
+			upgrades: upgrades
+		}
 	}
 	
 	
@@ -1332,12 +2165,34 @@
 		this.die = scene.add.sprite(0, 0, 'die')
 		this.die.setOrigin(0)
 		this.die.setScale(2*scene.cameras.main.centerY/this.die.height)
+		this.die.setInteractive()
 		
-		let anim = scene.anims.create({
+		this.die.on('pointerdown', ()=>{
+			this.die.setScale(2)
+			this.die.play('explode')
+		})
+		
+		scene.anims.create({
 			key: 'spin',
 			frames: scene.anims.generateFrameNumbers('die', { start: 0, end: 20 }),
 			frameRate: 48,
 			repeat: -1
+		})
+		
+		let explodeAnim = scene.anims.create({
+			key: 'explode',
+			frames: scene.anims.generateFrameNumbers('explode', { start: 0, end: 20 }),
+			frameRate: 24,
+			//repeat: -1
+		})
+		
+		explodeAnim.on('complete', ()=>{
+			scene.scene.launch('dieEdit')
+			scene.add.tween({
+				targets: this.die,
+				alpha: 0,
+				duration: 300
+			})
 		})
 		
 		this.die.play('spin')
@@ -1440,6 +2295,80 @@
 	
 	
 	
+	window.dieEdit = {
+		create: function(){
+			this.scene.moveAbove('play')
+			let cx = this.cameras.main.centerX 
+			let cy = this.cameras.main.centerY 
+			
+			let sides = []
+			
+			play.player.die.values.forEach((val, i) => {
+				createDieSide.call(this, this, val, false)
+				
+				this.container.x = 48
+				this.container.y = 89*(i+1) - 46
+				this.container.setScale(0.88)
+				
+				this.container.iterate(child => {
+					if(child === this.roll){
+						child.alpha = 0
+					}else{
+						this.add.tween({
+							targets: child,
+							alpha: 1,
+							duration: 200
+						})
+					}
+				})
+				sides.push(this.container)
+				
+			})
+			
+			play.player.die.upgrades.forEach((row, i) => {
+				row.forEach((upgrade, j) => {
+					upgrade.show(this, 100*j + 150, sides[i].y)
+					upgrade.container.setScale(0.88)
+					if(upgrade.data.empty === true){
+						upgrade.dropzone(this)
+					}
+				})
+			})
+			
+			play.player.upgrades.forEach((upgrade, i) => {
+				let x = cx + (i % 5)*100
+				let y = 0.25*cy + Math.floor(i/5)*100
+				upgrade.show(this, x, y)
+				upgrade.draggable(this)
+			})
+			
+			
+			let swipe = this.add.sprite(2*cx, 0, 'swipe')
+			swipe.setOrigin(0)
+			swipe.alpha = 0.01 
+			swipe.setInteractive()
+			swipe.setScale(-1, 1)
+			
+			swipe.on('pointerover', ()=>{
+				swipe.alpha = 0.3
+				
+			})
+			
+			swipe.on('pointerout', ()=>{
+				swipe.alpha = 0.01
+			})
+			
+			swipe.on('pointerup', ()=>{
+				play.view.step(1)
+				play.view.die.play('spin')
+				this.scene.stop()
+			})
+			
+			
+			
+		}
+	}
+	
 	window.play = {
 		create: function(){
 			window.play = this 
@@ -1447,44 +2376,43 @@
 			this.view = new View(this)
 			this.player = new Player(this)
 			
-			this.scene.launch('victory')
+			this.scene.launch('jump')
 			
 			this.map = new Map()
 		}
 	}
 	
-	
-	
+	window.tut = {
+		init: function(data){
+			this.index = data.index 
+		},
+		create: function(){
+			this.scene.bringToTop()
+			
+			
+			let width = this.cameras.main.centerX*2
+			let height = this.cameras.main.centerY*2
+			
+			
+			this.block = this.add.sprite(0, 0, 'icons', 17)
+			this.block.setOrigin(0)
+			this.block.setScale(width/this.block.width, height/this.block.height)
+			this.block.setInteractive()
+			
+			console.log(this.index)
+			
+			this.manager = new TutManager(this, this.index)
+
+			play.stillTutting = true 
+		
+		}
+		
+	}
+			
 	window.battle = {
 		create: function(){
 			
-			this.anims.create({
-				key: 'roll',
-				frames: this.anims.generateFrameNumbers('roll', { start: 0, end: 20 }),
-				frameRate: 48,
-				repeat: -1
-			})
 			
-			this.anims.create({
-				key: 'reveal',
-				frames: this.anims.generateFrameNumbers('roll', { start: 20, end: 24 }),
-				frameRate: 48,
-
-			})
-			
-			this.anims.create({
-				key: 'oroll',
-				frames: this.anims.generateFrameNumbers('roll', { start: 25, end: 45 }),
-				frameRate: 48,
-				repeat: -1
-			})
-			
-			this.anims.create({
-				key: 'oreveal',
-				frames: this.anims.generateFrameNumbers('roll', { start: 45, end: 49 }),
-				frameRate: 48,
-
-			})
 		
 			this.ship = new Ship(this, 2)
 			let width = 2*this.cameras.main.centerX
@@ -1554,7 +2482,7 @@
 					})
 					
 					if(die){
-						die.reroll(play.player.die.roll())
+						die.reroll(play.player.die.roll(this))
 						power.clear()
 					}
 					
@@ -1568,14 +2496,15 @@
 			
 		}
 	}
-	
-	
-	
-	window.victory = {
+		
+	window.jump = {
 		init: function(data){
 			this.message = data.message || 'VICTORY!'
 		},
 		create: function(){
+			if(true || play.stillTutting){
+				this.scene.launch('tut', {index:21})
+			}
 			let cx = this.cameras.main.centerX 
 			let cy = this.cameras.main.centerY
 			let chars = []
@@ -1660,4 +2589,12 @@
 		}
 	}
 	
+	window.store = {
+		create: function(){
+			this.manager = new StoreManager()
+			
+			this.manager.draw(this)
+		}
+	}
+
 //})()
