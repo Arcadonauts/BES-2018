@@ -1,0 +1,9 @@
+(function(){
+	function Ship(scene, diff){
+		
+	}
+
+
+	window.Ship = Ship 
+
+})()

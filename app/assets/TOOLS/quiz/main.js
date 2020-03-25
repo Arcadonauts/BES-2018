@@ -116,6 +116,113 @@ let quizzes = [
 		}
 	},
 	{
+		key: 'vol',
+		name: 'Volume',
+		problems: function(){
+			let probs = []
+			
+			let a = random.range(1, 5)
+			let b = random.range(1, 5)
+			let c = random.range(1, 5)
+			let q1 = this.funcs.q1(a, b, c) 
+			probs.push({
+				answer: q1.answer,
+				formula: '\\[ \\ \\ ' + q1.form + '\\ \\ \\]',
+				instruction: 'Find the volume of the solid when rotated around the ' + q1.axis + '-axis, \\['+q1.a+'\\leq x \\leq'+q1.b+'\\]'				
+			})
+			
+			a = random.range(1, 5)
+			b = random.range(1, 5)
+			let q2 = this.funcs.q2(a, b)
+			probs.push({
+				answer: q2.answer,
+				formula: '\\[ \\ \\ ' + q2.form + '\\ \\ \\]',
+				instruction: 'Find the volume of the solid when rotated around the ' + q2.axis + '-axis, \\['+q2.a+'\\leq x \\leq \\frac{\\pi}{'+q2.b0+'}\\]'				
+			})
+			
+			
+			
+			a = random.range(1, 5)
+			b = random.range(1, 5)
+			c = random.range(1, 5)
+			d = random.range(1, 5)
+			
+			let q3 = this.funcs.q3(a, b, c, d)
+			probs.push({
+				answer: q3.answer,
+				formula: '\\[ \\ \\ ' + q3.form + '\\ \\ \\]',
+				instruction: 'Find the volume of the solid when rotated around the ' + q3.axis + '-axis, \\['+q3.a+'\\leq x \\leq '+q3.b0+'\\]'	
+			})
+			
+			return probs
+			
+		},
+		funcs: {
+			q1: function(a, b, c){
+				let d = c + a 
+				
+				return {
+					f : (x)=> a*Math.pow(b + x*x, 3),
+					g : (x)=> 0,
+					a : c,
+					b : d,
+					axis : 'y',
+					form : 'f(x) = ' + a + '(' + b + '+x^2)^3',
+					answer: (a*Math.PI/4)*(Math.pow(b+d*d, 4) - Math.pow(b+c*c)^4)
+				}
+			},
+			q2: function(a, b){
+				return {
+					f : (x)=> a*Math.sin(b*x),
+					g : (x)=> 0,
+					a : 0,
+					b : Math.PI/b,
+					b0: b,
+					axis : 'x',
+					form : 'f(x) = ' + a + '\\sin(' + b + 'x)',
+					answer: a*a*Math.PI*Math.PI/(2*b)
+				}
+			},
+			q3: function(a, b, c, d){
+				function solution(a, b, c, d){
+					return 2*Math.PI*(((a-c)/2)*Math.pow(a/b, 3)  -  ((b-d)/3)*Math.pow(a/b, 3))
+				}
+				
+				function frac(a, b){
+					if(Math.floor(a/b) == a/b){
+						return '' + (a/b)
+					}else{
+						return '\\frac{'+a+'}{'+b+'}'
+					}
+				}
+				
+				let x0 = 0
+				let xf, ans, b0 
+				if(a/b < c/d){
+					xf = a/b 
+					ans = solution(a, b, c, d)
+					b0 = frac(a, b)
+				}else{
+					xf = c/d 
+					ans = solution(c, d, a, b)
+					b0 = frac(c, d)
+				}
+				
+				return {
+					f: (x)=>a - b*x,
+					g: (x)=>c - d*x,
+					a: x0,
+					b: Math.floor(100*xf)/100,
+					b0: b0,
+					axis: 'y',
+					form: 'f(x)='+a+'-'+b+'x \\text{ and } g(x)='+c+'-'+d+'x',
+					answer: ans
+					
+				}
+			}
+		}
+	},
+	{
 		key: 'der',
 		name: 'Derivatives',
 		problems: function(){

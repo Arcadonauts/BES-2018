@@ -1,15 +1,6 @@
 (function(){
 	/* To Do:
-		Timeline
-			
-			Improved wiggling on people
-			
-		Personel:
-			Accuse
-		Map
-		Tutorial
-		
-			
+
 
 	*/
 	
@@ -31,12 +22,12 @@
 	});
 	
 
-	const path = '/static/GAMES/shift/'
+	const path = '/static/GAMES/luck/'
 	
 	let config = {
 		type: Phaser.WEBGL,
-		width: 1920/2,
-		height: 1080/2,
+		width: 960,
+		height: 540,
 		backgroundColor: 'black',
 		pixelArt: false,
 		zoom: 1,
@@ -55,16 +46,13 @@
 		window.game = new Phaser.Game(config)
 		game.scene.add('setup', setup)
 		//game.scene.add('menu', menu)
-		game.scene.add('tut', tut)
-		game.scene.add('title', title)
-		game.scene.add('accuse', accuseScene)
-		//game.scene.add('menu', menu)
-		//game.scene.add('audio', audio)
-		//game.scene.add('tut', tut)
 
+		//game.scene.add('audio', audio)
+
+		game.scene.add('victory', victory)
+		game.scene.add('battle', battle)
 		game.scene.add('play', play)
-		//game.scene.add('battle', battle)
-		//game.scene.add('world', world)
+
 		
 		
 		let seed = 'seed'//'' + Math.floor(1000*Math.random())
@@ -100,19 +88,76 @@
 			this.load.text('lasts', path+'lasts.txt?v='+v)
 			this.load.text('shader', path+'shader.txt?v='+v)
 			
+			//this.load.plugin('rexbbcodetextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexbbcodetextplugin.min.js', true)
+			
 			let sheets = [
 				{
-					name: 'agent',
-					width: 405,
-					height: 1020,
+					name: 'particles',
+					width: 48,
+					height: 48,
+					ext: 'png'
+				},
+				{
+					name: 'transitions',
+					width: 240*2,
+					height: 135*2,
 					ext: 'png'
 				},	
 				{
-					name: 'dot',
-					width: 2,
-					height: 2,
+					name: 'enemy',
+					width: 240,
+					height: 135,
 					ext: 'png'
 				},	
+				{
+					name: 'swipe',
+					width: 85,
+					height: 540,
+					ext: 'png'
+				},	
+				{
+					name: 'roll',
+					width: 675/5,
+					height: 675/5,
+					ext: 'png'
+				},	
+				{
+					name: 'icons',
+					width: 96,
+					height: 96,
+					ext: 'png'
+				},	
+				{
+					name: 'die',
+					width: 240/2*2,
+					height: 135*2,
+					ext: 'png'
+				},	
+				{
+					name: 'explode',
+					width: 240/2,
+					height: 135,
+					ext: 'png'
+				},	
+				{
+					name: 'left',
+					width: 960,
+					height: 540,
+					ext: 'png'
+				},	
+				{
+					name: 'right',
+					width: 960,
+					height: 540,
+					ext: 'png'
+				},
+				{
+					name: 'front',
+					width: 960,
+					height: 540,
+					ext: 'png'
+				},
+			
 			]
 		
 			sheets.forEach(s => {
@@ -206,7 +251,7 @@
 				
 			})
 			
-			this.scene.launch('title', {
+			this.scene.launch('play', {
 				unlocked: 0
 			})
 		}
