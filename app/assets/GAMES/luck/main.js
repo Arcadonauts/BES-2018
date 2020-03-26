@@ -3,9 +3,9 @@
 		Map Move 11:05
 		Shop
 			Upgrades 8:43
-		Tutorial 11:30
-		Tool tips 
-		Menu
+		Tutorial 25-11:30
+		Tool tips 26-1:58
+		Menu 26-12:45
 		Game Over 
 		SFX
 		Random:
@@ -21,7 +21,7 @@
 			4. Store
 			5. Luck
 			6. Gift
-		Push Your Luck
+		Push Your Luck 26-7:00
 		Shader
 		Boss
 
@@ -72,12 +72,15 @@
 
 		//game.scene.add('audio', audio)
 
+		game.scene.add('luck', luck)
 		game.scene.add('tut', tut)
+		game.scene.add('title', title)
 		game.scene.add('jump', jump)
 		game.scene.add('battle', battle)
 		game.scene.add('store', store)
 		game.scene.add('play', play)
 		game.scene.add('dieEdit', dieEdit)
+		game.scene.add('lose', lose)
 
 		
 		
@@ -201,7 +204,7 @@
 			//this.load.json('data', path+'data.json?v='+v)
 			
 			let sounds = [
-				//'bip', 'blap', 'blip', 'bup', 'plip', 'boop'
+				'boom', 'bump', 'crash', 'drop', 'explode', 'good', 'hum', 'laser', 'powerup', 'holderDrop', 'money'
 			]
 			
 			for(let i = 0; i < sounds.length; i++){
@@ -295,6 +298,7 @@
 				
 			}
 			*/
+			/*
 			let shaderText = this.cache.text.entries.entries['shader']
 			
 			this.customPipeline = game.renderer.addPipeline('Custom', new CustomPipeline2(game, shaderText));
@@ -306,10 +310,8 @@
 			this.scene.start('audio', {
 				
 			})
-			
-			this.scene.launch('play', {
-				unlocked: 0
-			})
+			*/
+			this.scene.start('play')
 		}
 	}
 	

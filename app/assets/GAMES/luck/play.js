@@ -85,8 +85,8 @@
 		let my = mx/2
 		let rect = scene.add.rectangle(bounds.x - mx, bounds.y - my, bounds.width + 2*mx, bounds.height + 2*my, 0)
 		rect.setOrigin(0)
-		rect.setFillStyle(0x000000, 0.75)
-		rect.setStrokeStyle(2, 0xffffff, 0.75)
+		rect.setFillStyle(0x000000, 0.5)
+		rect.setStrokeStyle(2, 0xffffff, 0.5)
 		
 		rect.setDepth(1)
 		text.setDepth(2)
@@ -156,6 +156,184 @@
 		hitArea.on('pointerdown', callback)
 	}
 	
+	function MenuButton(scene, x, y, text, callback){
+		this.text = scene.add.text(x, y, ' ' + text + ' ', {
+			fill: 'white',
+			fontFamily: 'LinLib',
+			fontSize: '32pt',
+			align: 'left'
+		
+		})
+		
+		this.text.alpha = 0.75
+		this.text.setOrigin(0.5)
+		this.text.setShadow(0, 0, '#ffbfff', 5, true, true)
+		
+		this.text.setInteractive()
+		this.text.on('pointerover', ()=>{
+			this.text.alpha = 1
+		})
+		
+		this.text.on('pointerout', ()=>{
+			this.text.alpha = 0.75
+		})
+		
+		this.text.on('pointerdown', ()=>{
+			callback(scene, this)
+		})
+	}
+	
+	function makeTip(obj, text){
+		obj.setInteractive()
+		
+		let tip 
+		obj.on('pointerover', (pointer)=>{
+			if(!tip){
+				tip = play.add.text(obj.scene.cameras.main.centerX, 25, text, {
+					fill: 'white',
+					fontFamily: 'LinLib',
+					fontSize: '16pt',
+					align: 'center'
+				})
+				
+				tip.alpha = 0.75
+				tip.setOrigin(0.5, 0)
+				box(tip)
+				
+			}else{
+			
+			}
+			
+		})
+		
+		obj.on('destroy', ()=>{
+			if(tip && tip.destroy){
+				tip.destroy()
+				tip = undefined
+			}
+		})
+		
+		obj.on('pointermove', (pointer)=>{
+			if(tip){
+				//tip.x = pointer.x 
+				//tip.y = pointer.y 
+			}
+		})
+		
+		obj.on('pointerout', (pointer)=>{
+			if(tip && tip.destroy){
+				tip.destroy()
+				tip = undefined
+			}
+		})
+		
+		obj.on('pointerdown', (pointer)=>{
+			if(tip && tip.destroy){
+				tip.destroy()
+				tip = undefined
+			}
+		})
+	}
+	
+	
+	
+
+	function LuckManager(scene){
+		this.scene = scene 
+		this.history = []
+		
+		this.y = scene.cameras.main.centerY*0.45
+		this.dx = 50
+		this.x0 = scene.cameras.main.centerX - this.dx*2.5
+		this.dicons = []
+		for(let i = 0; i < 6; i++){
+			let dicon = new Dicon(this.scene, {
+				x: this.x0 + i*this.dx,
+				y: this.y,
+				n: i+1,
+				delay: 0,
+				duration: 100,
+				purple: true,
+				alpha: 0.25
+			})
+			dicon.container.alpha = 0.5 
+			this.dicons.push(dicon)
+		}
+		
+	}
+	
+	LuckManager.prototype.add = function(die){
+		let cx = this.scene.cameras.main.centerX 
+		
+		if(this.history[die.n]){
+			this.dicons[die.n-1].tint(tints.darkOrange)
+			console.log(this.history)
+			let loss = 0
+			this.history.forEach((x, i) => loss += (x ? 100*(i) : 0))
+			play.player.getMoney(this.scene, -loss, ()=>{
+				this.scene.add.tween({
+					targets: die.container,
+					x: 3*cx,
+					duration: 600,
+					ease: 'Cubic.easeOut',
+					onComplete: ()=>{
+						this.scene.doneButton.container.x = cx 
+						this.scene.add.tween({
+							targets: [this.scene.doneButton.container],
+							y: this.scene.buttonY,
+							ease: 'Quad.easeOut',
+							duration: 300
+						})
+						
+					}
+				})
+			})
+			
+			
+		}else{
+			this.history[die.n] = true 
+			
+			this.scene.add.tween({
+				targets: die.container,
+				x: this.x0 + (die.n-1)*this.dx,
+				y: this.y,
+				scale: 0.5,
+				duration: 600,
+				delay: 900,
+				ease: 'Cubic.easeOut',
+				onComplete: ()=>{
+					die.container.x = cx
+					die.container.y = 700 
+					die.container.setScale(1)
+					this.dicons[die.n-1].container.alpha = 1
+					play.player.getMoney(this.scene, 100*die.n, ()=>{
+						this.scene.add.tween({
+							targets: [this.scene.rollButton.container, this.scene.doneButton.container],
+							y: this.scene.buttonY,
+							ease: 'Quad.easeOut',
+							duration: 300
+						})
+					})
+					
+				}
+			})
+		}
+		
+	}
+	
+	LuckManager.prototype.addDicon = function(n){
+		console.log(n)
+		
+	}
+	
+	LuckManager.prototype.last = function(){
+		
+		return this.history[this.history.length - 1]
+	}
+
+
+	
+	
 	
 	function TutManager(scene, index){
 		this.scene = scene 
@@ -215,6 +393,7 @@
 				command: (that)=> {
 					
 					that.button.container.y = 1.5*cy
+					that.button.container.x = 1.5*cx
 					that.invisible.x = 1.75*cx 
 					scene.block.y = 2*cy 
 					that.invisible.callback = ()=>{}
@@ -243,7 +422,7 @@
 				}
 			},{
 				command: (that) => {
-					scene.scene.launch('battle')
+					scene.scene.launch('battle', {diff: 1})
 					scene.block.x = 0 
 					scene.block.y = 0 
 					that.invisible.callback = ()=>{}
@@ -409,6 +588,7 @@
 				command: ()=>{
 					scene.scene.stop()
 					this.index += 1 
+					play.stillTutting = false 
 				}
 			}
 			
@@ -514,6 +694,10 @@
 		this.container.add(hitArea)
 		hitArea.alpha = 0.01
 		
+		if(this.data.label){
+			makeTip(hitArea, "When rolled, " + this.data.label)
+		}
+		
 		hitArea.setInteractive()
 		
 		hitArea.on('pointerover', ()=>{
@@ -546,6 +730,10 @@
 		this.icon.tint = tints.lightPurple
 		this.container.add(this.icon)
 		this.icon.setScale(0.75)	
+		
+		if(this.data.label){
+			makeTip(this.frame, "When rolled, " + this.data.label)
+		}
 		
 		if(this.data.empty){
 			this.bg.alpha = 0
@@ -593,6 +781,7 @@
 					newUp.frame.disableInteractive()
 					newUp.equipped = true 
 					play.player.upgrades = play.player.upgrades.filter(x => !x.equipped)
+					play.sound.play('powerup')
 				}
 			}
 		}
@@ -672,7 +861,6 @@
 			}
 		}
 		
-		console.table(this.supply)
 		this.upgrades = []
 		
 		for(let i = 0; i < 6; i++){
@@ -680,6 +868,7 @@
 				new Upgrade(random.pick(this.supply))
 			)
 		}
+		
 	}
 	
 	StoreManager.prototype.draw = function(scene){
@@ -696,11 +885,31 @@
 		play.player.makeMoney(scene)
 		play.player.showMoney(scene)()
 		
-		let done = new Done(scene, cx, 1.5*cy, 'Done', ()=>{
+		let done = new Done(scene, 1*cx, 1.5*cy, 'Done', ()=>{
 			scene.scene.start('jump', {
 				message: 'Good Luck!'
 			})
 		})
+		
+		let text = scene.add.text(1*cx, 1.2*cy, "Don't forget to equip your upgrades!", {
+			fill: Phaser.Display.Color.ValueToColor(tints.lightOrange).rgba,
+			fontFamily: 'LinLib',
+			fontSize: '20pt',
+			align: 'center'
+		})
+		
+		text.setOrigin(0.5)
+		text.alpha = 0 
+		
+		scene.add.tween({
+			targets: text,
+			alpha: 1,
+			delay: 900,
+			duration: 300
+		})
+		
+		
+		//box(text)
 		
 	}
 	
@@ -804,7 +1013,10 @@
 	}
 	
 	Map.prototype.move = function(scene, step){
-		console.log('move', step)
+		if(this.at >= this.icons.length - 1){
+			play.player.win()
+			return 
+		}
 		if(step <= 0){
 			this.go(scene)
 		}else{
@@ -818,6 +1030,7 @@
 					this.at += 1
 					next.alpha = 0.5
 					this.move(scene, step - 1)
+					scene.sound.play('drop')
 				}
 			})
 		}
@@ -834,6 +1047,12 @@
 			scene.scene.start('store', {
 				diff: this.at 
 			})
+		}else if(k === 'random'){
+			scene.scene.start('luck', {
+				diff: this.at 
+			})
+		}else{
+			console.error(k)
 		}
 	}
 	
@@ -910,7 +1129,7 @@
 	
 	function BattleManager(scene){
 		this.scene = scene 
-		this.speed = 2
+		this.speed = 1
 	}
 	
 	BattleManager.prototype.checkIn = function(){
@@ -921,6 +1140,8 @@
 	}
 	
 	BattleManager.prototype.play = function(){
+		
+		
 		let scene = this.scene 
 		let s = 1/this.speed 
 		scene.input.enabled = false 
@@ -928,7 +1149,7 @@
 		let ship = this.scene.ship
 		let player = play.player 
 		
-
+		scene.sound.play('powerup')
 		
 		let goodAttackHolder = this.scene.holders[5]
 		let goodDamageHolder = this.scene.holders[4]
@@ -942,6 +1163,8 @@
 		let goodAttack = this.scene.holders[5].die
 		let goodDamage = this.scene.holders[4].die
 		let goodDefend = this.scene.holders[3].die
+		
+		let dummy = {}
 		
 		let durations = [800, 600, 600, 1000, 600, 600, 1000]
 		let delays = []
@@ -972,6 +1195,18 @@
 			}
 			return ()=>{
 				tweens.forEach(tween => scene.add.tween(tween))
+			}
+		}
+		
+		function sfx(key){
+			
+			return {
+				targets: dummy,
+				duration: 1,
+				x: 0,
+				onComplete: ()=>{
+					scene.sound.play(key)
+				}
 			}
 		}
 		
@@ -1100,7 +1335,7 @@
 		if(goodAttack.value + goodAttackHolder.bonus > badDefend.value){
 			let p2a = fly(badDefend, -1)
 			let p2b = slide(goodAttack, 1)
-			p1.onComplete = add(p2a, p2b)
+			p1.onComplete = add(p2a, p2b, sfx('boom'))
 			
 			let p3a = sidewinderX(goodDamage)
 			p3a.onComplete = function(){
@@ -1108,13 +1343,13 @@
 				ship.hit(goodDamage.value + goodDamageHolder.bonus)
 			}
 			let p3b = sidewinderY(goodDamage)
-			p2a.onComplete = add(p3a, p3b)
+			p2a.onComplete = add(p3a, p3b, sfx('laser'), sfx('crash'))
 			p3 = p3b
 			
 		}else{
 			let p2a = bump(badDefend, -1)
 			let p2b = slide(goodAttack, 1)
-			p1.onComplete = add(p2a, p2b)
+			p1.onComplete = add(p2a, p2b, sfx('bump'))
 			
 			let p3a = fade(badDefend)
 			let p3b = fade(goodDamage)
@@ -1132,19 +1367,19 @@
 		if(badAttack.value > goodDefend.value + goodDefendHolder.bonus){
 			let p5a = fly(goodDefend, 1)
 			let p5b = slide(badAttack, -1)
-			p4b.onComplete = add(p5a, p5b)
+			p4b.onComplete = add(p5a, p5b, sfx('boom'))
 			
 			let p6a = blast(badDamage)
 			let p6b = scale(badDamage)
 			p6b.onComplete = function(){
 				player.hit(badDamage.value)
 			}
-			p5a.onComplete = add(p6a, p6b)
+			p5a.onComplete = add(p6a, p6b, sfx('laser'), sfx('crash'))
 			p6 = p6a
 		}else{
 			let p5a = bump(goodDefend, 1)
 			let p5b = slide(badAttack, -1)
-			p4b.onComplete = add(p5a, p5b)
+			p4b.onComplete = add(p5a, p5b, sfx('bump'))
 			
 			let p6a = fade(badAttack)
 			let p6b = fade(badDamage)
@@ -1164,6 +1399,7 @@
 	
 	BattleManager.prototype.next = function(){
 		let scene = this.scene 
+		scene.sound.play('laser')
 		play.player.dice = []
 		scene.ship.dice = [] 
 		scene.input.enabled = true 
@@ -1211,7 +1447,7 @@
 		this.scene.add.tween({
 			targets: this,
 			countdown2: 0,
-			duration: 1800,
+			duration: 3500,
 			onComplete: ()=>{
 				this.scene.scene.start('jump', {
 					message: 'Good Luck!'
@@ -1226,7 +1462,7 @@
 	function Power(scene, target, x, y, onDrop){
 		this.scene = scene 
 		
-		this.container = scene.add.container(x, y)
+		this.container = scene.add.container(x+300, y)
 		this.onDrop = onDrop 
 		
 		this.target = target
@@ -1243,15 +1479,17 @@
 		this.container.add(this.icon)
 		this.icon.tint = tints.lightPurple
 		this.icon.setScale(0.5)
+		
+		makeTip(this.pie, target.tip)
 
 		this.maskShape = scene.add.graphics({
-			x: this.container.x,
-			y: this.container.y
+			x: x,
+			y: y
 		})
 		
 		this.home = {
-			x: this.container.x,
-			y: this.container.y 
+			x: x,
+			y: y 
 		}
 		
 		this.mask = this.maskShape.createGeometryMask();
@@ -1288,16 +1526,16 @@
 			
 		})
 		
-		/*
+		//*
 		scene.add.tween({
 			targets: this.container,
 			x: x,
 			duration: 300,
-			delay: 1200,
+			delay: 300 + x,
 			ease: 'Expo.easeOut'
 			
 		})
-		*/
+		//*/
 	
 		this.refresh()
 		
@@ -1386,6 +1624,7 @@
 		this.rightBar.setOrigin(0.5)
 		this.rightBar.tint = dark
 		
+
 		
 		this.maskShape = scene.make.graphics({
 			x: this.container.x,
@@ -1420,8 +1659,22 @@
 		this.centerFrame.tint = dark
 		this.centerFrame.setScale(this.centerBar.scaleX, this.centerBar.scaleY)
 		
+		this.text = scene.add.text(this.leftFrame.x, this.leftFrame.y, 'BAR', {
+			fill: Phaser.Display.Color.ValueToColor(light).rgba,
+			fontFamily: 'LinLib',
+			fontSize: '16pt',
+			align: 'center'
+		})
+		this.container.add(this.text)
+		this.text.setOrigin(0.5)
+		let that = this 
+		this.text.on('destroy', ()=>{
+			that.text = undefined 
+		})
 		
 		this.container.alpha = 0
+		
+
 			
 		scene.add.tween({
 			targets: this.container,
@@ -1438,9 +1691,18 @@
 	
 	Bar.prototype.set = function(value){
 		
-		let x = this.container.x + value/this.max*(this.width - 28)
+		let x 
+		if(this.container){
+			x = this.container.x + value/this.max*(this.width - 28)
+		}
+		
+		if(this.text){
+			this.text.text = value + '/' + this.max
+		}
+		
 		
 		this.value = value 
+		
 		this.scene.add.tween({
 			targets: this.maskShape,
 			x: x,
@@ -1460,7 +1722,14 @@
 		
 		this.outline = scene.add.sprite(0, 0, 'icons', 7)
 		this.container.add(this.outline)
-		this.outline.tint = tints.darkOrange
+		
+		let tint
+		if(data.purple){
+			tint = tints.darkPurple
+		}else{
+			tint = tints.darkOrange
+		}
+		this.outline.tint = tint
 		
 		for(let i = 0; i < 3; i++){
 			for(let j = 0; j < 3; j ++){
@@ -1469,7 +1738,7 @@
 					let dot = scene.add.sprite((i-1)*d, (j-1)*d, 'icons', 2)
 					dot.setScale(0.5)
 					this.container.add(dot)
-					dot.tint = tints.darkOrange
+					dot.tint = tint
 				}
 				
 			}
@@ -1479,10 +1748,14 @@
 			
 		scene.add.tween({
 			targets: this.container,
-			alpha: 1,
+			alpha: data.alpha || 1,
 			delay: data.delay,
 			duration: data.duration
 		})
+	}
+	
+	Dicon.prototype.tint = function(tint){
+		this.container.iterate(d => d.tint = tint)
 	}
 	
 	
@@ -1491,19 +1764,20 @@
 		this.scene = scene 
 		this.diff = diff || 4
 		
-		this.hp = 1//2 + this.diff*2
+		this.hp = 2 + this.diff*2
 		
 		
 		let values = []
 		for(let i = 0; i < 6; i++){
-			values.push(Math.min(i+1, diff))
+			values.push(Math.min(9, Math.floor((diff+2)*i/10 + 1)))
 		}
 		
 		this.die = new Die(values)
 		
 		let cx = scene.cameras.main.centerX
 		let cy = scene.cameras.main.centerY
-		this.sprite = scene.add.sprite(2*cx, .25*cy, 'enemy')
+		let f = Math.floor(4*Math.random())
+		this.sprite = scene.add.sprite(2*cx, .25*cy, 'enemy', f)
 		this.sprite.setScale(0)
 		this.home = {
 			x: 1.325*cx,
@@ -1570,7 +1844,8 @@
 	}
 	
 	Ship.prototype.explode = function(){
-		console.log('boom!')
+		
+		this.scene.sound.play('explode')
 		this.scene.add.tween({
 			targets: this.sprite,
 			alpha: 0,
@@ -1635,6 +1910,12 @@
 		
 		this.bonus = 0
 		
+		this.flavor = 4+icon 
+		if(tint === tints.darkOrange){
+			this.flavor *= -1 
+		}
+		
+		
 		this.sprite = scene.add.sprite(0, 0, 'icons')
 		this.sprite.setFrame(4 + icon)
 		this.sprite.tint = tint 
@@ -1643,6 +1924,8 @@
 		this.frame = scene.add.sprite(0, 0, 'icons')
 		this.frame.tint = tint 
 		this.container.add(this.frame)
+		
+		
 		
 		this.zone = this.scene.add.zone(x, yf, this.sprite.width, this.sprite.height).setRectangleDropZone(this.sprite.width, this.sprite.height)
 		let that = this 
@@ -1669,6 +1952,11 @@
 		this.bonusFrame.setScale(0.35)
 		this.bonusFrame.tint = tints.lightPurple
 		
+		
+		
+		makeTip(this.frame, this.tip())
+		makeTip(this.zone, this.tip())
+		
 		this.bonusDots = []
 		for(let i = 0; i < 3; i++){
 			for(let j = 0; j < 3; j++){
@@ -1694,6 +1982,23 @@
 		})
 	}
 	
+	Holder.prototype.tip = function(){
+		let flavor = {
+			4: 'Attack',
+			5: 'Damage',
+			6: 'Defense',
+			8: 'Move',
+			9: 'Repair',
+			10: 'Reward'
+		}[Math.abs(this.flavor)]
+		
+		if(this.flavor < 0){
+			return 'Enemy ' + flavor 
+		}else{
+			return 'Drag and drop dice here to activate your ' + flavor
+		}
+	}
+	
 	Holder.prototype.refresh = function(){
 		if(this.bonus <= 0){
 			this.bonusFrame.alpha = 0
@@ -1711,11 +2016,13 @@
 	}
 	
 	Holder.prototype.lock = function(die){
-		if(!die){
-			throw "no dice!"
-		}
-		this.locked = true 
 		
+		this.locked = true 
+		if(this.flavor > 0){
+			this.scene.sound.play('holderDrop')
+		}else{
+			
+		}
 		this.die = die 
 		//this.container.alpha = 0.5
 		
@@ -1815,11 +2122,14 @@
 			delay: delay,
 			ease: 'Sine.easeIn',
 			duration: 600,
+			onComplete: ()=>{
+				this.scene.sound.play('laser')
+			}
 			
 		})
 	}
 	
-	BattleDie.prototype.to = function(x, y, delay){
+	BattleDie.prototype.to = function(x, y, delay, callback){
 		/*
 		this.container.x = x 
 		this.container.y = y 
@@ -1839,6 +2149,9 @@
 			duration: 600,
 			onComplete: ()=>{
 				this.reveal(300)
+				if(callback){
+					callback(this)
+				}
 			}
 		})
 		//*/
@@ -1858,7 +2171,13 @@
 					delay: delay,
 					alpha: 0,
 					
-					onStart: ()=> child.play(this.o + 'reveal'),
+					onStart: ()=> {
+						child.play(this.o + 'reveal')
+						
+					},
+					onComplete: ()=>{
+						this.scene.sound.play('drop')
+					},
 					duration: 200
 				})
 			}else{
@@ -1876,7 +2195,7 @@
 		
 	}
 	
-	BattleDie.prototype.reroll = function(roll){
+	BattleDie.prototype.reroll = function(roll, callback){
 		let value = roll.value 
 		this.n = value 
 		this.upgrades = roll.upgrades 
@@ -1888,7 +2207,7 @@
 		this.create(this.scene, value, this.isOrange)
 		this.container.y =  y0 + 200 
 		this.container.x = x0 
-		this.to(x0, y0, 0)
+		this.to(x0, y0, 0, callback)
 		
 		
 	}
@@ -1900,39 +2219,49 @@
 		this.die = new Die([1, 2, 3, 4, 5, 6])
 		this.die.parent = this 
 		this.xp = 0
-		this.hp = 20
-		this.maxHp = 20
-		this.money = 500
+		this.hp = 30
+		this.maxHp = 30
+		this.money = 0
 		this.dice = []
 		this.upgrades = []
 		
 		this.spy = {
-			value: 5,
+			value: 0,
 			max: 5,
-			icon: 12
+			icon: 12,
+			tip: "When charged, drag and drop this on enemy dice to see their value."
 		}
 		
 		this.reroll = {
-			value: 8,
-			max: 8,
-			icon: 13
+			value: 0,
+			max: 5,
+			icon: 13,
+			tip: "When charged, drag and drop this on your dice to reroll."
 		}
 		
 		//this.getUpgrade(new Upgrade(upgrades.money))
 		this.getUpgrade(new Upgrade(upgrades.repair))
+
+
 		//this.getUpgrade(new Upgrade(upgrades.money))
 	}
 	
 	Player.prototype.hit = function(dam){
 		this.hp -= dam 
+		if(this.hp < 0){
+			this.lose()
+		}
 		if(this.bar){
 			this.bar.set(this.hp)
 		}
 		this.scene.cameras.main.shake(100*dam, 0.02)
+		this.scene.sound.play('crash')
 	}
 	
 	Player.prototype.diceRepair = function(amount){
 		this.hp += amount 
+		this.scene.sound.play('good')
+		this.hp = Math.min(this.hp, this.maxHp)
 		if(this.bar){
 			this.bar.set(this.hp)
 		}
@@ -1985,6 +2314,7 @@
 		let h = this.container.h 
 		
 		return (() => {
+			scene.sound.play('money')
 			this.money += amount 
 			text.text = '$' + this.money
 			
@@ -2081,8 +2411,10 @@
 			ease: 'Quad.easeOut',
 			duration: 600,
 			onComplete: ()=>{
-				bar.set(this.hp + amount)
+				scene.sound.play('good')
 				this.hp += amount 
+				this.hp = Math.min(this.hp, this.maxHp)
+				bar.set(this.hp)
 				scene.add.tween({
 					targets: [bar.maskShape, bar.container],
 					y: 2*scene.cameras.main.centerY,
@@ -2103,6 +2435,13 @@
 		this.upgrades.push(upgrade)
 	}
 	
+	Player.prototype.lose = function(){
+		play.scene.launch('lose', {message: "Bad Luck!"})
+	}
+	
+	Player.prototype.win = function(){
+		play.scene.launch('lose', {message: "You Win!"})
+	}
 	
 	
 	function Die(values){
@@ -2148,6 +2487,15 @@
 	
 	
 	function View(scene){
+		console.log("Check out that view")
+		this.block = scene.add.sprite(0, 0, 'icons', 17)
+		this.block.setOrigin(0)
+		this.block.setScale(
+			2*scene.cameras.main.centerX/this.block.width,
+			2*scene.cameras.main.centerY/this.block.height
+		)
+		this.block.setInteractive()
+		
 		this.scene = scene 
 		this.front = scene.add.sprite(0, 0, 'front')
 		this.front.setOrigin(0)
@@ -2233,6 +2581,10 @@
 		
 		this.swipeRight = this.makeSwipe(1)
 		
+		this.hum = this.scene.sound.add('hum')
+		this.hum.setLoop(true)
+		this.hum.stop()
+		
 		
 		this.set('front')
 		
@@ -2260,6 +2612,10 @@
 			this.step(dir)
 		})
 		
+		swipe.disableInteractive()
+		
+	
+		
 		return swipe 
 	}
 	
@@ -2276,6 +2632,34 @@
 		this.dir = dir 
 		
 		this.die.alpha = +(dir === 'left')
+		if(dir === 'front'){
+			this.swipeLeft.setInteractive()
+			this.block.disableInteractive()
+		}else{
+			this.swipeLeft.disableInteractive()
+			this.block.setInteractive()
+		}
+		
+		if(dir === 'left'){
+			this.swipeRight.setInteractive()
+			this.scene.add.tween({
+				targets: this.hum,
+				volume: 1,
+				duration: 300,
+			})
+			this.hum.setVolume(0)
+			this.hum.play()
+		}else{
+			this.swipeRight.disableInteractive()
+			this.scene.add.tween({
+				targets: this.hum,
+				volume: 0,
+				duration: 300,
+				onComplete: ()=>{
+					this.hum.stop()
+				}
+			})
+		}
 	}
 	
 	View.prototype.step = function(s){
@@ -2288,12 +2672,34 @@
 		let start = this.dir 
 		let end = dir 
 		let animName = start + "-to-" + end 
-		console.log(animName)
+		//console.log(animName)
 		this.set('animation')
 		this.animation.play(animName)
 	}
 	
 	
+	
+	window.title = {
+		create: function(){
+			this.scene.moveAbove('play')
+			play.view.set('right')
+			
+			let cx = this.cameras.main.centerX + 25
+			let cy = this.cameras.main.centerY
+			
+			let playButton = new MenuButton(this, cx, 1.2*cy, 'Play Tutorial', (scene)=>{
+				scene.scene.start('tut')
+				play.view.goTo('front')
+			})
+
+			let skipButton = new MenuButton(this, cx, 1.4*cy, 'Skip Tutorial', (scene)=>{
+				scene.scene.start('jump', {message:'Good Luck!'})
+				play.view.goTo('front')
+			})
+
+			
+		}
+	}
 	
 	window.dieEdit = {
 		create: function(){
@@ -2336,8 +2742,8 @@
 			})
 			
 			play.player.upgrades.forEach((upgrade, i) => {
-				let x = cx + (i % 5)*100
-				let y = 0.25*cy + Math.floor(i/5)*100
+				let x = cx + (i % 4)*100
+				let y = 0.5*cy + Math.floor(i/4)*100
 				upgrade.show(this, x, y)
 				upgrade.draggable(this)
 			})
@@ -2371,14 +2777,102 @@
 	
 	window.play = {
 		create: function(){
+			
 			window.play = this 
 			
 			this.view = new View(this)
 			this.player = new Player(this)
 			
-			this.scene.launch('jump')
+			this.scene.launch('title', {
+				diff: 1
+			})
 			
 			this.map = new Map()
+		}
+	}
+	
+
+	
+	window.lose = {
+		init: function(data){
+			
+			this.message = data.message || 'Bad Luck!'
+		},
+		create: function(){
+			let cx = this.cameras.main.centerX 
+			let cy = this.cameras.main.centerY
+			let chars = []
+			let cumWidths = [0]
+			
+			let scenes = [
+				'luck', 
+				'tut', 
+				//'title', 
+				'jump', 
+				'battle', 
+				'store', 
+				'dieEdit'
+			]
+			scenes.forEach(s => this.scene.stop(s))
+		
+			
+			this.sound.play('explode')
+			
+			this.message.split('').forEach(c => {
+				let t = this.add.text(300, -100, c, {
+		
+					fill: 'white',
+					fontFamily: 'LinLib',
+					fontSize: '64pt',
+					align: 'center'
+				
+				})
+				chars.push(t)
+				
+			
+				cumWidths.push(cumWidths[cumWidths.length-1] + t.width)
+			
+				
+			})
+			
+			
+			
+			let x0 = cx - cumWidths[cumWidths.length - 1]/2
+			chars.forEach((c, i) => {
+				c.x = x0 + cumWidths[i]
+				
+				this.add.tween({
+					targets: c,
+					y: 200,
+					ease: 'Bounce.easeOut',
+					delay: 50*i,
+					duration: 800,
+					onComplete: ()=>{
+						this.add.tween({
+							targets: c,
+							delay: 600,
+							duration: 300,
+							alpha: 0
+						})
+					}
+				})
+			})
+			
+			let that = this 
+			let done = new Done(this, this.cameras.main.centerX, this.cameras.main.centerY, 'Menu', ()=>{
+				that.scene.start('title')
+			})
+			
+			done.container.alpha = 0 
+			this.add.tween({
+				targets: done.container,
+				alpha: 1,
+				duration: 300,
+				delay: 3000
+			})
+			
+			
+			
 		}
 	}
 	
@@ -2410,11 +2904,14 @@
 	}
 			
 	window.battle = {
+		init: function(data){
+			this.diff = data.diff 
+		},
 		create: function(){
 			
 			
 		
-			this.ship = new Ship(this, 2)
+			this.ship = new Ship(this, this.diff)
 			let width = 2*this.cameras.main.centerX
 			let height = 2*this.cameras.main.centerY 
 			
@@ -2502,7 +2999,7 @@
 			this.message = data.message || 'VICTORY!'
 		},
 		create: function(){
-			if(true || play.stillTutting){
+			if(play.stillTutting){
 				this.scene.launch('tut', {index:21})
 			}
 			let cx = this.cameras.main.centerX 
@@ -2594,6 +3091,59 @@
 			this.manager = new StoreManager()
 			
 			this.manager.draw(this)
+		}
+	}
+
+	window.luck = {
+		create: function(){
+			let cx = this.cameras.main.centerX
+			let cy = this.cameras.main.centerY
+			
+			let text = this.add.text(cx, 0.85*cy, [
+				"Want to satisfy your gambling vice?",
+				"Then step right up, get something nice!",
+				"All you do is roll your dice,",
+				"But lose it all if you make the same roll twice!"
+			].join('\n'), {
+				fill: 'white',
+				fontFamily: 'LinLib',
+				fontSize: '20pt',
+				align: 'center'
+			})
+			
+			text.setOrigin(0.5)
+			
+			this.manager = new LuckManager(this)
+			
+			this.die = new BattleDie(this, play.player.die.roll(), false)
+			this.die.container.x = cx
+			this.die.container.y = 700 
+				
+			let dx = 0.2
+			let that = this 
+			this.buttonY = 1.25*cy
+			this.first = true 
+			this.rollButton = new Done(this, (1 - dx)*cx, this.buttonY, 'Roll', ()=>{
+				
+				this.rollButton.container.y = 1000
+				this.doneButton.container.y = 1000 
+				if(this.first){
+					this.first = false 
+					this.die.to(cx, 350, 0, (die)=>{
+						this.manager.add(this.die)
+						
+					})
+				}else{
+					this.die.reroll(play.player.die.roll(), (die)=>{
+						this.manager.add(this.die)
+						
+					})
+				}
+			})
+			this.doneButton = new Done(this, (1 + dx)*cx, this.buttonY, 'Leave', ()=>this.scene.start('jump', {message: "Good Luck!"}))
+			
+			
+			
 		}
 	}
 

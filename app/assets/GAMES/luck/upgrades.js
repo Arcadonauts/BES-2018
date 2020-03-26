@@ -90,7 +90,7 @@ window.upgrades = {
 	},
 	defend : {
 		label: "Add 1 to your total defense",
-		icon: 9,
+		icon: 6,
 		active: true,
 		cost: 500,
 		action: (n, play, scene, source) => {
