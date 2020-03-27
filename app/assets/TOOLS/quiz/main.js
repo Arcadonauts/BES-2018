@@ -168,7 +168,7 @@ let quizzes = [
 					b : d,
 					axis : 'y',
 					form : 'f(x) = ' + a + '(' + b + '+x^2)^3',
-					answer: (a*Math.PI/4)*(Math.pow(b+d*d, 4) - Math.pow(b+c*c)^4)
+					answer: (a*Math.PI/4)*(Math.pow(b+d*d, 4) - Math.pow(b+c*c, 4))
 				}
 			},
 			q2: function(a, b){
