@@ -116,6 +116,99 @@ let quizzes = [
 		}
 	},
 	{
+		key: 'd2',
+		name: 'Derivatives Quiz 2',
+		problems: function(){
+			let get_poly = ()=>{
+			
+				let a = random.range(-5, 5)
+				let b = random.range(-5, 5)
+				let n = random.range(2, 5)
+				let m = random.range(2, 5)
+				while(a === 0 || a === 1){
+					a = random.range(-5, 5)
+				}
+				while(b === 0 || b === 1){
+					b = random.range(-5, 5)
+				}
+				while(n === m){
+					m = random.range(2, 5)
+				}
+				
+				return this.funcs.poly(a, n, b, m)
+			}
+			
+			function poly_prob(f){
+				let func = get_poly()
+				
+				let probs = []
+				for(let i = 0; i < 4; i++){
+					probs.push({
+						answer: func.fp(i),
+						formula: '\\[ \\ \\ '+f+'(x)=' + func.formula + '\\ \\ \\]',
+						instruction: "Find \\("+f+"'(" + i + ")\\) given: "
+					})
+				}
+				
+				return probs 
+			}
+			
+			function prod_prob(f){
+				let u = get_poly()
+				let v = get_poly()
+				
+				let probs = []
+				for(let i = 0; i < 4; i++){
+					probs.push({
+						answer: u.fp(i)*v.f(i) + u.f(i)*v.fp(i),
+						formula: '\\[ \\ \\ '+f+'(x)=(' + u.formula + ')(' + v.formula + ')\\ \\ \\]',
+						instruction: "Find \\("+f+"'(" + i + ")\\) given: "
+					})
+				}
+				
+				return probs 
+			}
+			
+			function quot_prob(f){
+				let formula = '\\frac{\\sqrt{x}}{x^2 + 1}'
+				let fp = (x) => ((x*x+1)/(2*Math.sqrt(x)) - Math.sqrt(x)*(2*x))/((x*x+1)*(x*x+1))
+				
+				let probs = []
+				for(let i = 0; i < 4; i++){
+					probs.push({
+						answer: fp(i),
+						formula: '\\[ \\ \\ '+f+'(x)=' + formula + '\\ \\ \\]',
+						instruction: "Find \\("+f+"'(" + i + ")\\) given: "
+					})
+				}
+				
+				return probs 
+			}
+			
+			
+			return ([]
+					.concat(poly_prob('f'))
+					.concat(poly_prob('g'))
+					.concat(prod_prob('h'))
+					.concat(quot_prob('q'))
+					)
+			
+			
+		},
+		funcs: {
+			poly: (a, n, b, m)=>{
+				function sign(x){
+					return x < 0 ? '- ' : '+ '
+				}
+				return {
+					formula: a + 'x^' + n + sign(b) + Math.abs(b) + 'x^' + m,
+					f : x => a*Math.pow(x, n) + b*Math.pow(x, m),
+					fp: x => n*a*Math.pow(x, n-1) + m*b*Math.pow(x, m-1)
+				}
+			}
+		}
+	},
+	{
 		key: 'vol',
 		name: 'Volume',
 		problems: function(){
